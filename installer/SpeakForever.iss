@@ -85,6 +85,8 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 [Run]
 Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing the Microsoft Visual C++ runtime..."; Verb: runas; Flags: shellexec waituntilterminated; Check: VCRedistNeeded
 Filename: "{app}\SpeakForever.exe"; Description: "Launch Speak Forever"; Flags: nowait postinstall skipifsilent
+; The app updating itself runs this silently with /RELAUNCH=1, and expects to be opened again.
+Filename: "{app}\SpeakForever.exe"; Flags: nowait; Check: RelaunchRequested
 
 [UninstallRun]
 Filename: "{sys}\taskkill.exe"; Parameters: "/IM SpeakForever.exe /F"; Flags: runhidden; RunOnceId: "StopApp"
@@ -103,6 +105,11 @@ begin
     and RegQueryDWordValue(HKLM64, VCRuntimeKey, 'Major', Major)
     and RegQueryDWordValue(HKLM64, VCRuntimeKey, 'Minor', Minor)
     and ((Major > 14) or ((Major = 14) and (Minor >= 44))));
+end;
+
+function RelaunchRequested: Boolean;
+begin
+  Result := ExpandConstant('{param:relaunch|0}') = '1';
 end;
 
 { Downloaded models can be several GB, so offer to remove them along with the settings. }

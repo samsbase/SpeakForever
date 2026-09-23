@@ -1,8 +1,11 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SpeakForever.Configuration;
+using SpeakForever.Net;
 
 namespace SpeakForever.Updates;
 
@@ -38,6 +41,12 @@ public sealed class UpdateChecker
     /// <summary>The GitHub page listing every release.</summary>
     public static string ReleasesUrl => $"https://github.com/{Repository}/releases";
 
+    /// <summary>
+    /// True when this copy was put here by the installer (its uninstaller is beside it), so a new
+    /// installer can update it in place; a build run from anywhere else only links to the release.
+    /// </summary>
+    public static bool CanInstallHere { get; } = File.Exists(Path.Combine(AppContext.BaseDirectory, "unins000.exe"));
+
     /// <summary>The newer release, or null if this is the latest (or nothing is published yet).</summary>
     /// <exception cref="HttpRequestException">GitHub couldn't be reached, or refused.</exception>
     public async Task<UpdateInfo?> CheckAsync(CancellationToken ct = default)
@@ -71,15 +80,65 @@ public sealed class UpdateChecker
 
     /// <summary>
     /// The release, if it's a published (not draft or pre-release) version newer than
-    /// <paramref name="current"/>, whose page is on GitHub: the app opens that link in the browser.
+    /// <paramref name="current"/>, whose page is on GitHub. Its installer comes along if it was
+    /// uploaded to this repository's release with a SHA-256, so the app can check what it runs.
     /// </summary>
-    internal static UpdateInfo? NewerThan(Release? release, Version current) =>
-        release is { Draft: false, Prerelease: false }
-        && release.HtmlUrl.StartsWith("https://github.com/", StringComparison.OrdinalIgnoreCase)
-        && Version.TryParse(release.TagName.TrimStart('v', 'V'), out var version)
-        && Normalise(version) > Normalise(current)
-            ? new UpdateInfo(Normalise(version), release.HtmlUrl)
-            : null;
+    internal static UpdateInfo? NewerThan(Release? release, Version current)
+    {
+        if (release is not { Draft: false, Prerelease: false }
+            || !release.HtmlUrl.StartsWith("https://github.com/", StringComparison.OrdinalIgnoreCase)
+            || !Version.TryParse(release.TagName.TrimStart('v', 'V'), out var parsed)
+            || Normalise(parsed) <= Normalise(current))
+            return null;
+        var version = Normalise(parsed);
+        var installer = release.Assets?.FirstOrDefault(a =>
+            a.Name.Equals($"SpeakForever-Setup-{version.ToString(3)}.exe", StringComparison.OrdinalIgnoreCase)
+            && a.Url.StartsWith($"https://github.com/{Repository}/releases/download/", StringComparison.OrdinalIgnoreCase)
+            && a.Size > 0
+            && a.Digest?.StartsWith("sha256:", StringComparison.Ordinal) == true);
+        return new UpdateInfo(version, release.HtmlUrl, installer is null ? null : new(installer.Url, installer.Size, installer.Digest!["sha256:".Length..]));
+    }
+
+    /// <summary>Downloads the update's installer, checking its SHA-256, and returns where it is.</summary>
+    /// <exception cref="InvalidDataException">It didn't match its published checksum.</exception>
+    /// <exception cref="TimeoutException">The download stalled.</exception>
+    public static async Task<string> DownloadInstallerAsync(UpdateInfo update, IProgress<double> progress, CancellationToken ct)
+    {
+        var installer = update.Installer ?? throw new InvalidOperationException("This release has no installer the app can run.");
+        DeleteDownloads();
+        Directory.CreateDirectory(AppPaths.Updates);
+        var path = Path.Combine(AppPaths.Updates, $"SpeakForever-Setup-{update.Version.ToString(3)}.exe");
+        await FileDownload.ToFileAsync(Http, installer.Url, path, installer.Bytes, installer.Sha256,
+                                       $"Speak Forever {update.Version.ToString(3)}", progress, ct).ConfigureAwait(false);
+        return path;
+    }
+
+    /// <summary>
+    /// Runs a downloaded installer over this copy, showing only its progress. The app should close
+    /// straight after: the installer closes it if it's still running, and opens the new version when done.
+    /// </summary>
+    public static void StartInstaller(string path)
+    {
+        // No trailing backslash: before a closing quote it would escape it.
+        var folder = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
+        using var _ = Process.Start(new ProcessStartInfo(path)
+        {
+            ArgumentList = { "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/RELAUNCH=1", $"/DIR={folder}" },
+        });
+    }
+
+    /// <summary>Removes installers downloaded earlier, which have done their job.</summary>
+    public static void DeleteDownloads()
+    {
+        try
+        {
+            if (Directory.Exists(AppPaths.Updates)) Directory.Delete(AppPaths.Updates, recursive: true);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // Still in use by the installer that just ran; next time.
+        }
+    }
 
     // "1.2" and "1.2.0.0" both become 1.2.0, so they compare equal.
     static Version Normalise(Version v) => new(v.Major, v.Minor, Math.Max(0, v.Build));
@@ -89,5 +148,13 @@ public sealed class UpdateChecker
         [property: JsonPropertyName("tag_name")] string TagName,
         [property: JsonPropertyName("html_url")] string HtmlUrl,
         bool Draft,
-        bool Prerelease);
+        bool Prerelease,
+        IReadOnlyList<Asset>? Assets = null);
+
+    /// <summary>A file attached to a release. GitHub's digest is "sha256:" and the hex hash.</summary>
+    internal sealed record Asset(
+        string Name,
+        [property: JsonPropertyName("browser_download_url")] string Url,
+        long Size,
+        string? Digest);
 }

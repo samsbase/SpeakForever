@@ -12,6 +12,8 @@ public static class AppPaths
     public static string Config { get; } = Path.Combine(Root, "speakforever.json");
     public static string Models { get; } = Path.Combine(Root, "models");
     public static string Benchmark { get; } = Path.Combine(Root, "benchmark");
+    /// <summary>Where a downloaded installer waits to be run; cleared at the next launch.</summary>
+    public static string Updates { get; } = Path.Combine(Root, "updates");
 
     /// <summary>The app's earlier names (newest first) and what each called its settings file.</summary>
     static readonly (string Folder, string ConfigFile)[] OldNames =

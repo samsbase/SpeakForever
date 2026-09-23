@@ -30,10 +30,15 @@ public sealed partial class Notice : UserControl
         set => BodyText.Text = value;
     }
 
+    /// <summary>The button's text; empty hides the button.</summary>
     public string ActionLabel
     {
         get => ActionButton.Content as string ?? "";
-        set => ActionButton.Content = value;
+        set
+        {
+            ActionButton.Content = value;
+            ActionButton.Visibility = value.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 
     /// <summary>Shows the notice with this content, or with null hides it.</summary>
