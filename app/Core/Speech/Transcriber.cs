@@ -74,13 +74,13 @@ public sealed partial class Transcriber : IAsyncDisposable
         }
     }
 
-    /// <summary>"Vulkan · NVIDIA GeForce RTX 5070 Ti", or "Cpu".</summary>
+    /// <summary>"NVIDIA GeForce RTX 5070 Ti (Vulkan)", or "the processor".</summary>
     public static string RuntimeInfo
     {
         get
         {
             var library = RuntimeOptions.LoadedLibrary?.ToString() ?? "?";
-            return library != "Cpu" && gpuName is not null ? $"{library} · {gpuName}" : library;
+            return library == "Cpu" ? "the processor" : gpuName is not null ? $"{gpuName} ({library})" : library;
         }
     }
 
@@ -121,7 +121,7 @@ public sealed partial class Transcriber : IAsyncDisposable
 
         int cut = text.LastIndexOf(' ', MaxChatLength);
         var kept = text[..(cut > 0 ? cut : MaxChatLength)];
-        Log.Warn($"That was {text.Length} characters; WoW's chat box holds {MaxChatLength}. Dropped: \"{text[kept.Length..].Trim()}\"");
+        Log.Warn($"That was {text.Length} characters, but WoW's chat box holds {MaxChatLength}. Left out: \"{text[kept.Length..].Trim()}\"");
         return kept;
     }
 

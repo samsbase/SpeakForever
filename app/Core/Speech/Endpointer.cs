@@ -27,7 +27,7 @@ public sealed class Endpointer(Config cfg)
     public int LastSpeechSample => (lastLoudFrame + 1) * FrameSamples;
     public bool HeardSpeech => speechStartFrame >= 0;
     public string EndedBy { get; set; } = "?";
-    public string Levels => $"Room {noiseDb:F0} dBFS; speech counts above {Threshold:F0} dBFS; loudest {loudestDb:F0} dBFS.";
+    public string Levels => $"Levels: background {noiseDb:F0} dB, speech above {Threshold:F0} dB, loudest {loudestDb:F0} dB.";
 
     double Threshold => Math.Max(noiseDb + cfg.SpeechThresholdDb, FloorDb);
 
@@ -76,8 +76,8 @@ public sealed class Endpointer(Config cfg)
         }
 
         int quietMs = (n - 1 - lastLoudFrame) * FrameMs;
-        if (quietMs >= cfg.SilenceMs) EndedBy = $"a {cfg.SilenceMs / 1000.0:F1}s pause";
-        else if (n * FrameMs >= cfg.MaxSeconds * 1000) EndedBy = $"the {cfg.MaxSeconds}s limit";
+        if (quietMs >= cfg.SilenceMs) EndedBy = $"after a {cfg.SilenceMs / 1000.0:F1} s pause";
+        else if (n * FrameMs >= cfg.MaxSeconds * 1000) EndedBy = $"at the {cfg.MaxSeconds} s limit";
         else return null;
         return true;
     }

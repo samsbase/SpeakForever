@@ -48,7 +48,7 @@ WizardSmallImageFile=art\wizard-small-100.png,art\wizard-small-125.png,art\wizar
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-WelcomeLabel2=This will install [name/ver] on your computer.%n%nChat in World of Warcraft: Forever by voice. Open chat, press a button on your controller (or a keyboard shortcut), speak, and your words appear in the chat box.%n%nSpeech is recognised on your own PC; nothing is sent anywhere. After installing, the app offers to download a speech model (Turbo, 574 MB, is recommended).
+WelcomeLabel2=This will install [name/ver] on your computer.%n%nChat in World of Warcraft: Forever with your voice. Open chat, press a button on your controller or a keyboard shortcut, and speak: your words appear in the chat box.%n%nSpeech is recognised on your own PC, and nothing you say is sent anywhere. After installing, download a speech model in the app. Turbo (574 MB) is recommended.
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; Flags: unchecked
@@ -70,8 +70,8 @@ Type: files; Name: "{autodesktop}\Voice Forever.lnk"
 ; pin. Its AppUserModelID matches the one the app sets on itself, so the running window groups
 ; under a pinned icon instead of appearing beside it.
 [Icons]
-Name: "{autoprograms}\{#AppName}"; Filename: "{app}\SpeakForever.exe"; AppUserModelID: "{#AppUserModelId}"; Comment: "Chat in World of Warcraft: Forever by voice"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\SpeakForever.exe"; AppUserModelID: "{#AppUserModelId}"; Comment: "Chat in World of Warcraft: Forever by voice"; Tasks: desktopicon
+Name: "{autoprograms}\{#AppName}"; Filename: "{app}\SpeakForever.exe"; AppUserModelID: "{#AppUserModelId}"; Comment: "Chat in World of Warcraft: Forever with your voice"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\SpeakForever.exe"; AppUserModelID: "{#AppUserModelId}"; Comment: "Chat in World of Warcraft: Forever with your voice"; Tasks: desktopicon
 
 [Registry]
 ; Upgrading from Voice Forever: its App Paths entry and sign-in startup value.

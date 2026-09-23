@@ -88,7 +88,7 @@ public sealed class EndpointerTests
         var r = Run(new Config(), Tone(1.5, 0.1), Quiet(0.3), Tone(1.5, 0.1));
         Assert.True(r.Result);
         Assert.True(r.SpeechStart < 0.05);
-        Assert.StartsWith("Room -6", r.Levels, StringComparison.Ordinal); // the real background, not the voice
+        Assert.StartsWith("Levels: background -6", r.Levels, StringComparison.Ordinal); // the real background, not the voice
     }
 
     [Fact]

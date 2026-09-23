@@ -66,7 +66,7 @@ public sealed class Engine : IAsyncDisposable
     public bool IsLoadingModel => LoadingModel is not null;
     public string? LoadingModel { get; private set; }
     public string? LoadedModel { get; private set; }
-    public string ModelStatus { get; private set; } = "No model loaded";
+    public string ModelStatus { get; private set; } = "No speech model loaded";
 
     /// <summary>The model last used, if its file was deleted since; set by <see cref="StartingModel"/>.</summary>
     public string? RemovedModel { get; private set; }
@@ -120,7 +120,7 @@ public sealed class Engine : IAsyncDisposable
             : await Task.Run(GameInstall.Detect, ct).ConfigureAwait(false);
         GameFound = found is not null;
         if (found is null)
-            Log.Warn(saved.Length > 0 ? $"WoW: Forever is no longer in {saved}. Choose where it is on the Settings tab." : "Couldn't find WoW: Forever. Choose where it's installed on the Settings tab.");
+            Log.Warn(saved.Length > 0 ? $"WoW: Forever is no longer in {saved}. Show Speak Forever where it is on the Settings tab." : "Couldn't find WoW: Forever. Show Speak Forever where it's installed on the Settings tab.");
         else if (!string.Equals(found, saved, StringComparison.OrdinalIgnoreCase))
         {
             await UpdateConfigAsync(c => c with { GameFolder = found }, ct).ConfigureAwait(false);
@@ -134,7 +134,7 @@ public sealed class Engine : IAsyncDisposable
     public async Task<string?> SetGameFolderAsync(string path, CancellationToken ct = default)
     {
         var folder = await Task.Run(() => GameInstall.Resolve(path), ct).ConfigureAwait(false);
-        if (folder is null) return $"There's no WoW: Forever in {path}. Choose the folder with WowB.exe in it (in the beta, World of Warcraft\\_classic_beta_).";
+        if (folder is null) return $"WoW: Forever isn't in {path}. Choose the folder with WowB.exe in it; for the beta, that's World of Warcraft\\_classic_beta_.";
         await UpdateConfigAsync(c => c with { GameFolder = folder }, ct).ConfigureAwait(false);
         GameFound = true;
         Log.Info($"WoW: Forever is in {folder}.");
@@ -152,7 +152,7 @@ public sealed class Engine : IAsyncDisposable
     public async Task<Chord?> CaptureChordAsync(TimeSpan timeout, CancellationToken ct = default)
     {
         if (!IsRunning) throw new InvalidOperationException("Set Speak Forever to Active first.");
-        session.ChatClosing("Rebinding");
+        session.ChatClosing("Changing buttons");
         chat.Close();
         var done = recorded = new TaskCompletionSource<Chord>(TaskCreationOptions.RunContinuationsAsynchronously);
         recorder = new ChordRecorder();
@@ -200,7 +200,7 @@ public sealed class Engine : IAsyncDisposable
     public async Task<string?> SetKeyboardShortcutAsync(Shortcut? shortcut, CancellationToken ct = default)
     {
         if (shortcut is { } s && s.Modifiers == 0 && !s.IsFunctionKey)
-            return $"{s} on its own would take that key from every program. Add Ctrl, Alt or Shift, or use an F key.";
+            return $"{s} on its own would stop that key working in every program. Add Ctrl, Alt or Shift, or use an F key.";
         var text = shortcut?.ToString();
         hotkey.Unregister();
         if (IsRunning)
@@ -260,8 +260,8 @@ public sealed class Engine : IAsyncDisposable
         {
             RemovedModel = ModelCatalog.DisplayName(saved);
             Log.Warn(fallback is null
-                ? $"{RemovedModel} is no longer in the models folder. Download a speech model to dictate."
-                : $"{RemovedModel} is no longer in the models folder, so using {ModelCatalog.DisplayName(fallback)} instead.");
+                ? $"{RemovedModel} is missing from the models folder. Download a speech model to dictate."
+                : $"{RemovedModel} is missing from the models folder, so Speak Forever is using {ModelCatalog.DisplayName(fallback)} instead.");
         }
         return fallback;
     }
@@ -271,7 +271,7 @@ public sealed class Engine : IAsyncDisposable
     {
         var name = ModelCatalog.DisplayName(path);
         LoadingModel = path;
-        ModelStatus = $"Loading {name}...";
+        ModelStatus = $"Loading {name}…";
         Changed();
         try
         {
@@ -279,7 +279,7 @@ public sealed class Engine : IAsyncDisposable
             var loaded = await Transcriber.LoadAsync(config, path, ct).ConfigureAwait(false);
             var old = Interlocked.Exchange(ref transcriber, loaded);
             LoadedModel = path;
-            ModelStatus = $"{name} ready in {Stopwatch.GetElapsedTime(started).TotalSeconds:F1}s on {Transcriber.RuntimeInfo}";
+            ModelStatus = $"{name} is ready, running on {Transcriber.RuntimeInfo}. Loaded in {Stopwatch.GetElapsedTime(started).TotalSeconds:F1} s.";
             Log.Info(ModelStatus);
             if (config.ModelPath != path) await UpdateConfigAsync(c => c with { ModelPath = path }, ct).ConfigureAwait(false);
             if (old is not null) await old.DisposeAsync().ConfigureAwait(false);
@@ -353,7 +353,7 @@ public sealed class Engine : IAsyncDisposable
         if (IsRunning) return true;
         if (!probe && !TryTakeControllerLock())
         {
-            StartError = "Another Speak Forever window or CLI is already watching the controller. Close it first, or both would type.";
+            StartError = "Another copy of Speak Forever is already running. Close it first, or both would type into the game.";
             Log.Warn(StartError);
             Changed();
             return false;
@@ -419,7 +419,7 @@ public sealed class Engine : IAsyncDisposable
             PadState? read = controllerSlot >= 0 ? Gamepad.Read(controllerSlot) : null;
             if (controllerSlot >= 0 && read is null)
             {
-                Log.Warn($"Controller on slot {controllerSlot} disconnected.");
+                Log.Warn("Controller disconnected.");
                 controllerSlot = -1;
                 Changed();
             }
@@ -429,7 +429,7 @@ public sealed class Engine : IAsyncDisposable
                 controllerSlot = Gamepad.FindSlot(config.ControllerSlot);
                 if (controllerSlot >= 0)
                 {
-                    Log.Info($"Controller connected on slot {controllerSlot}.");
+                    Log.Info("Controller connected.");
                     read = Gamepad.Read(controllerSlot);
                     Changed();
                 }

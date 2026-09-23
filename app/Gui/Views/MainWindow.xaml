@@ -211,7 +211,7 @@
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="Open chat (controller)" />
                                 <TextBlock Style="{StaticResource Caption}"
-                                           Text="The combo WoW uses to open chat. If you rebind it in game, set it here to match. Opening Chat from the radial menu works too." />
+                                           Text="The buttons WoW: Forever uses to open chat. If you change them in the game, change them here too. Picking Chat from the radial menu also works." />
                             </StackPanel>
                             <Border Grid.Column="1" Style="{StaticResource Keycap}">
                                 <TextBlock x:Name="OpenChatText" Style="{StaticResource KeycapText}" />
@@ -220,7 +220,7 @@
 
                             <StackPanel Grid.Row="1" VerticalAlignment="Center">
                                 <TextBlock Text="Dictate (controller)" />
-                                <TextBlock Style="{StaticResource Caption}" Text="Press while chat is open, then speak." />
+                                <TextBlock Style="{StaticResource Caption}" Text="With chat open, press this and speak." />
                             </StackPanel>
                             <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Keycap}">
                                 <TextBlock x:Name="DictateText" Style="{StaticResource KeycapText}" />
@@ -230,7 +230,7 @@
                             <StackPanel Grid.Row="2" VerticalAlignment="Center">
                                 <TextBlock Text="Dictate (keyboard)" />
                                 <TextBlock x:Name="KeyboardCaption" Style="{StaticResource Caption}"
-                                           Text="Optional. Dictates into whatever text box has focus, in any program, like Win+H. Press it again to finish early." />
+                                           Text="Optional. Types into whichever text box you're in, in any program, like Windows+H. Press it again to finish early." />
                             </StackPanel>
                             <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource Keycap}">
                                 <TextBlock x:Name="KeyboardText" Style="{StaticResource KeycapText}" />
@@ -252,7 +252,7 @@
                         <StackPanel Spacing="8">
                             <TextBlock Text="WoW: Forever" Style="{StaticResource FrameHeader}" />
                             <TextBlock Style="{StaticResource Caption}" TextWrapping="Wrap"
-                                       Text="Speak Forever only ever types into the game, so it needs to know where the game is installed. It looks where Battle.net installs WoW when it first runs." />
+                                       Text="Speak Forever only types into WoW: Forever, so it needs to know where the game is installed. On first run, it looks where Battle.net usually puts it." />
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -286,8 +286,8 @@
                                     <Button x:Name="CheckUpdatesButton" Content="Check for updates" Style="{StaticResource PanelButton}" Click="CheckUpdatesButton_Click" />
                                 </StackPanel>
                             </Grid>
-                            <ToggleSwitch x:Name="AutoUpdateSwitch" OnContent="Check automatically, at launch and every 6 hours"
-                                          OffContent="Check automatically, at launch and every 6 hours" Toggled="AutoUpdateSwitch_Toggled" />
+                            <ToggleSwitch x:Name="AutoUpdateSwitch" OnContent="Check for updates at launch and every 6 hours"
+                                          OffContent="Check for updates at launch and every 6 hours" Toggled="AutoUpdateSwitch_Toggled" />
                         </StackPanel>
                     </ContentControl>
                 </StackPanel>

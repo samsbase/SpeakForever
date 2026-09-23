@@ -18,8 +18,8 @@ public partial class App : Application
     {
         SetCurrentProcessExplicitAppUserModelID(AppUserModelId);
         InitializeComponent();
-        UnhandledException += (_, e) => Log.Warn($"Unhandled: {e.Exception}");
-        TaskScheduler.UnobservedTaskException += (_, e) => Log.Warn($"Unobserved task error: {e.Exception.GetBaseException().Message}");
+        UnhandledException += (_, e) => Log.Warn($"Unexpected error: {e.Exception}");
+        TaskScheduler.UnobservedTaskException += (_, e) => Log.Warn($"Unexpected background error: {e.Exception.GetBaseException().Message}");
     }
 
     /// <summary>Loads the settings, builds the engine, and hands both to the window.</summary>
@@ -35,7 +35,7 @@ public partial class App : Application
         }
         catch (Exception e) when (e is JsonException or FormatException or IOException or UnauthorizedAccessException)
         {
-            configError = $"Config error in {AppPaths.Config}: {e.Message}";
+            configError = $"Couldn't read the settings in {AppPaths.Config}: {e.Message}";
             Log.Warn(configError);
         }
         window = new MainWindow(engine, configError);

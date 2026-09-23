@@ -24,7 +24,7 @@ public static partial class Native
             seq[i * 2 + 1] = Char(text[i], up: true);
         }
         uint sent = SendInput((uint)seq.Length, seq, Marshal.SizeOf<Input>());
-        return sent == seq.Length ? null : $"SendInput sent {sent}/{seq.Length} events (Win32 error {Marshal.GetLastPInvokeError()})";
+        return sent == seq.Length ? null : $"Couldn't type the text: Windows accepted {sent} of {seq.Length} key presses (error {Marshal.GetLastPInvokeError()}). If the game runs as administrator, run Speak Forever as administrator too.";
     }
 
     static Input Char(char c, bool up) => new()

@@ -38,7 +38,7 @@ public static class Log
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            Warn($"Not logging to {path}: {e.Message}");
+            Warn($"Couldn't write the log file {path}: {e.Message}");
             return;
         }
         fileWriter = Task.Run(() => WriteFileAsync(file));

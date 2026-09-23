@@ -25,7 +25,7 @@ public sealed partial class MainWindow
     void LoadStartingModel()
     {
         if (engine!.StartingModel() is { } path) _ = engine.LoadModelAsync(path); // logs its own failures
-        else if (engine.RemovedModel is null) Log.Info("No speech model yet. Download one on the Speech model tab; Turbo is recommended.");
+        else if (engine.RemovedModel is null) Log.Info("No speech model yet. Download one on the Speech model tab (Turbo is recommended).");
     }
 
     void UpdateSpeechModelTab()
@@ -43,7 +43,7 @@ public sealed partial class MainWindow
         if (engine is null) return;
         shownModels = (engine.LoadedModel, engine.LoadingModel, engine.ModelStatus, testingMic);
         bool noModel = engine.LoadedModel is null && !engine.IsLoadingModel;
-        ModelStatusText.Text = noModel ? "No model in use yet. Download one below: Turbo is recommended." : engine.ModelStatus;
+        ModelStatusText.Text = noModel ? "No speech model yet. Download one below; Turbo is recommended." : engine.ModelStatus;
 
         var installed = ModelCatalog.Installed();
         ShowModelNotice(noModel, installed.Count > 0);
@@ -82,14 +82,14 @@ public sealed partial class MainWindow
             return;
         }
         if (downloads.Count > 0)
-            ModelNotice.Show("Downloading a speech model", "Dictation starts working as soon as it finishes. Progress is on the Speech model tab.", "Show progress");
+            ModelNotice.Show("Downloading a speech model", "You can dictate as soon as it finishes. Progress is on the Speech model tab.", "Show progress");
         else if (installed)
-            ModelNotice.Show("Speech model not loaded", $"{engine!.ModelStatus}. Pick another on the Speech model tab.", "Choose a model");
+            ModelNotice.Show("Your speech model didn't load", $"{engine!.ModelStatus.TrimEnd('.')}. Try another on the Speech model tab.", "Choose a model");
         else if (engine!.RemovedModel is { } removed)
-            ModelNotice.Show("Your speech model was removed", $"{removed} is no longer on this PC. Download it again, or another model, before you can dictate.", "Choose a model");
+            ModelNotice.Show("Your speech model is missing", $"{removed} is no longer on this PC. Download it again, or choose another model, to dictate.", "Choose a model");
         else
             ModelNotice.Show("Download a speech model to start",
-                "Speak Forever needs a speech model before it can dictate. Turbo is recommended: a 574 MB download, about 1 GB of memory while running.", "Choose a model");
+                "Speak Forever needs a speech model to understand you. Turbo is recommended: a 574 MB download that uses about 1 GB of memory.", "Choose a model");
     }
 
     void ModelNotice_ActionClick(object sender, RoutedEventArgs e) => Tabs.SelectedItem = Tabs.Items[SpeechModelTab];
@@ -134,11 +134,11 @@ public sealed partial class MainWindow
         }
         catch (OperationCanceledException)
         {
-            Log.Info($"Download of {model.Name} cancelled.");
+            Log.Info($"Cancelled the {model.Name} download.");
         }
         catch (Exception e)
         {
-            Log.Warn($"Download of {model.Name} failed: {e.Message}");
+            Log.Warn($"Couldn't download {model.Name}: {e.Message}");
         }
         finally
         {
@@ -227,7 +227,7 @@ public sealed partial class MainWindow
         UpdateState();
         using var finish = new CancellationTokenSource();
         using var stop = new CancellationTokenSource();
-        var heard = new TextBlock { Text = "Listening... say something, then pause or press Finish.", TextWrapping = TextWrapping.Wrap };
+        var heard = new TextBlock { Text = "Listening… Say something, then pause or press Finish.", TextWrapping = TextWrapping.Wrap };
         var meta = new TextBlock { Style = (Style)Application.Current.Resources["Caption"], TextWrapping = TextWrapping.Wrap };
         var dialog = new ContentDialog
         {
@@ -247,7 +247,7 @@ public sealed partial class MainWindow
         void OnPhase(DictationPhase phase) => DispatcherQueue.TryEnqueue(() =>
         {
             if (phase != DictationPhase.Transcribing || stop.IsCancellationRequested) return;
-            heard.Text = "Transcribing...";
+            heard.Text = "Transcribing…";
             dialog.PrimaryButtonText = "";
         });
         engine.PhaseChanged += OnPhase;
@@ -260,11 +260,11 @@ public sealed partial class MainWindow
                 ShowHeard(text, took, seconds);
                 heard.Text = LastHeardText.Text;
                 meta.Text = LastHeardMeta.Text;
-                Log.Info($"Mic test: {seconds:F1}s in {took.TotalMilliseconds:F0} ms: \"{text}\"");
+                Log.Info($"Microphone test: {seconds:F1} s of speech transcribed in {took.TotalMilliseconds:F0} ms: \"{text}\"");
             }
             else
             {
-                heard.Text = $"Heard no speech in {engine.Config.NoSpeechTimeoutSeconds}s. Check the microphone.";
+                heard.Text = $"Didn't hear any speech in {engine.Config.NoSpeechTimeoutSeconds} seconds. Check your microphone is connected and not muted.";
             }
         }
         catch (OperationCanceledException) when (stop.IsCancellationRequested)
@@ -273,7 +273,7 @@ public sealed partial class MainWindow
         }
         catch (Exception ex)
         {
-            heard.Text = $"Mic test failed: {ex.Message}";
+            heard.Text = $"The microphone test failed: {ex.Message}";
             Log.Warn(heard.Text);
         }
         finally

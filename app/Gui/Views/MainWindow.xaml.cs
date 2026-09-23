@@ -59,7 +59,7 @@ public sealed partial class MainWindow : Window
         engine.Transcribed += (text, took, seconds) => DispatcherQueue.TryEnqueue(() => ShowHeard(text, took, seconds));
         engine.PhaseChanged += phase => DispatcherQueue.TryEnqueue(() => Logo.Show(phase));
 
-        Log.Info($"Config: {AppPaths.Config}");
+        Log.Info($"Settings file: {AppPaths.Config}");
         ShowBindings();
         InitializePauseSlider();
         LoadStartingModel();
@@ -119,8 +119,8 @@ public sealed partial class MainWindow : Window
 
         var cfg = engine.Config;
         StatusText.Text = engine.StartError is { } error ? error
-            : !engine.IsRunning ? "Paused: controller and shortcut are ignored"
-            : engine.ControllerSlot < 0 ? (cfg.KeyboardShortcut is { } key ? $"No controller · keyboard shortcut {key} is ready" : "Waiting for a controller...")
+            : !engine.IsRunning ? "Paused: ignoring the controller and keyboard shortcut"
+            : engine.ControllerSlot < 0 ? (cfg.KeyboardShortcut is { } key ? $"No controller connected · keyboard shortcut {key} is ready" : "Waiting for a controller…")
             : engine.ChatOpen ? $"Chat open · press {cfg.DictateChord} to dictate"
             : $"Controller connected · open chat with {cfg.OpenChatChord}";
         ActiveSwitch.IsEnabled = recording == Recording.None;
@@ -155,7 +155,7 @@ public sealed partial class MainWindow : Window
         heardAnything = true;
         LastHeardText.Text = text.Length > 0 ? text : "(nothing recognisable)";
         var model = engine?.LoadedModel is { } path ? ModelCatalog.DisplayName(path) : "?";
-        LastHeardMeta.Text = $"{seconds:F1}s of speech · transcribed in {took.TotalMilliseconds:F0} ms by {model}";
+        LastHeardMeta.Text = $"{seconds:F1} s of speech · transcribed in {took.TotalMilliseconds:F0} ms by {model}";
     }
 
     void OnLogWritten(string line, bool warning) => DispatcherQueue.TryEnqueue(() =>

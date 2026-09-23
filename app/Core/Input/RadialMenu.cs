@@ -52,13 +52,13 @@ public sealed class RadialMenu
         else if (Pressed(Gamepad.LB) || Pressed(Gamepad.RB))
         {
             page = Pressed(Gamepad.LB) ? (page == 1 ? Pages : page - 1) : (page == Pages ? 1 : page + 1);
-            Log.Info($"Radial page {page} of {Pages}.");
+            Log.Info($"Radial menu page {page} of {Pages}.");
         }
         else if (Pressed(Gamepad.RS))
         {
             segment = 0;
             cancelled = true;
-            Log.Info("Radial: stick clicked, selection cancelled until it recentres.");
+            Log.Info("Radial menu: stick clicked, so nothing is picked until the stick recentres.");
         }
     }
 
@@ -79,11 +79,11 @@ public sealed class RadialMenu
             segment = 0;
             if (picked is null)
             {
-                Log.Info($"Radial: empty slot on page {page}; the menu stays open.");
+                Log.Info($"Radial menu: empty slot on page {page}, so it stays open.");
                 return false;
             }
             IsOpen = false;
-            Log.Info(chat ? "Chat open (from the radial menu)." : $"Radial menu closed: picked {picked} on page {page}.");
+            Log.Info(chat ? "Chat open (from the radial menu)." : $"Radial menu: picked {picked}.");
             return chat;
         }
         if (distanceSq > ThresholdSq)

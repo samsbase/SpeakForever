@@ -14,7 +14,7 @@ public sealed record ModelInfo(string File, string Name, string Blurb, long Down
 {
     public string LocalPath => Path.Combine(AppPaths.Models, File);
     public bool IsInstalled => System.IO.File.Exists(LocalPath);
-    public string Summary => $"{FormatBytes(DownloadBytes)} download · about {MemoryGb:F1} GB memory while running";
+    public string Summary => $"{FormatBytes(DownloadBytes)} download · uses about {MemoryGb:F1} GB of memory";
 
     public static string FormatBytes(long bytes) => bytes >= 1_000_000_000 ? $"{bytes / 1e9:F1} GB" : $"{bytes / 1e6:F0} MB";
 }

@@ -61,7 +61,7 @@ public static class Recorder
         using (finish.Register(() =>
         {
             if (finished.Task.IsCompleted) return;
-            endpointer.EndedBy = "the finish button";
+            endpointer.EndedBy = "when Finish was pressed";
             finished.TrySetResult(endpointer.HeardSpeech);
         }))
         {
@@ -70,8 +70,8 @@ public static class Recorder
         }
         // Enough to tell from the log why a recording ended when it did, or never did.
         Log.Info(heardSpeech
-            ? $"Recording ended by {endpointer.EndedBy}. {endpointer.Levels}"
-            : $"No speech heard. {endpointer.Levels}");
+            ? $"Stopped listening {endpointer.EndedBy}. {endpointer.Levels}"
+            : $"Didn't hear any speech. {endpointer.Levels}");
         if (!heardSpeech) return null;
 
         lock (samples)

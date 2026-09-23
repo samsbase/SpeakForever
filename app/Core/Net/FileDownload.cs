@@ -73,12 +73,12 @@ static class FileDownload
             }
             var actual = Convert.ToHexStringLower(hash.GetHashAndReset());
             if (!string.Equals(actual, sha256, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"{name} didn't match its published checksum, so it was discarded. Try again.");
+                throw new InvalidDataException($"{name} didn't download correctly (its checksum didn't match), so it was deleted. Try again.");
             File.Move(partial, path, overwrite: true);
         }
         catch (OperationCanceledException) when (stall.IsCancellationRequested && !ct.IsCancellationRequested)
         {
-            throw new TimeoutException($"The download of {name} stalled: nothing arrived for {StallTimeout.TotalSeconds:F0} seconds.");
+            throw new TimeoutException($"The {name} download stopped: nothing arrived for {StallTimeout.TotalSeconds:F0} seconds. Check your connection and try again.");
         }
         finally
         {

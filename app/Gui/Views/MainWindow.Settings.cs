@@ -49,9 +49,9 @@ public sealed partial class MainWindow
     void UpdateSettingsTab()
     {
         if (engine is null) return;
-        GameFolderText.Text = engine.GameFound ? engine.Config.GameFolder : gameChecked ? "Not found" : "Looking...";
+        GameFolderText.Text = engine.GameFound ? engine.Config.GameFolder : gameChecked ? "Not found" : "Looking…";
         if (gameChecked && !engine.GameFound)
-            GameNotice.Show("Where's WoW: Forever?", "Speak Forever couldn't find the game, and only types into it. Tell it where the game is installed.", "Settings");
+            GameNotice.Show("Where's WoW: Forever?", "Speak Forever couldn't find the game. Show it where WoW: Forever is installed so it can type into it.", "Open Settings");
         else
             GameNotice.Show(null);
     }
@@ -67,10 +67,10 @@ public sealed partial class MainWindow
         {
             XamlRoot = Content.XamlRoot,
             Title = "Where's WoW: Forever?",
-            Content = "Speak Forever only ever types into WoW: Forever, so it needs to know where the game is installed. "
-                      + "It looked where Battle.net installs WoW and didn't find it.\n\n"
-                      + "Choose the folder with the game in it. In the beta that's World of Warcraft\\_classic_beta_; "
-                      + "choosing the World of Warcraft folder above it works too.",
+            Content = "Speak Forever only types into WoW: Forever, so it needs to know where the game is. "
+                      + "It isn't where Battle.net usually installs it.\n\n"
+                      + "Choose the game's folder. For the beta, that's World of Warcraft\\_classic_beta_, "
+                      + "though the World of Warcraft folder works too.",
             PrimaryButtonText = "Choose folder",
             CloseButtonText = "Later",
             DefaultButton = ContentDialogButton.Primary,
@@ -101,9 +101,9 @@ public sealed partial class MainWindow
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            error = $"Couldn't save it: {e.Message}";
+            error = $"Couldn't save the folder: {e.Message}";
         }
-        ShowGameMessage(error ?? "Found it. Speak Forever will type into the game from here.", error is not null);
+        ShowGameMessage(error ?? "Got it. Speak Forever will type into the game in this folder.", error is not null);
     }
 
     async void FindGameButton_Click(object sender, RoutedEventArgs e)
@@ -112,11 +112,11 @@ public sealed partial class MainWindow
         try
         {
             var found = await engine!.FindGameAsync(searchAgain: true);
-            ShowGameMessage(found is null ? "It isn't in any of the usual places. Choose its folder instead." : "Found it.", found is null);
+            ShowGameMessage(found is null ? "It's not in any of the usual places. Use Choose folder to show Speak Forever where it is." : "Found it.", found is null);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            ShowGameMessage($"Couldn't save it: {ex.Message}", warning: true);
+            ShowGameMessage($"Couldn't save the folder: {ex.Message}", warning: true);
         }
         finally
         {
@@ -162,20 +162,20 @@ public sealed partial class MainWindow
         if (checkingUpdates) return;
         checkingUpdates = true;
         CheckUpdatesButton.IsEnabled = false;
-        if (userAsked) UpdateStatusText.Text = "Checking...";
+        if (userAsked) UpdateStatusText.Text = "Checking…";
         var before = update;
         try
         {
             update = await updateChecker.CheckAsync(stopUpdates.Token);
             UpdateStatusText.Text = update is { } found
                 ? $"Speak Forever {found.Version.ToString(3)} is available."
-                : $"No newer version found. Checked at {DateTime.Now:HH:mm}.";
+                : $"You have the latest version. Checked at {DateTime.Now:HH:mm}.";
             if (update is not null && update != before) Log.Info($"Speak Forever {update.Version.ToString(3)} is available: {update.PageUrl}");
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !stopUpdates.IsCancellationRequested)
         {
             // Offline, or GitHub is busy: say so if asked, otherwise try again next time.
-            if (userAsked) UpdateStatusText.Text = $"Couldn't reach GitHub: {ex.Message}";
+            if (userAsked) UpdateStatusText.Text = $"Couldn't check for updates: {ex.Message}";
         }
         catch (OperationCanceledException)
         {
@@ -192,8 +192,8 @@ public sealed partial class MainWindow
         DownloadUpdateButton.Visibility = update is null ? Visibility.Collapsed : Visibility.Visible;
         if (update is { } u)
             UpdateNotice.Show($"Speak Forever {u.Version.ToString(3)} is available",
-                install ? "Update now downloads it, then Speak Forever closes, updates and opens again. Your settings and models stay."
-                        : "Download the new installer from GitHub and run it; it updates this copy in place.",
+                install ? "Speak Forever will download it, close, update and reopen. Your settings and models are kept."
+                        : "Download the installer from GitHub and run it to update. Your settings and models are kept.",
                 install ? "Update now" : "Download");
         else
             UpdateNotice.Show(null);
@@ -214,12 +214,12 @@ public sealed partial class MainWindow
         installingUpdate = true;
         DownloadUpdateButton.IsEnabled = CheckUpdatesButton.IsEnabled = false;
         var title = $"Updating to Speak Forever {u.Version.ToString(3)}";
-        UpdateNotice.Show(title, "Downloading...");
-        var progress = new Progress<double>(p => UpdateNotice.Text = UpdateStatusText.Text = $"Downloading... {p:P0}");
+        UpdateNotice.Show(title, "Downloading…");
+        var progress = new Progress<double>(p => UpdateNotice.Text = UpdateStatusText.Text = $"Downloading… {p:P0}");
         try
         {
             var installer = await UpdateChecker.DownloadInstallerAsync(u, progress, stopUpdates.Token);
-            Log.Info($"Installing Speak Forever {u.Version.ToString(3)}; it opens again when done.");
+            Log.Info($"Installing Speak Forever {u.Version.ToString(3)}. It will reopen when it's done.");
             UpdateChecker.StartInstaller(installer);
             Close();
             return;

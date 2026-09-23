@@ -33,7 +33,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             {
                 if (finishing is { } f)
                 {
-                    Log.Info($"{trigger}: finished speaking.");
+                    Log.Info($"{trigger}: done speaking.");
                     f.Cancel();
                 }
                 else Log.Info($"{trigger}: still transcribing.");
@@ -43,7 +43,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
         var fg = Native.Foreground();
         if (!anyWindow && !cfg.IsGame(fg.Process, fg.Path))
         {
-            Log.Warn($"{trigger}: ignored, foreground is '{fg.Process}', not the game.");
+            Log.Warn($"{trigger}: ignored, because WoW: Forever isn't the active window ({fg.Process} is).");
             Cue.Error(cfg);
             return;
         }
@@ -74,12 +74,12 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             if (active is null) return;
             active.Cancel();
         }
-        Log.Info($"{why}, dictation discarded.");
+        Log.Info($"{why}, so the dictation was cancelled.");
         Cue.Cancel(settings());
     }
 
     /// <summary>Drops any dictation in flight, for when the controller loop stops.</summary>
-    public void CancelAll() => ChatClosing("Stopped");
+    public void CancelAll() => ChatClosing("Paused");
 
     async Task RunAsync(Config cfg, string trigger, bool anyWindow, CancellationTokenSource cts, CancellationTokenSource finish)
     {
@@ -89,7 +89,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             Cue.Start(cfg);
             phase(DictationPhase.Listening);
             await Task.Delay(cfg.DelayMs, ct).ConfigureAwait(false);
-            Log.Info($"{trigger}: listening...");
+            Log.Info($"{trigger}: listening…");
 
             float[]? audio;
             try
@@ -106,7 +106,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             }
             if (audio is null)
             {
-                Log.Info("Heard no speech.");
+                Log.Info("Didn't hear any speech.");
                 Cue.Error(cfg);
                 return;
             }
@@ -118,7 +118,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             var text = await transcriber.TranscribeAsync(audio, ct).ConfigureAwait(false);
             var took = Stopwatch.GetElapsedTime(started);
             double seconds = audio.Length / (double)Recorder.SampleRate;
-            Log.Info($"Transcribed {seconds:F1}s in {took.TotalMilliseconds:F0} ms: \"{text}\"");
+            Log.Info($"Transcribed {seconds:F1} s of speech in {took.TotalMilliseconds:F0} ms: \"{text}\"");
             transcribed(text, took, seconds);
             if (text.Length == 0) return;
 
@@ -157,7 +157,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             var fg = Native.Foreground();
             if (!cfg.IsGame(fg.Process, fg.Path))
             {
-                Log.Warn($"Not typing, foreground is '{fg.Process}', not the game.");
+                Log.Warn($"Didn't type it: WoW: Forever is no longer the active window ({fg.Process} is).");
                 Cue.Error(cfg);
                 return;
             }

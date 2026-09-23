@@ -36,7 +36,7 @@ public sealed partial class MainWindow
         KeyboardOffButton.Visibility = cfg.KeyboardShortcut is null || recording == Recording.Keyboard ? Visibility.Collapsed : Visibility.Visible;
         KeyboardCaption.Foreground = engine.KeyboardError is null ? Brush("SilverBrush") : warningBrush;
         KeyboardCaption.Text = engine.KeyboardError
-            ?? "Optional. Dictates into whatever text box has focus, in any program, like Win+H. Press it again to finish early.";
+            ?? "Optional. Types into whichever text box you're in, in any program, like Windows+H. Press it again to finish early.";
     }
 
     void ShowBindings()
@@ -47,7 +47,7 @@ public sealed partial class MainWindow
         KeyboardText.Text = cfg.KeyboardShortcut ?? "Off";
         PauseHint.Text = $"Or press {cfg.DictateChord} again to finish straight away.";
         if (!heardAnything)
-            LastHeardText.Text = $"Nothing yet. In game, open chat ({cfg.OpenChatChord}) and press {cfg.DictateChord}, or use Test microphone.";
+            LastHeardText.Text = $"Nothing yet. In the game, open chat with {cfg.OpenChatChord} and press {cfg.DictateChord}. Or try Test microphone on the Speech model tab.";
     }
 
     void ShowBindingMessage(string text, bool warning)
@@ -76,8 +76,8 @@ public sealed partial class MainWindow
         recording = which;
         rebindCancel = new CancellationTokenSource();
         button.Content = "Cancel";
-        value.Text = "Press...";
-        ShowBindingMessage("Hold any modifier buttons, press the last button, then let go of everything.", warning: false);
+        value.Text = "Press…";
+        ShowBindingMessage("Hold any extra buttons, press the main one, then let go of them all.", warning: false);
         UpdateState();
         try
         {
@@ -88,7 +88,7 @@ public sealed partial class MainWindow
                 ShowBindingMessage(error + " No change.", warning: true);
             else
                 ShowBindingMessage(kind == BindingKind.OpenChat
-                    ? $"Open chat is now {chord.Value.Text}. This must match WoW's own binding."
+                    ? $"Open chat is now {chord.Value.Text}. Make sure it matches the game's binding."
                     : $"Dictate is now {chord.Value.Text}.", warning: false);
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
@@ -119,8 +119,8 @@ public sealed partial class MainWindow
         recording = Recording.Keyboard;
         engine.SuspendKeyboardShortcut(); // the old shortcut mustn't fire while recording a new one
         KeyboardButton.Content = "Cancel";
-        KeyboardText.Text = "Press keys...";
-        ShowBindingMessage("Hold Ctrl, Alt or Shift and press a key (or press an F key on its own). Esc cancels.", warning: false);
+        KeyboardText.Text = "Press keys…";
+        ShowBindingMessage("Hold Ctrl, Alt or Shift and press a key, or press an F key on its own. Esc cancels.", warning: false);
         ButtonsPage.Focus(FocusState.Programmatic); // so Space doesn't also press the button
         UpdateState();
     }

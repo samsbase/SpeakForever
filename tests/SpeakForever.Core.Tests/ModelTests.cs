@@ -26,7 +26,7 @@ public sealed class ModelTests
         var row = new ModelRow(Turbo, "Turbo", "574 MB", null, null) { State = ModelRowState.Installed };
         Assert.Equal((false, false, true, false), (row.ShowDownload, row.ShowProgress, row.ShowUse, row.ShowStatus));
         row.State = ModelRowState.Loading;
-        Assert.Equal((false, true, "Loading..."), (row.ShowUse, row.ShowStatus, row.StateLabel));
+        Assert.Equal((false, true, "Loading…"), (row.ShowUse, row.ShowStatus, row.StateLabel));
     }
 
     [Fact]

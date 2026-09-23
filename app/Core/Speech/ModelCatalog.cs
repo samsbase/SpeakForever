@@ -14,19 +14,19 @@ public static class ModelCatalog
     public static IReadOnlyList<ModelInfo> All { get; } =
     [
         new("ggml-large-v3-turbo-q5_0.bin", "Turbo",
-            "Best accuracy, and the lightest of the Turbo models. Fast with a graphics card.",
+            "The most accurate, and the lightest of the Turbo models. Fast on a graphics card.",
             574041195, "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2", 1.0, Recommended: true),
         new("ggml-large-v3-turbo-q8_0.bin", "Turbo 8-bit",
-            "Same results as Turbo in testing, using more memory.",
+            "As accurate as Turbo in our tests, but uses more memory.",
             874188075, "317eb69c11673c9de1e1f0d459b253999804ec71ac4c23c17ecf5fbe24e259a1", 1.2),
         new("ggml-large-v3-turbo.bin", "Turbo full precision",
-            "Same results as Turbo in testing, using the most memory.",
+            "As accurate as Turbo in our tests, but uses the most memory.",
             1624555275, "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69", 2.0),
         new("ggml-small.bin", "Small",
-            "For PCs without a capable graphics card: about 4x faster than Turbo on the processor, with more mistakes.",
+            "For PCs without a capable graphics card. About 4× faster than Turbo on the processor, but makes more mistakes.",
             487601967, "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b", 1.0),
         new("ggml-base.bin", "Base",
-            "Smallest and fastest, but makes many more mistakes. For older PCs.",
+            "The smallest and fastest, but makes many more mistakes. For older PCs.",
             147951465, "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe", 0.6),
     ];
 
@@ -68,6 +68,6 @@ public static class ModelCatalog
         Directory.CreateDirectory(AppPaths.Models);
         await FileDownload.ToFileAsync(Http, Repository + model.File, model.LocalPath, model.DownloadBytes, model.Sha256, model.Name, progress, ct)
             .ConfigureAwait(false);
-        Log.Info($"Downloaded {model.Name} ({ModelInfo.FormatBytes(model.DownloadBytes)}), checksum verified.");
+        Log.Info($"Downloaded {model.Name} ({ModelInfo.FormatBytes(model.DownloadBytes)}) and checked it.");
     }
 }

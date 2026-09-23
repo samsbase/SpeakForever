@@ -70,7 +70,7 @@ public sealed class ModelRow(string path, string name, string summary, string? b
     public bool ShowProgress => State == ModelRowState.Downloading;
     public bool ShowUse => State == ModelRowState.Installed;
     public bool ShowStatus => State is ModelRowState.Loading or ModelRowState.InUse;
-    public string StateLabel => State == ModelRowState.Loading ? "Loading..." : "In use";
+    public string StateLabel => State == ModelRowState.Loading ? "Loading…" : "In use";
     public string ProgressText => $"{Progress:P0}";
 
     /// <summary>What a model's row should show, from what's on disk and what the engine is doing.</summary>

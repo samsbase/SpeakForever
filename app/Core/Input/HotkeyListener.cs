@@ -30,7 +30,7 @@ public sealed partial class HotkeyListener : IDisposable
         {
             threadId = GetCurrentThreadId();
             bool registered = RegisterHotKey(IntPtr.Zero, HotkeyId, shortcut.Modifiers | MOD_NOREPEAT, shortcut.Key);
-            if (!registered) error = $"{shortcut} is already used by another program. Pick another shortcut.";
+            if (!registered) error = $"{shortcut} is already used by another program. Choose another shortcut.";
             ready.Set();
             if (!registered) return;
             while (GetMessage(out var msg, IntPtr.Zero, 0, 0) > 0)
