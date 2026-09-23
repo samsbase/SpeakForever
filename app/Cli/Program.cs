@@ -75,7 +75,7 @@ async Task<int> RunAsync()
     if (rest is ["--transcribe", var file, ..])
         return await Diagnostics.TranscribeFileAsync(engine, file, quit.Token);
 
-    Log.Info($"Open chat with {cfg.OpenChatChord}, then {cfg.DictateChord} to dictate. Typing into: {(engine.GameFound ? engine.Config.GameFolder : string.Join(", ", cfg.ProcessNames))}");
+    Log.Info($"Open chat with {cfg.OpenChatChord}, then {cfg.DictateChord} to dictate ({cfg.RedoChord} starts over). Typing into: {(engine.GameFound ? engine.Config.GameFolder : string.Join(", ", cfg.ProcessNames))}");
     if (!engine.Start()) return 1;
     Log.Info("Ctrl+C to quit.");
     await Task.Delay(Timeout.Infinite, quit.Token);

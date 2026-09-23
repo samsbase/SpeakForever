@@ -59,6 +59,8 @@ Then **leave Speak Forever running** while you play. Play WoW in **Windowed (Ful
 
 Click RS again to add more to the same message. Pressing A or B while you're speaking discards it.
 
+**Starting over:** WoW's chat box has no delete, so with chat open, **D-pad down** deletes everything you dictated into it and listens again. It works while you're still speaking or it's still transcribing too: that attempt is dropped and it starts listening afresh. Change the button on the **Controls** tab.
+
 Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open, and it never types into anything but the game, so stray words can't turn into key presses in game.
 
 **Changing the buttons:** on the **Controls** tab (with a controller connected), click **Change**, hold any modifier buttons, press the last button, then let go. Speak Forever can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here.
@@ -68,6 +70,12 @@ Speak Forever follows the chat panel by watching the same buttons WoW does. RS o
 On the **Controls** tab, click **Change** next to *Dictate (keyboard)* and press any key or combination, such as Ctrl+Shift+Space or F8. While Speak Forever is active, Windows sends that key to Speak Forever instead of the program you're in, so pick one you don't need elsewhere, or pause Speak Forever when you do.
 
 Like Windows+H, the shortcut types into **whatever has focus**: in WoW, open chat with Enter first, then press the shortcut and speak. Press it again to finish early.
+
+### The overlay
+
+While you speak, a small **Listening** pill shows at the top of the screen, over the game, with the button that finishes early. It says **Typing…** while it transcribes, then disappears. If a message is too long for the chat box, it says so for a few seconds instead, with the words that were left out and the button to start over.
+
+It never takes focus from the game. It shows over WoW in **Windowed (Fullscreen)** or windowed mode (nothing can draw over exclusive fullscreen). Turn it off on the **Settings** tab.
 
 ### Sound cues
 
@@ -81,8 +89,10 @@ The Home tab's status says what Speak Forever is doing and what to press next: *
 |---|---|
 | **Home** | The status, anything that needs your attention, the last message (with timings and **Copy**), the model, microphone (**Test**) and shortcut at a glance, and **Show activity** for the log |
 | **Voice model** | The model in use and **Test microphone**; download, switch (**Use**) or delete others (**Show advanced models** for the two larger Turbos); how long a pause ends a dictation |
-| **Controls** | The controller buttons and the keyboard shortcut |
-| **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); version, **Check for updates**, and whether to check automatically; starting when you sign in to Windows |
+| **Controls** | The controller buttons (open chat, dictate, start over) and the keyboard shortcut |
+| **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); the in-game overlay; version, **Check for updates**, and whether to check automatically; starting when you sign in to Windows |
+
+The window opens tall enough that no tab needs scrolling, as far as the screen allows.
 
 ## Privacy
 
@@ -92,7 +102,7 @@ Your voice is recognised on your PC and never sent anywhere. Speak Forever conne
 
 - **Chat opened with the keyboard** (Enter) isn't seen by the controller tracking, so RS won't dictate into it. Open chat with the controller, or use the keyboard shortcut.
 - **The keyboard shortcut types into whatever has focus.** In WoW, open chat first, or the words become key presses.
-- **WoW's chat box holds 255 characters**, about 40–50 words. Longer dictations are cut at the last whole word, and the activity log shows what was dropped.
+- **WoW's chat box holds 255 characters**, about 40–50 words, however many dictations go into it. What doesn't fit is cut at the last whole word; the overlay and the Home tab say what was left out, and D-pad down starts the message over.
 - **Dictation ends on a pause**, detected by volume. Loud game audio through speakers can keep it listening; a headset avoids that.
 - **Terms of service:** Speak Forever types only your own dictated words into one game client, as dictation software does. Blizzard's enforced policy targets input broadcasting across several clients, but Blizzard hasn't explicitly approved this.
 
@@ -101,6 +111,7 @@ Your voice is recognised on your PC and never sent anywhere. Speak Forever conne
 - **Nothing is typed:** check the Home tab's status and notices. Speak Forever needs a voice model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
 - **"Chat isn't open":** open chat with LB+RB+Down (or the radial menu), not Enter, or use the keyboard shortcut.
 - **It keeps listening:** raise the pause on the Voice model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
+- **No overlay:** it's on the Settings tab, and it can't show over exclusive fullscreen: set WoW's display mode to Windowed (Fullscreen).
 - The log is also written to `%LOCALAPPDATA%\SpeakForever\speakforever.log`.
 
 ## Advanced
@@ -117,6 +128,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Controls tab. Buttons are named by position, Xbox-style: `A` is the bottom face button on every controller (Cross on PlayStation, B on Switch), and the app shows your controller's own icons. |
 | `DictateChord` | `RS` | Starts a dictation while chat is open. Also set in the app. |
 | `RadialMenuChord` | `START` | WoW's radial menu button, so chat opened from the radial is seen too |
+| `RedoChord` | `DOWN` | With chat open, deletes what was dictated into the chat box and listens again. Set on the Controls tab. |
 | `KeyboardShortcut` | `null` (off) | e.g. `Ctrl+Shift+Space`. Set in the app. |
 | `SendChord`, `BackChord` | `A`, `B` | The chat panel's Send and Back |
 | `MenuChords` | `X`, `Y` | The chat panel's Chat Channels and Tab Settings menus |
@@ -134,6 +146,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `SpeechThresholdDb` | `10` | How far above background noise counts as speech |
 | `DelayMs` | `150` | Pause after the dictate button before recording, so the beep isn't recorded |
 | `Sounds` | `true` | The sound cues |
+| `ShowOverlay` | `true` | The in-game overlay. Set on the Settings tab. |
 
 ### Command line (`SpeakForeverCli.exe`, installed beside the app)
 

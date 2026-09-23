@@ -70,18 +70,21 @@ public sealed partial class MainWindow : Window
             this.phase = phase;
             Logo.Show(phase);
             UpdateState();
+            UpdateOverlay();
         });
+        engine.TooLong += leftOut => DispatcherQueue.TryEnqueue(() => ShowTooLong(leftOut));
 
         Log.Info($"Settings file: {AppPaths.Config}");
         ShowBindings();
         InitializePauseSlider();
+        InitializeSettingsTab();
         LoadStartingModel();
         ShowSetupIfNeeded();
         engine.Start();
         UpdateState();
         Root.Loaded += async (_, _) =>
         {
-            FitToSpeechModelTab();
+            FitToTallestTab();
             await StartupChecksAsync();
         };
     }
@@ -105,15 +108,24 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Sizes the window so the Voice model tab, the tallest, fits without scrolling; the other
-    /// tabs stretch to match. Capped at the screen's working area.
+    /// Sizes the window so that every tab fits without scrolling (the first-run steps too, while
+    /// they show); the shorter tabs stretch to match. Capped at the screen's working area.
     /// </summary>
-    void FitToSpeechModelTab()
+    void FitToTallestTab()
     {
-        if (ModelPage.Content is not FrameworkElement content || DictationPage.ActualHeight <= 0) return;
-        // The tab's content isn't laid out while it's hidden, so measure it at the width it will get.
-        content.Measure(new Size(DictationPage.ActualWidth, double.PositiveInfinity));
-        double extra = content.DesiredSize.Height - DictationPage.ActualHeight;
+        double width = Body.ActualWidth - Body.Padding.Left - Body.Padding.Right;
+        if (width <= 0) return;
+        // Hidden tabs aren't laid out, so each is measured at the width it will get. Home, which
+        // isn't a scrolling tab, counts too: its activity log only takes whatever height is left.
+        UIElement?[] tabs = [DictationPage, ModelPage.Content as UIElement, ButtonsPage.Content as UIElement, SettingsPage.Content as UIElement,
+                             inSetup ? SetupPage.Content as UIElement : null];
+        double tallest = 0;
+        foreach (var tab in tabs.OfType<UIElement>())
+        {
+            tab.Measure(new Size(width, double.PositiveInfinity));
+            tallest = Math.Max(tallest, tab.DesiredSize.Height);
+        }
+        double extra = tallest - (Body.ActualHeight - TabsBar.ActualHeight); // the tab bar is hidden, so 0 high, during setup
         var work = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest).WorkArea;
         int height = (int)Math.Min(work.Height, AppWindow.Size.Height + Math.Ceiling(extra * Root.XamlRoot.RasterizationScale));
         AppWindow.Resize(new SizeInt32(AppWindow.Size.Width, height));
@@ -153,7 +165,8 @@ public sealed partial class MainWindow : Window
     {
         StatusHeadline.Text = headline;
         if (engine is null) ButtonPrompt.Fill(StatusText, detail);
-        else ButtonPrompt.Fill(StatusText, detail, engine.ButtonStyle, Chord.Parse(engine.Config.OpenChatChord), Chord.Parse(engine.Config.DictateChord));
+        else ButtonPrompt.Fill(StatusText, detail, engine.ButtonStyle, Chord.Parse(engine.Config.OpenChatChord), Chord.Parse(engine.Config.DictateChord),
+                               Chord.Parse(engine.Config.RedoChord));
         StatusDot.Fill = StatusRing.Stroke = StatusIcon.Foreground = Brush($"Tone{tone}Brush");
         StatusRing.Fill = Brush($"Tone{tone}FillBrush");
         StatusIcon.Glyph = tone == StatusTone.Problem ? "\uE7BA" : "\uE720"; // warning, or the microphone
@@ -193,6 +206,7 @@ public sealed partial class MainWindow : Window
         LastHeardMeta.Visibility = Visibility.Visible;
         var model = engine?.LoadedModel is { } path ? ModelCatalog.DisplayName(path) : "?";
         LastHeardMeta.Text = $"{seconds:F1} s of speech · transcribed in {took.TotalMilliseconds:F0} ms by {model}";
+        LastHeardTooLong.Visibility = Visibility.Collapsed; // until it's typed, and turns out not to fit
     }
 
     void CopyHeardButton_Click(object sender, RoutedEventArgs e)
@@ -230,6 +244,7 @@ public sealed partial class MainWindow : Window
         Log.Written -= OnLogWritten;
         stopUpdates.Cancel();
         foreach (var cancel in downloads.Values) cancel.Cancel();
+        CloseOverlay();
         await SavePauseAsync();
         if (engine is not null) await engine.DisposeAsync();
         stopUpdates.Dispose();

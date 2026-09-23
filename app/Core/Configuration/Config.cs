@@ -45,6 +45,12 @@ public sealed record Config
     public string RadialMenuChord { get; init; } = "START";
 
     /// <summary>
+    /// Starts the message over while chat is open: deletes what was dictated into the chat box and
+    /// listens again. WoW's gamepad chat box has no way to delete text, so this is how to fix a mistake.
+    /// </summary>
+    public string RedoChord { get; init; } = "DOWN";
+
+    /// <summary>
     /// Optional system-wide shortcut, e.g. "Ctrl+Shift+Space": dictates into whatever text box has
     /// focus, in any program, like Win+H. Off (null) by default.
     /// </summary>
@@ -118,6 +124,12 @@ public sealed record Config
     public double SpeechThresholdDb { get; init; } = 10;
 
     public bool Sounds { get; init; } = true;
+
+    /// <summary>
+    /// Shows "Listening" at the top of the screen, over the game, while you speak, and says when a
+    /// message is too long for the chat box.
+    /// </summary>
+    public bool ShowOverlay { get; init; } = true;
 
     /// <summary>Checks for updates on GitHub at launch and every few hours.</summary>
     public bool CheckForUpdates { get; init; } = true;

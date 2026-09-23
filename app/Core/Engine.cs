@@ -42,7 +42,7 @@ public sealed class Engine : IAsyncDisposable
         this.config = config;
         bindings = ControllerBindings.From(config);
         session = new Session(() => this.config, () => transcriber, (text, took, seconds) => Transcribed?.Invoke(text, took, seconds),
-            phase => PhaseChanged?.Invoke(phase));
+            phase => PhaseChanged?.Invoke(phase), leftOut => TooLong?.Invoke(leftOut));
         hotkey.Pressed += () =>
         {
             if (IsRunning) session.Start(this.config.KeyboardShortcut ?? "Shortcut", anyWindow: true);
@@ -57,6 +57,9 @@ public sealed class Engine : IAsyncDisposable
 
     /// <summary>Raised on a background thread as a dictation starts listening, transcribes, and finishes.</summary>
     public event Action<DictationPhase>? PhaseChanged;
+
+    /// <summary>Raised on a background thread when a dictation didn't all fit in WoW's chat box, with the words left out.</summary>
+    public event Action<string>? TooLong;
 
     /// <summary>The current settings. A snapshot: change them with <see cref="UpdateConfigAsync"/>.</summary>
     public Config Config => config;
@@ -185,18 +188,28 @@ public sealed class Engine : IAsyncDisposable
         [
             ("opening chat", b.OpenChat), ("dictating", b.Dictate), ("the chat panel's Send", b.Send),
             ("the chat panel's Back", b.Back), .. b.Menus.Select(m => ("the chat panel's menus", m)),
-            ("the radial menu", b.Radial),
+            ("the radial menu", b.Radial), ("starting over", b.Redo),
         ];
-        var mine = which == BindingKind.OpenChat ? b.OpenChat : b.Dictate;
+        var mine = which switch
+        {
+            BindingKind.OpenChat => b.OpenChat,
+            BindingKind.Dictate => b.Dictate,
+            _ => b.Redo,
+        };
         foreach (var (name, other) in others)
             if (!other.SameButtons(mine) && other.SameButtons(chord))
                 return $"{chord.Text} is already used for {name}.";
 
-        await UpdateConfigAsync(c => which == BindingKind.OpenChat ? c with { OpenChatChord = chord.Text } : c with { DictateChord = chord.Text }, ct)
-            .ConfigureAwait(false);
+        await UpdateConfigAsync(c => which switch
+        {
+            BindingKind.OpenChat => c with { OpenChatChord = chord.Text },
+            BindingKind.Dictate => c with { DictateChord = chord.Text },
+            _ => c with { RedoChord = chord.Text },
+        }, ct).ConfigureAwait(false);
         bindings = ControllerBindings.From(config);
         chat.Close();
-        Log.Info($"{(which == BindingKind.OpenChat ? "Open chat" : "Dictate")} is now {chord.Text}.");
+        var label = which switch { BindingKind.OpenChat => "Open chat", BindingKind.Dictate => "Dictate", _ => "Start over" };
+        Log.Info($"{label} is now {chord.Text}.");
         Changed();
         return null;
     }
@@ -502,6 +515,12 @@ public sealed class Engine : IAsyncDisposable
                 break;
             case ChatAction.Dictate:
                 session.Start(b.Dictate.Text);
+                break;
+            case ChatAction.Redo when probe:
+                Log.Info($"  would start over ({b.Redo.Text})");
+                break;
+            case ChatAction.Redo:
+                session.StartOver(b.Redo.Text);
                 break;
             // Often a binding of its own in the game, so these are noted, not complained about.
             case ChatAction.DictateWhileClosed:

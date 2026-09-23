@@ -21,17 +21,23 @@ public sealed partial class MainWindow
     UpdateInfo? update;
     bool gameChecked, checkingUpdates, installingUpdate;
 
+    /// <summary>The tab's contents, before the window is sized to fit them: the startup card is only for an installed copy.</summary>
+    void InitializeSettingsTab()
+    {
+        VersionText.Text = $"Speak Forever {UpdateChecker.CurrentVersion.ToString(3)}";
+        updating = true;
+        AutoUpdateSwitch.IsOn = engine!.Config.CheckForUpdates;
+        OverlaySwitch.IsOn = engine.Config.ShowOverlay;
+        StartupCard.Visibility = UpdateChecker.CanInstallHere ? Visibility.Visible : Visibility.Collapsed;
+        StartupSwitch.IsOn = StartsWithWindows();
+        updating = false;
+    }
+
     /// <summary>Once the window is up: find the game (asking if it can't), then start checking for updates.</summary>
     async Task StartupChecksAsync()
     {
         if (engine is null) return;
-        VersionText.Text = $"Speak Forever {UpdateChecker.CurrentVersion.ToString(3)}";
         UpdateChecker.DeleteDownloads(); // the installer that updated this copy, if one did
-        updating = true;
-        AutoUpdateSwitch.IsOn = engine.Config.CheckForUpdates;
-        StartupCard.Visibility = UpdateChecker.CanInstallHere ? Visibility.Visible : Visibility.Collapsed;
-        StartupSwitch.IsOn = StartsWithWindows();
-        updating = false;
 
         string? found = null;
         try
@@ -59,6 +65,21 @@ public sealed partial class MainWindow
     }
 
     void GameNotice_ActionClick(object sender, RoutedEventArgs e) => ShowTab(SettingsTab);
+
+    async void OverlaySwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (updating || engine is null) return;
+        bool on = OverlaySwitch.IsOn;
+        try
+        {
+            await engine.UpdateConfigAsync(c => c with { ShowOverlay = on });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn($"Couldn't save settings: {ex.Message}");
+        }
+        UpdateOverlay();
+    }
 
     // ---- Where the game is ------------------------------------------------------------------
 

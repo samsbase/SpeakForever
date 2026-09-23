@@ -66,7 +66,7 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="1" Padding="22,0,22,0">
+        <Grid x:Name="Body" Grid.Row="1" Padding="22,0,22,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -224,6 +224,8 @@
                         <TextBlock x:Name="LastHeardText" FontSize="16" Foreground="{StaticResource BrightBrush}"
                                    TextWrapping="Wrap" IsTextSelectionEnabled="True" Visibility="Collapsed" />
                         <TextBlock x:Name="LastHeardMeta" Style="{StaticResource Caption}" Visibility="Collapsed" />
+                        <TextBlock x:Name="LastHeardTooLong" FontSize="13" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                                   IsTextSelectionEnabled="True" Visibility="Collapsed" />
                     </StackPanel>
                 </ContentControl>
 
@@ -365,6 +367,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <StackPanel VerticalAlignment="Center" Spacing="2">
@@ -384,14 +387,22 @@
                             <Button x:Name="DictateButton" Grid.Row="1" Grid.Column="2" Content="Change" Style="{StaticResource PanelButton}" Click="DictateButton_Click" />
 
                             <StackPanel Grid.Row="2" VerticalAlignment="Center" Spacing="2">
+                                <TextBlock Text="Start over (controller)" Style="{StaticResource ItemTitle}" />
+                                <TextBlock Style="{StaticResource Caption}"
+                                           Text="With chat open, deletes what you dictated and listens again. WoW's chat box has no delete, so this is how to fix a mistake." />
+                            </StackPanel>
+                            <Border x:Name="RedoCap" Grid.Row="2" Grid.Column="1" Style="{StaticResource Keycap}" />
+                            <Button x:Name="RedoButton" Grid.Row="2" Grid.Column="2" Content="Change" Style="{StaticResource PanelButton}" Click="RedoButton_Click" />
+
+                            <StackPanel Grid.Row="3" VerticalAlignment="Center" Spacing="2">
                                 <TextBlock Text="Dictate (keyboard)" Style="{StaticResource ItemTitle}" />
                                 <TextBlock x:Name="KeyboardCaption" Style="{StaticResource Caption}"
                                            Text="Optional. Types into whichever text box you're in, in any program, like Windows+H. Press it again to finish early." />
                             </StackPanel>
-                            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource Keycap}">
+                            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource Keycap}">
                                 <TextBlock x:Name="KeyboardText" Style="{StaticResource KeycapText}" />
                             </Border>
-                            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                            <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="8">
                                 <Button x:Name="KeyboardButton" Content="Change" Style="{StaticResource PanelButton}" Click="KeyboardButton_Click" />
                                 <Button x:Name="KeyboardOffButton" Content="Turn off" Style="{StaticResource QuietButton}" Click="KeyboardOffButton_Click" />
                             </StackPanel>
@@ -429,6 +440,16 @@
 
                     <ContentControl Style="{StaticResource Card}">
                         <StackPanel Spacing="8">
+                            <TextBlock Text="In-game overlay" Style="{StaticResource FrameHeader}" />
+                            <TextBlock Style="{StaticResource Caption}"
+                                       Text="Shows &#x201C;Listening&#x201D; at the top of the screen while you speak, and warns you when a message is too long for the chat box. It shows over WoW in Windowed (Fullscreen) or windowed mode." />
+                            <ToggleSwitch x:Name="OverlaySwitch" OnContent="Show the overlay over the game" OffContent="Show the overlay over the game"
+                                          Toggled="OverlaySwitch_Toggled" />
+                        </StackPanel>
+                    </ContentControl>
+
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel Spacing="8">
                             <TextBlock Text="Updates" Style="{StaticResource FrameHeader}" />
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
@@ -437,7 +458,7 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center" Spacing="2">
                                     <TextBlock x:Name="VersionText" Foreground="{StaticResource StarlightBrush}" />
-                                    <TextBlock x:Name="UpdateStatusText" Style="{StaticResource Caption}" />
+                                    <TextBlock x:Name="UpdateStatusText" Text="Not checked yet." Style="{StaticResource Caption}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                     <Button x:Name="DownloadUpdateButton" Content="Download" Style="{StaticResource AccentButton}" Visibility="Collapsed" Click="DownloadUpdate_Click" />

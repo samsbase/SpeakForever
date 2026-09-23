@@ -16,4 +16,7 @@ enum ChatAction
 
     /// <summary>A menu opened over the text box: anything being dictated is dropped, the typed text stays.</summary>
     MenuOpened,
+
+    /// <summary>The start-over button, with the text box open: delete what was dictated and listen again.</summary>
+    Redo,
 }

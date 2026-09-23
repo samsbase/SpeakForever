@@ -7,6 +7,7 @@ namespace SpeakForever.Interop;
 public static partial class Native
 {
     const uint INPUT_KEYBOARD = 1, KEYEVENTF_KEYUP = 0x2, KEYEVENTF_UNICODE = 0x4;
+    const ushort VK_BACK = 0x08;
     const int MaxTitleLength = 256, MaxPathLength = 32767;
     const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
 
@@ -23,14 +24,37 @@ public static partial class Native
             seq[i * 2] = Char(text[i], up: false);
             seq[i * 2 + 1] = Char(text[i], up: true);
         }
+        return Send(seq, "type the text");
+    }
+
+    /// <summary>Presses Backspace this many times in the focused window. Returns null on success or an error description.</summary>
+    public static string? Backspace(int count)
+    {
+        var seq = new Input[count * 2];
+        for (int i = 0; i < count; i++)
+        {
+            seq[i * 2] = Key(VK_BACK, up: false);
+            seq[i * 2 + 1] = Key(VK_BACK, up: true);
+        }
+        return Send(seq, "delete the text");
+    }
+
+    static string? Send(Input[] seq, string what)
+    {
         uint sent = SendInput((uint)seq.Length, seq, Marshal.SizeOf<Input>());
-        return sent == seq.Length ? null : $"Couldn't type the text: Windows accepted {sent} of {seq.Length} key presses (error {Marshal.GetLastPInvokeError()}). If the game runs as administrator, run Speak Forever as administrator too.";
+        return sent == seq.Length ? null : $"Couldn't {what}: Windows accepted {sent} of {seq.Length} key presses (error {Marshal.GetLastPInvokeError()}). If the game runs as administrator, run Speak Forever as administrator too.";
     }
 
     static Input Char(char c, bool up) => new()
     {
         Type = INPUT_KEYBOARD,
         Union = new InputUnion { Keyboard = new KeybdInput { Scan = c, Flags = KEYEVENTF_UNICODE | (up ? KEYEVENTF_KEYUP : 0) } },
+    };
+
+    static Input Key(ushort vk, bool up) => new()
+    {
+        Type = INPUT_KEYBOARD,
+        Union = new InputUnion { Keyboard = new KeybdInput { Vk = vk, Flags = up ? KEYEVENTF_KEYUP : 0 } },
     };
 
     /// <summary>The foreground window's process name (without .exe), the .exe's full path ("" if it can't be read), and its title.</summary>

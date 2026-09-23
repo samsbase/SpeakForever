@@ -41,6 +41,7 @@ sealed class ChatPanel
         }
         if (!open) return b.Dictate.FiredBy(prev, cur) ? ChatAction.DictateWhileClosed : ChatAction.None;
         if (b.Dictate.FiredBy(prev, cur)) return depth == TextBox ? ChatAction.Dictate : ChatAction.DictateInMenu;
+        if (depth == TextBox && b.Redo.FiredBy(prev, cur)) return ChatAction.Redo; // in a menu, it moves through the menu
         if (depth == TextBox && b.Menus.Any(m => m.FiredBy(prev, cur)))
         {
             depth = Menu;

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using SpeakForever.Configuration;
+using SpeakForever.Dictation;
 using SpeakForever.Presentation;
 using SpeakForever.Speech;
 
@@ -78,10 +79,28 @@ public sealed class ModelTests
     public void TranscriptsAreCleanedForChat(string raw, string expected) => Assert.Equal(expected, Transcriber.Clean(raw));
 
     [Fact]
-    public void LongTranscriptsAreCutAtAWordWithinTheChatLimit()
+    public void LongMessagesAreCutAtAWordWithinTheChatLimit()
     {
-        var text = Transcriber.Clean(string.Join(' ', Enumerable.Repeat("word", 100)));
-        Assert.InRange(text.Length, 250, 255);
-        Assert.EndsWith("word", text, StringComparison.Ordinal);
+        var (fits, leftOut) = ChatBox.Fit(string.Join(' ', Enumerable.Repeat("word", 100)));
+        Assert.InRange(fits.Length, 250, ChatBox.MaxLength);
+        Assert.EndsWith("word", fits, StringComparison.Ordinal);
+        Assert.Equal(499, fits.Length + 1 + leftOut.Length); // nothing lost but the space between them
+    }
+
+    [Fact]
+    public void AMessageAddedToTheChatBoxOnlyGetsTheRoomLeft()
+    {
+        Assert.Equal((" three four", ""), ChatBox.Fit(" three four", used: 200));
+        Assert.Equal((" three", "four"), ChatBox.Fit(" three four", used: ChatBox.MaxLength - 8));
+        Assert.Equal(("", "three four"), ChatBox.Fit(" three four", used: ChatBox.MaxLength - 4)); // not even a word
+        Assert.Equal(("", "three"), ChatBox.Fit(" three", used: ChatBox.MaxLength));
+    }
+
+    [Fact]
+    public void OnlyAFirstMessageIsCutInsideAWord()
+    {
+        var word = new string('a', 300);
+        Assert.Equal(ChatBox.MaxLength, ChatBox.Fit(word).Fits.Length);
+        Assert.Equal("", ChatBox.Fit(" " + word, used: 10).Fits);
     }
 }

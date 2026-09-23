@@ -16,8 +16,6 @@ namespace SpeakForever.Speech;
 /// </summary>
 public sealed partial class Transcriber : IAsyncDisposable
 {
-    const int MaxChatLength = 255; // WoW's chat edit box limit
-
     static string? gpuName;
     static readonly IDisposable DeviceLogger = LogProvider.AddLogger((_, message) =>
     {
@@ -124,12 +122,7 @@ public sealed partial class Transcriber : IAsyncDisposable
             (text, var changes) = names.Correct(text);
             foreach (var (heard, name) in changes) Log.Info($"Heard \"{heard}\" as {name}.");
         }
-        if (text.Length <= MaxChatLength) return text;
-
-        int cut = text.LastIndexOf(' ', MaxChatLength);
-        var kept = text[..(cut > 0 ? cut : MaxChatLength)];
-        Log.Warn($"That was {text.Length} characters, but WoW's chat box holds {MaxChatLength}. Left out: \"{text[kept.Length..].Trim()}\"");
-        return kept;
+        return text;
     }
 
     [GeneratedRegex(@"\[[^\]]*\]|\([^)]*\)|\*[^*]*\*")]

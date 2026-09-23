@@ -108,7 +108,7 @@ public sealed partial class MainWindow
         ShowTab(tab);
         UpdateState();
         Root.UpdateLayout();
-        FitToSpeechModelTab();
+        FitToTallestTab();
     }
 
     // ---- Starting with Windows ---------------------------------------------------------------

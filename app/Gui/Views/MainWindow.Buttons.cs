@@ -23,6 +23,7 @@ public sealed partial class MainWindow
         None,
         OpenChat,
         Dictate,
+        Redo,
         Keyboard,
     }
 
@@ -33,6 +34,7 @@ public sealed partial class MainWindow
         bool canRebind = engine.IsRunning && engine.ControllerSlot >= 0;
         OpenChatButton.IsEnabled = recording == Recording.OpenChat || (canRebind && recording == Recording.None);
         DictateButton.IsEnabled = recording == Recording.Dictate || (canRebind && recording == Recording.None);
+        RedoButton.IsEnabled = recording == Recording.Redo || (canRebind && recording == Recording.None);
         KeyboardButton.IsEnabled = recording is Recording.Keyboard or Recording.None;
         KeyboardOffButton.Visibility = cfg.KeyboardShortcut is null || recording == Recording.Keyboard ? Visibility.Collapsed : Visibility.Visible;
         RebindHint.Text = !engine.IsRunning ? "Turn on Active (on the Home tab) to change the controller buttons."
@@ -52,6 +54,7 @@ public sealed partial class MainWindow
         Chord openChat = Chord.Parse(cfg.OpenChatChord), dictate = Chord.Parse(cfg.DictateChord);
         if (recording != Recording.OpenChat) OpenChatCap.Child = ButtonPrompt.Icons(openChat, style);
         if (recording != Recording.Dictate) DictateCap.Child = ButtonPrompt.Icons(dictate, style);
+        if (recording != Recording.Redo) RedoCap.Child = ButtonPrompt.Icons(Chord.Parse(cfg.RedoChord), style);
         KeyboardText.Text = cfg.KeyboardShortcut ?? "Off";
         ButtonPrompt.Fill(PauseHint, "Or press {0} again to finish straight away.", style, dictate);
         ButtonPrompt.Fill(LastHeardHint, "Nothing yet. What you say shows up here as well as in the game.");
@@ -73,6 +76,9 @@ public sealed partial class MainWindow
 
     async void DictateButton_Click(object sender, RoutedEventArgs e) =>
         await RebindControllerAsync(Recording.Dictate, BindingKind.Dictate, DictateButton, DictateCap);
+
+    async void RedoButton_Click(object sender, RoutedEventArgs e) =>
+        await RebindControllerAsync(Recording.Redo, BindingKind.Redo, RedoButton, RedoCap);
 
     async Task RebindControllerAsync(Recording which, BindingKind kind, Button button, Border cap)
     {
@@ -96,9 +102,12 @@ public sealed partial class MainWindow
             else if (await engine.SetBindingAsync(kind, chord.Value) is { } error)
                 ShowBindingMessage(error + " No change.", warning: true);
             else
-                ShowBindingMessage(kind == BindingKind.OpenChat
-                    ? "Open chat is now {0}. Make sure it matches the game's binding."
-                    : "Dictate is now {0}.", warning: false, chord.Value);
+                ShowBindingMessage(kind switch
+                {
+                    BindingKind.OpenChat => "Open chat is now {0}. Make sure it matches the game's binding.",
+                    BindingKind.Dictate => "Dictate is now {0}.",
+                    _ => "Start over is now {0}.",
+                }, warning: false, chord.Value);
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
         {
