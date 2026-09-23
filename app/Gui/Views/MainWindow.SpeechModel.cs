@@ -19,7 +19,6 @@ public sealed partial class MainWindow
     readonly Dictionary<string, CancellationTokenSource> downloads = new(StringComparer.OrdinalIgnoreCase);
     DispatcherQueueTimer? pauseSave;
     int? pendingSilenceMs;
-    CancellationTokenSource? testFinish;
     bool testingMic;
     (string? Loaded, string? Loading, string Status, bool Testing) shownModels;
 
@@ -32,7 +31,7 @@ public sealed partial class MainWindow
     void UpdateSpeechModelTab()
     {
         if (engine is null) return;
-        TestMicButton.IsEnabled = testingMic || (!engine.IsLoadingModel && engine.LoadedModel is not null);
+        TestMicButton.IsEnabled = !testingMic && !engine.IsLoadingModel && engine.LoadedModel is not null;
         // Refreshing reads the models folder, so it only happens when something it shows has changed.
         var now = (engine.LoadedModel, engine.LoadingModel, engine.ModelStatus, testingMic);
         if (now != shownModels) RefreshModels();
@@ -217,45 +216,75 @@ public sealed partial class MainWindow
 
     // ---- Microphone test --------------------------------------------------------------------
 
+    /// <summary>
+    /// Runs the test in a dialog, so its result shows on this tab: listening, then transcribing,
+    /// then what was heard. Closing the dialog early cancels the test.
+    /// </summary>
     async void TestMicButton_Click(object sender, RoutedEventArgs e)
     {
-        if (engine is null) return;
-        if (testingMic)
-        {
-            testFinish?.Cancel();
-            return;
-        }
+        if (engine is null || testingMic) return;
         testingMic = true;
-        testFinish = new CancellationTokenSource();
-        TestMicLabel.Text = "Finish";
         UpdateState();
-        LastHeardText.Text = "Listening... say something, then pause or press Finish.";
-        LastHeardMeta.Text = "";
+        using var finish = new CancellationTokenSource();
+        using var stop = new CancellationTokenSource();
+        var heard = new TextBlock { Text = "Listening... say something, then pause or press Finish.", TextWrapping = TextWrapping.Wrap };
+        var meta = new TextBlock { Style = (Style)Application.Current.Resources["Caption"], TextWrapping = TextWrapping.Wrap };
+        var dialog = new ContentDialog
+        {
+            XamlRoot = Content.XamlRoot,
+            Title = "Microphone test",
+            Content = new StackPanel { Spacing = 8, MinWidth = 360, Children = { heard, meta } },
+            PrimaryButtonText = "Finish",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        dialog.PrimaryButtonClick += (_, args) =>
+        {
+            args.Cancel = true; // stays open for the result
+            finish.Cancel();
+        };
+        dialog.Closing += (_, _) => stop.Cancel();
+        void OnPhase(DictationPhase phase) => DispatcherQueue.TryEnqueue(() =>
+        {
+            if (phase != DictationPhase.Transcribing || stop.IsCancellationRequested) return;
+            heard.Text = "Transcribing...";
+            dialog.PrimaryButtonText = "";
+        });
+        engine.PhaseChanged += OnPhase;
+        var shown = dialog.ShowAsync();
         try
         {
-            var result = await engine.TestMicAsync(testFinish.Token);
+            var result = await engine.TestMicAsync(finish.Token, stop.Token);
             if (result is var (text, took, seconds))
             {
                 ShowHeard(text, took, seconds);
+                heard.Text = LastHeardText.Text;
+                meta.Text = LastHeardMeta.Text;
                 Log.Info($"Mic test: {seconds:F1}s in {took.TotalMilliseconds:F0} ms: \"{text}\"");
             }
             else
             {
-                LastHeardText.Text = $"Heard no speech in {engine.Config.NoSpeechTimeoutSeconds}s. Check the microphone.";
+                heard.Text = $"Heard no speech in {engine.Config.NoSpeechTimeoutSeconds}s. Check the microphone.";
             }
+        }
+        catch (OperationCanceledException) when (stop.IsCancellationRequested)
+        {
+            // The dialog was closed before the test finished.
         }
         catch (Exception ex)
         {
-            LastHeardText.Text = $"Mic test failed: {ex.Message}";
-            Log.Warn(LastHeardText.Text);
+            heard.Text = $"Mic test failed: {ex.Message}";
+            Log.Warn(heard.Text);
         }
         finally
         {
-            testingMic = false;
-            testFinish.Dispose();
-            testFinish = null;
-            TestMicLabel.Text = "Test microphone";
-            UpdateState();
+            engine.PhaseChanged -= OnPhase;
         }
+        dialog.PrimaryButtonText = "";
+        dialog.CloseButtonText = "Close";
+        dialog.DefaultButton = ContentDialogButton.Close;
+        await shown;
+        testingMic = false;
+        UpdateState();
     }
 }
