@@ -65,6 +65,20 @@
             <SolidColorBrush x:Key="BodyBrush" Color="{StaticResource BodyColor}" />
             <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
             <SolidColorBrush x:Key="ChatBrush" Color="#05060C" />
+            <SolidColorBrush x:Key="BrightBrush" Color="#F2F6FF" />
+            <SolidColorBrush x:Key="MutedBrush" Color="#A3ABCB" />
+            <SolidColorBrush x:Key="CardBrush" Color="#0F1224" />
+            <SolidColorBrush x:Key="CardLineBrush" Color="#2A3050" />
+
+            <!-- The Home tab's status light, by tone: the colour, and the fill behind the microphone. -->
+            <SolidColorBrush x:Key="ToneReadyBrush" Color="#5FD49A" />
+            <SolidColorBrush x:Key="ToneReadyFillBrush" Color="#0F2A22" />
+            <SolidColorBrush x:Key="ToneBusyBrush" Color="#7AA7FF" />
+            <SolidColorBrush x:Key="ToneBusyFillBrush" Color="#172452" />
+            <SolidColorBrush x:Key="ToneIdleBrush" Color="#A3ABCB" />
+            <SolidColorBrush x:Key="ToneIdleFillBrush" Color="#1A1E33" />
+            <SolidColorBrush x:Key="ToneProblemBrush" Color="#FF6B6B" />
+            <SolidColorBrush x:Key="ToneProblemFillBrush" Color="#2E1620" />
 
             <RadialGradientBrush x:Key="WindowBackground" Center="0.5,0.25" RadiusX="0.9" RadiusY="0.9" GradientOrigin="0.5,0.25">
                 <GradientStop Color="#161C38" Offset="0" />
@@ -120,6 +134,29 @@
                 </Setter>
             </Style>
 
+            <!-- Everyday panels: a plain card. The ornate frame above is kept for one panel per screen. -->
+            <Style x:Key="Card" TargetType="ContentControl">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="16,14" />
+                <Setter Property="Foreground" Value="{StaticResource BodyBrush}" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ContentControl">
+                            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardLineBrush}" BorderThickness="1" CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Cinzel is for the wordmark and section titles; everything else is Segoe UI. -->
             <Style x:Key="FrameHeader" TargetType="TextBlock">
                 <Setter Property="FontFamily" Value="{StaticResource Cinzel}" />
                 <Setter Property="FontSize" Value="15" />
@@ -128,45 +165,57 @@
                 <Setter Property="CharacterSpacing" Value="40" />
             </Style>
 
-            <Style x:Key="Caption" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                <Setter Property="Foreground" Value="{StaticResource SilverBrush}" />
+            <!-- A small label over a group, such as "Last message". -->
+            <Style x:Key="Label" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+            </Style>
+
+            <!-- A title in a row or a card: "Found WoW: Forever", "Turbo". -->
+            <Style x:Key="ItemTitle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{StaticResource StarlightBrush}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <Style x:Key="Caption" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
             </Style>
 
             <!-- Caption, for text with controller button icons in it. -->
             <Style x:Key="RichCaption" TargetType="RichTextBlock">
-                <Setter Property="FontSize" Value="12" />
-                <Setter Property="Foreground" Value="{StaticResource SilverBrush}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="IsTextSelectionEnabled" Value="False" />
             </Style>
 
-            <LinearGradientBrush x:Key="PanelButtonFill" StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#3A50B0" Offset="0" />
-                <GradientStop Color="#1B2560" Offset="1" />
-            </LinearGradientBrush>
-            <LinearGradientBrush x:Key="PanelButtonFillHover" StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#4A63CC" Offset="0" />
-                <GradientStop Color="#24317A" Offset="1" />
-            </LinearGradientBrush>
-            <LinearGradientBrush x:Key="PanelButtonFillPressed" StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#141B48" Offset="0" />
-                <GradientStop Color="#2E3F8F" Offset="1" />
-            </LinearGradientBrush>
-
-            <!-- A classic WoW panel button, in arcane blue. -->
+            <!--
+                Buttons in three tiers: AccentButton for the one thing to do next, PanelButton for
+                everything else, QuietButton for links and small actions. They share one template:
+                hovering lightens whatever colours the tier has, pressing darkens them.
+            -->
             <Style x:Key="PanelButton" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="#5A6390" />
+                <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="Foreground" Value="{StaticResource StarlightBrush}" />
-                <Setter Property="FontFamily" Value="{StaticResource Cinzel}" />
-                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontSize" Value="14" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Padding" Value="14,6,14,7" />
-                <Setter Property="MinWidth" Value="96" />
+                <Setter Property="Padding" Value="14,7,14,8" />
+                <Setter Property="MinWidth" Value="88" />
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="UseSystemFocusVisuals" Value="True" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Grid x:Name="Root" Background="{StaticResource PanelButtonFill}" BorderBrush="{StaticResource SilverBrush}" BorderThickness="1" CornerRadius="3">
-                                <Border Margin="1" BorderBrush="#5A6FD0" BorderThickness="0,1,0,0" CornerRadius="2" />
+                            <Grid x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                                <Border x:Name="Tint" CornerRadius="5" />
                                 <ContentPresenter x:Name="Presenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
                                                   Foreground="{TemplateBinding Foreground}" Padding="{TemplateBinding Padding}"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -175,14 +224,12 @@
                                         <VisualState x:Name="Normal" />
                                         <VisualState x:Name="PointerOver">
                                             <VisualState.Setters>
-                                                <Setter Target="Root.Background" Value="{StaticResource PanelButtonFillHover}" />
-                                                <Setter Target="Root.BorderBrush" Value="{StaticResource StarlightBrush}" />
+                                                <Setter Target="Tint.Background" Value="#26FFFFFF" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="Pressed">
                                             <VisualState.Setters>
-                                                <Setter Target="Root.Background" Value="{StaticResource PanelButtonFillPressed}" />
-                                                <Setter Target="Presenter.Margin" Value="0,2,0,-2" />
+                                                <Setter Target="Tint.Background" Value="#40000000" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="Disabled">
@@ -196,6 +243,22 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+            </Style>
+
+            <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource PanelButton}">
+                <Setter Property="Background" Value="{StaticResource ArcaneBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ArcaneBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource NightBrush}" />
+                <Setter Property="Padding" Value="18,8,18,9" />
+                <Setter Property="MinHeight" Value="40" />
+            </Style>
+
+            <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource PanelButton}">
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Foreground" Value="{StaticResource ArcaneBrush}" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="MinWidth" Value="0" />
             </Style>
 
             <Style x:Key="Keycap" TargetType="Border">

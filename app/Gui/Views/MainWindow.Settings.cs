@@ -9,7 +9,7 @@ using Windows.System;
 
 namespace SpeakForever.Gui.Views;
 
-/// <summary>The Settings tab: where WoW: Forever is installed, and updates.</summary>
+/// <summary>The Settings tab: where WoW: Forever is installed, updates, and starting with Windows.</summary>
 public sealed partial class MainWindow
 {
     const int SettingsTab = 3;
@@ -29,6 +29,8 @@ public sealed partial class MainWindow
         UpdateChecker.DeleteDownloads(); // the installer that updated this copy, if one did
         updating = true;
         AutoUpdateSwitch.IsOn = engine.Config.CheckForUpdates;
+        StartupCard.Visibility = UpdateChecker.CanInstallHere ? Visibility.Visible : Visibility.Collapsed;
+        StartupSwitch.IsOn = StartsWithWindows();
         updating = false;
 
         string? found = null;
@@ -42,7 +44,7 @@ public sealed partial class MainWindow
         }
         gameChecked = true;
         UpdateState();
-        if (found is null) await AskForGameAsync();
+        if (found is null && !inSetup) await AskForGameAsync(); // setup asks in its own first step
         _ = PollForUpdatesAsync(stopUpdates.Token);
     }
 
@@ -56,7 +58,7 @@ public sealed partial class MainWindow
             GameNotice.Show(null);
     }
 
-    void GameNotice_ActionClick(object sender, RoutedEventArgs e) => Tabs.SelectedItem = Tabs.Items[SettingsTab];
+    void GameNotice_ActionClick(object sender, RoutedEventArgs e) => ShowTab(SettingsTab);
 
     // ---- Where the game is ------------------------------------------------------------------
 
@@ -104,6 +106,7 @@ public sealed partial class MainWindow
             error = $"Couldn't save the folder: {e.Message}";
         }
         ShowGameMessage(error ?? "Got it. Speak Forever will type into the game in this folder.", error is not null);
+        UpdateState();
     }
 
     async void FindGameButton_Click(object sender, RoutedEventArgs e)

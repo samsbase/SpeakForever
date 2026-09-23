@@ -10,12 +10,13 @@ using SpeakForever.Speech;
 
 namespace SpeakForever.Gui.Views;
 
-/// <summary>The Speech model tab: the model list and downloads, the pause slider and the microphone test.</summary>
+/// <summary>The Voice model tab: the model in use, the other models and downloads, the pause slider and the microphone test.</summary>
 public sealed partial class MainWindow
 {
     static readonly TimeSpan SaveDelay = TimeSpan.FromMilliseconds(500);
+    static readonly ModelInfo Recommended = ModelCatalog.All.First(m => m.Recommended);
 
-    readonly ObservableCollection<ModelRow> modelRows = [];
+    readonly ObservableCollection<ModelRow> modelRows = [], advancedRows = [];
     readonly Dictionary<string, CancellationTokenSource> downloads = new(StringComparer.OrdinalIgnoreCase);
     DispatcherQueueTimer? pauseSave;
     int? pendingSilenceMs;
@@ -25,13 +26,13 @@ public sealed partial class MainWindow
     void LoadStartingModel()
     {
         if (engine!.StartingModel() is { } path) _ = engine.LoadModelAsync(path); // logs its own failures
-        else if (engine.RemovedModel is null) Log.Info("No speech model yet. Download one on the Speech model tab (Turbo is recommended).");
+        else if (engine.RemovedModel is null) Log.Info("No voice model yet. Download one on the Voice model tab (Turbo is recommended).");
     }
 
     void UpdateSpeechModelTab()
     {
         if (engine is null) return;
-        TestMicButton.IsEnabled = !testingMic && !engine.IsLoadingModel && engine.LoadedModel is not null;
+        TestMicButton.IsEnabled = HomeTestMicButton.IsEnabled = !testingMic && !engine.IsLoadingModel && engine.LoadedModel is not null;
         // Refreshing reads the models folder, so it only happens when something it shows has changed.
         var now = (engine.LoadedModel, engine.LoadingModel, engine.ModelStatus, testingMic);
         if (now != shownModels) RefreshModels();
@@ -43,33 +44,67 @@ public sealed partial class MainWindow
         if (engine is null) return;
         shownModels = (engine.LoadedModel, engine.LoadingModel, engine.ModelStatus, testingMic);
         bool noModel = engine.LoadedModel is null && !engine.IsLoadingModel;
-        ModelStatusText.Text = noModel ? "No speech model yet. Download one below; Turbo is recommended." : engine.ModelStatus;
-
         var installed = ModelCatalog.Installed();
+        var onDisk = installed.ToHashSet(StringComparer.OrdinalIgnoreCase);
         ShowModelNotice(noModel, installed.Count > 0);
 
-        // The catalog's models, then any the user put in the folder themselves. Rows are kept while
-        // their model stays listed, so a download's progress survives a refresh.
+        // The model at the top: the one in use (or loading), or with none, the one to get.
+        var current = engine.LoadingModel ?? engine.LoadedModel;
+        var entry = current is null ? Recommended : ModelCatalog.Find(current);
+        ModelHeroLabel.Text = engine.IsLoadingModel ? "Loading" : current is null ? "Recommended for you" : "You're using";
+        ModelHeroName.Text = current is null ? Recommended.Name : ModelCatalog.DisplayName(current);
+        ModelHeroBadge.Visibility = entry?.Recommended == true ? Visibility.Visible : Visibility.Collapsed;
+        ModelHeroBlurb.Text = entry?.Blurb ?? "A model you added yourself.";
+        ModelStatusText.Text = current is null ? $"{Recommended.Summary}. It runs on this PC, so nothing you say is uploaded." : engine.ModelStatus;
+        bool offerDownload = current is null && !onDisk.Contains(Recommended.LocalPath);
+        ModelHeroDownload.Visibility = offerDownload ? Visibility.Visible : Visibility.Collapsed;
+        ModelHeroDownload.IsEnabled = !downloads.ContainsKey(Recommended.LocalPath);
+        ModelHeroDownload.Content = ModelHeroDownload.IsEnabled ? "Download" : "Downloading…";
+        TestMicButton.Visibility = current is null ? Visibility.Collapsed : Visibility.Visible;
+
+        // The rest: the catalog's models, then any the user put in the folder themselves, with the
+        // ones few people need listed apart. Rows are kept while their model stays listed, so a
+        // download's progress survives a refresh.
         var listed = ModelCatalog.All.Select(m => (m.LocalPath, m.Name, m.Summary, (string?)m.Blurb, (ModelInfo?)m))
             .Concat(installed.Where(p => ModelCatalog.Find(p) is null)
                 .Select(p => (p, ModelCatalog.DisplayName(p), "Added by you", (string?)null, (ModelInfo?)null)))
+            .Where(m => !string.Equals(m.Item1, current, StringComparison.OrdinalIgnoreCase))
             .ToList();
-        if (!listed.Select(m => m.Item1).SequenceEqual(modelRows.Select(r => r.Path), StringComparer.OrdinalIgnoreCase))
-        {
-            var existing = modelRows.ToDictionary(r => r.Path, StringComparer.OrdinalIgnoreCase);
-            modelRows.Clear();
-            foreach (var (path, name, summary, blurb, entry) in listed)
-                modelRows.Add(existing.GetValueOrDefault(path) ?? new ModelRow(path, name, summary, blurb, entry));
-        }
+        var existing = modelRows.Concat(advancedRows).ToDictionary(r => r.Path, StringComparer.OrdinalIgnoreCase);
+        Fill(modelRows, listed.Where(m => m.Item5?.Advanced != true));
+        Fill(advancedRows, listed.Where(m => m.Item5?.Advanced == true));
+        AdvancedToggle.Visibility = advancedRows.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
-        var onDisk = installed.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < modelRows.Count; i++)
+        void Fill(ObservableCollection<ModelRow> rows, IEnumerable<(string, string, string, string?, ModelInfo?)> models)
         {
-            var row = modelRows[i];
-            row.HasDivider = i > 0;
-            row.State = ModelRow.StateOf(row.Path, onDisk.Contains(row.Path), engine.LoadedModel, engine.LoadingModel, downloads.ContainsKey(row.Path));
-            row.CanUse = !engine.IsLoadingModel && !testingMic;
+            var wanted = models.ToList();
+            if (!wanted.Select(m => m.Item1).SequenceEqual(rows.Select(r => r.Path), StringComparer.OrdinalIgnoreCase))
+            {
+                rows.Clear();
+                foreach (var (path, name, summary, blurb, model) in wanted)
+                    rows.Add(existing.GetValueOrDefault(path) ?? new ModelRow(path, name, summary, blurb, model));
+            }
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i];
+                row.HasDivider = i > 0;
+                row.State = ModelRow.StateOf(row.Path, onDisk.Contains(row.Path), engine.LoadedModel, engine.LoadingModel, downloads.ContainsKey(row.Path));
+                row.CanUse = !engine.IsLoadingModel && !testingMic;
+            }
         }
+    }
+
+    void AdvancedToggle_Click(object sender, RoutedEventArgs e)
+    {
+        bool show = AdvancedModelList.Visibility != Visibility.Visible;
+        AdvancedModelList.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        AdvancedToggle.Content = show ? "Hide advanced models" : "Show advanced models";
+    }
+
+    /// <summary>The recommended model, from the setup screen or the top of the Voice model tab.</summary>
+    async void SetupModelButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!downloads.ContainsKey(Recommended.LocalPath)) await DownloadAsync(Recommended);
     }
 
     /// <summary>Nothing can be dictated without a model, so say so on the tab people land on.</summary>
@@ -82,17 +117,17 @@ public sealed partial class MainWindow
             return;
         }
         if (downloads.Count > 0)
-            ModelNotice.Show("Downloading a speech model", "You can dictate as soon as it finishes. Progress is on the Speech model tab.", "Show progress");
+            ModelNotice.Show("Downloading a voice model", "You can dictate as soon as it finishes. Progress is on the Voice model tab.", "Show progress");
         else if (installed)
-            ModelNotice.Show("Your speech model didn't load", $"{engine!.ModelStatus.TrimEnd('.')}. Try another on the Speech model tab.", "Choose a model");
+            ModelNotice.Show("Your voice model didn't load", $"{engine!.ModelStatus.TrimEnd('.')}. Try another on the Voice model tab.", "Choose a model");
         else if (engine!.RemovedModel is { } removed)
-            ModelNotice.Show("Your speech model is missing", $"{removed} is no longer on this PC. Download it again, or choose another model, to dictate.", "Choose a model");
+            ModelNotice.Show("Your voice model is missing", $"{removed} is no longer on this PC. Download it again, or choose another model, to dictate.", "Choose a model");
         else
-            ModelNotice.Show("Download a speech model to start",
-                "Speak Forever needs a speech model to understand you. Turbo is recommended: a 574 MB download that uses about 1 GB of memory.", "Choose a model");
+            ModelNotice.Show("Download a voice model to start",
+                "Speak Forever needs a voice model to understand you. Turbo is recommended: a 574 MB download that uses about 1 GB of memory.", "Choose a model");
     }
 
-    void ModelNotice_ActionClick(object sender, RoutedEventArgs e) => Tabs.SelectedItem = Tabs.Items[SpeechModelTab];
+    void ModelNotice_ActionClick(object sender, RoutedEventArgs e) => ShowTab(SpeechModelTab);
 
     // ---- Row actions (the buttons in the model list's template) ------------------------------
 
@@ -122,10 +157,14 @@ public sealed partial class MainWindow
         using var cancel = new CancellationTokenSource();
         downloads[model.LocalPath] = cancel;
         RefreshModels();
-        var row = modelRows.First(r => string.Equals(r.Path, model.LocalPath, StringComparison.OrdinalIgnoreCase));
+        var row = modelRows.Concat(advancedRows).First(r => string.Equals(r.Path, model.LocalPath, StringComparison.OrdinalIgnoreCase));
         row.Progress = 0;
         // Created on the UI thread, so reports arrive here; the downloader sends at most 101 of them.
-        var progress = new Progress<double>(p => row.Progress = p);
+        var progress = new Progress<double>(p =>
+        {
+            row.Progress = p;
+            UpdateSetup();
+        });
         try
         {
             await ModelCatalog.DownloadAsync(model, progress, cancel.Token);
@@ -258,6 +297,7 @@ public sealed partial class MainWindow
             if (result is var (text, took, seconds))
             {
                 ShowHeard(text, took, seconds);
+                if (inSetup && text.Length > 0) heardInSetup = text;
                 heard.Text = LastHeardText.Text;
                 meta.Text = LastHeardMeta.Text;
                 Log.Info($"Microphone test: {seconds:F1} s of speech transcribed in {took.TotalMilliseconds:F0} ms: \"{text}\"");

@@ -24,14 +24,16 @@ WoW: Forever is in beta; Speak Forever works with the beta client.
 
 **You need:** Windows 10 (version 2004) or Windows 11, 64-bit; WoW: Forever; a microphone (a headset works best). A controller for gamepad mode (Xbox, PlayStation, Nintendo Switch and most others, with no extra software), or just a keyboard. A graphics card with Vulkan makes recognition fast, but it also works on the processor.
 
-**Updates:** Speak Forever checks for a new version when it starts and every few hours, and says so on its Dictation tab. **Settings › Check for updates** checks now. **Update now** downloads the new version, closes Speak Forever, installs it and opens it again, keeping your settings and speech models.
+**Updates:** Speak Forever checks for a new version when it starts and every few hours, and says so on its Home tab. **Settings › Check for updates** checks now. **Update now** downloads the new version, closes Speak Forever, installs it and opens it again, keeping your settings and voice models.
 
-**Uninstalling:** Windows Settings › Apps › Speak Forever. It asks whether to delete your downloaded speech models and settings too; the default is to keep them.
+**Uninstalling:** Windows Settings › Apps › Speak Forever. It asks whether to delete your downloaded voice models and settings too; the default is to keep them.
 
 ## First run
 
-1. **Speak Forever finds WoW: Forever** where Battle.net installed it. If it can't, it asks: choose the folder with the game in it (in the beta, `World of Warcraft\_classic_beta_`; choosing the `World of Warcraft` folder works too). You can change it any time on the **Settings** tab. Speak Forever only ever types into the game it finds there.
-2. **Download a speech model** on the **Speech model** tab. Each model shows its download size and how much memory it uses while running. Downloads come from the whisper.cpp project on Hugging Face and are checked against a SHA-256 hash.
+The first time it opens, Speak Forever walks you through three steps:
+
+1. **It finds WoW: Forever** where Battle.net installed it. If it can't, choose the folder with the game in it (in the beta, `World of Warcraft\_classic_beta_`; choosing the `World of Warcraft` folder works too). You can change it any time on the **Settings** tab. Speak Forever only ever types into the game it finds there.
+2. **It downloads a voice model**: Turbo, unless you choose a different one on the **Voice model** tab, where each model shows its download size and how much memory it uses while running. Downloads come from the whisper.cpp project on Hugging Face and are checked against a SHA-256 hash.
 
    | Model | Download | Memory while running | Notes |
    |---|---|---|---|
@@ -42,7 +44,9 @@ WoW: Forever is in beta; Speak Forever works with the beta client.
    | Base | 148 MB | about 0.6 GB | For low-memory PCs; several times more mistakes |
 
    The first time a model runs on your graphics card, the driver prepares it, which can take 20 seconds or more. After that it loads in a few seconds.
-3. **Leave Speak Forever running** while you play. Play WoW in **Windowed (Fullscreen)** or windowed mode.
+3. **Say hello:** a quick microphone test. You can also have it start when you sign in to Windows.
+
+Then **leave Speak Forever running** while you play. Play WoW in **Windowed (Fullscreen)** or windowed mode.
 
 ## Using it
 
@@ -57,32 +61,32 @@ Click RS again to add more to the same message. Pressing A or B while you're spe
 
 Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open, and it never types into anything but the game, so stray words can't turn into key presses in game.
 
-**Changing the buttons:** on the **Buttons & shortcuts** tab, click **Change**, hold any modifier buttons, press the last button, then let go. Speak Forever can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here.
+**Changing the buttons:** on the **Controls** tab (with a controller connected), click **Change**, hold any modifier buttons, press the last button, then let go. Speak Forever can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here.
 
 ### With a keyboard
 
-On the **Buttons & shortcuts** tab, click **Change** next to *Dictate (keyboard)* and press any key or combination, such as Ctrl+Shift+Space or F8. While Speak Forever is active, Windows sends that key to Speak Forever instead of the program you're in, so pick one you don't need elsewhere, or pause Speak Forever when you do.
+On the **Controls** tab, click **Change** next to *Dictate (keyboard)* and press any key or combination, such as Ctrl+Shift+Space or F8. While Speak Forever is active, Windows sends that key to Speak Forever instead of the program you're in, so pick one you don't need elsewhere, or pause Speak Forever when you do.
 
 Like Windows+H, the shortcut types into **whatever has focus**: in WoW, open chat with Enter first, then press the shortcut and speak. Press it again to finish early.
 
 ### Sound cues
 
-A beep means it's listening. A rising two-tone means it heard you and is transcribing. Nothing else makes a sound: the dictate button is often bound to something else in the game too, so a press that doesn't start a dictation stays quiet, and the Activity log says why.
+A beep means it's listening. A rising two-tone means it heard you and is transcribing. Nothing else makes a sound: the dictate button is often bound to something else in the game too, so a press that doesn't start a dictation stays quiet, and the activity log (**Show activity** on the Home tab) says why.
 
 ### The window
 
-The status line shows whether your controller is connected and whether chat is open; **Active / Paused** turns Speak Forever on and off. The logo in the title bar ripples while it's listening and quickens while transcribing.
+The Home tab's status says what Speak Forever is doing and what to press next: **Ready**, **Listening…**, **Typing it into chat**, or what it needs from you. **Active / Paused** beside it turns Speak Forever on and off. The logo in the title bar ripples while it's listening and quickens while transcribing.
 
 | Tab | What's there |
 |---|---|
-| **Dictation** | Anything that needs your attention, what it last heard (with timings), and the activity log |
-| **Speech model** | Download, switch (**Use**) or delete models; **Test microphone**; how long a pause ends a dictation |
-| **Buttons & shortcuts** | The controller buttons and the keyboard shortcut |
-| **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); version, **Check for updates**, and whether to check automatically |
+| **Home** | The status, anything that needs your attention, the last message (with timings and **Copy**), the model, microphone (**Test**) and shortcut at a glance, and **Show activity** for the log |
+| **Voice model** | The model in use and **Test microphone**; download, switch (**Use**) or delete others (**Show advanced models** for the two larger Turbos); how long a pause ends a dictation |
+| **Controls** | The controller buttons and the keyboard shortcut |
+| **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); version, **Check for updates**, and whether to check automatically; starting when you sign in to Windows |
 
 ## Privacy
 
-Your voice is recognised on your PC and never sent anywhere. Speak Forever connects to the internet only to download the speech models you choose (from Hugging Face) and to check GitHub for new versions. Turn the update check off on the **Settings** tab.
+Your voice is recognised on your PC and never sent anywhere. Speak Forever connects to the internet only to download the voice models you choose (from Hugging Face) and to check GitHub for new versions. Turn the update check off on the **Settings** tab.
 
 ## Limitations
 
@@ -94,9 +98,9 @@ Your voice is recognised on your PC and never sent anywhere. Speak Forever conne
 
 ## Troubleshooting
 
-- **Nothing is typed:** check the Dictation tab's notices. Speak Forever needs a speech model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
+- **Nothing is typed:** check the Home tab's status and notices. Speak Forever needs a voice model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
 - **"Chat isn't open":** open chat with LB+RB+Down (or the radial menu), not Enter, or use the keyboard shortcut.
-- **It keeps listening:** raise the pause on the Speech model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
+- **It keeps listening:** raise the pause on the Voice model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
 - The log is also written to `%LOCALAPPDATA%\SpeakForever\speakforever.log`.
 
 ## Advanced
@@ -110,7 +114,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `GameFolder` | found on first run | The WoW: Forever folder. Speak Forever only types into a program running from here. Set on the Settings tab. |
 | `ProcessNames` | `["WowB"]` | Used only while `GameFolder` isn't set: game process names without `.exe`. |
 | `ControllerSlot` | `-1` | With several controllers connected, which to use: `0` for the first, up to `3`. `-1` uses whichever is found first. |
-| `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Buttons & shortcuts tab. Buttons are named by position, Xbox-style: `A` is the bottom face button on every controller (Cross on PlayStation, B on Switch), and the app shows your controller's own icons. |
+| `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Controls tab. Buttons are named by position, Xbox-style: `A` is the bottom face button on every controller (Cross on PlayStation, B on Switch), and the app shows your controller's own icons. |
 | `DictateChord` | `RS` | Starts a dictation while chat is open. Also set in the app. |
 | `RadialMenuChord` | `START` | WoW's radial menu button, so chat opened from the radial is seen too |
 | `KeyboardShortcut` | `null` (off) | e.g. `Ctrl+Shift+Space`. Set in the app. |
@@ -119,7 +123,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `CheckForUpdates` | `true` | Check GitHub for new versions at launch and every 6 hours. Set on the Settings tab. |
 | `Prompt` | WoW: Forever names | Words Whisper should expect: dungeons and raids (the new ones too), zones, and abilities and slang it would otherwise mishear. Without it, it hears "Iron Fudge" and "Dead Minds". Whisper reads only about the last 224 tokens (roughly 150 words), so to add your guild's or friends' names, remove something first, and put what matters most at the end. |
 | `CorrectNames` | `true` | Puts WoW: Forever names back where Whisper wrote something that sounds like one but isn't a real word ("Stratham" becomes Stratholme, "Chandra Lass" becomes Shen'dralas). Real words and chat slang are never changed, and neither are names that sound like a real word, such as Innervate. The names are in `app/Core/Speech/Names/wow-names.txt`. |
-| `ModelPath` | set by **Use** | The speech model in use |
+| `ModelPath` | set by **Use** | The voice model in use |
 | `Language` | `en` | Whisper language code, or `auto` |
 | `UseGpu` | `true` | Vulkan graphics card; `false` for the processor only. Takes effect after a restart. |
 | `BeamSize` | `1` | Decoding width. 1 (greedy) matched 5-beam accuracy on Turbo in testing, and is faster and lighter. |

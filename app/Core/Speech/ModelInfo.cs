@@ -10,7 +10,8 @@ namespace SpeakForever.Speech;
 /// Measured with the benchmark (VRAM plus system RAM held between dictations, greedy decoding,
 /// with WoW: Forever running on an RTX 5070 Ti).
 /// </param>
-public sealed record ModelInfo(string File, string Name, string Blurb, long DownloadBytes, string Sha256, double MemoryGb, bool Recommended = false)
+/// <param name="Advanced">No better than another model for most people, so listed out of the way.</param>
+public sealed record ModelInfo(string File, string Name, string Blurb, long DownloadBytes, string Sha256, double MemoryGb, bool Recommended = false, bool Advanced = false)
 {
     public string LocalPath => Path.Combine(AppPaths.Models, File);
     public bool IsInstalled => System.IO.File.Exists(LocalPath);

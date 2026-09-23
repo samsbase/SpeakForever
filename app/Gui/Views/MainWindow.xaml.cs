@@ -11,15 +11,17 @@ using SpeakForever.Gui.Controls;
 using SpeakForever.Gui.Models;
 using SpeakForever.Input;
 using SpeakForever.Logging;
+using SpeakForever.Presentation;
 using SpeakForever.Speech;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Graphics;
 
 namespace SpeakForever.Gui.Views;
 
 /// <summary>
-/// The app window: a status line and three tabs (Dictation, Speech model, Buttons &amp; shortcuts).
-/// This file has the window itself and the Dictation tab; the other tabs are in their own partial files.
+/// The app window: first-run setup, then four tabs (Home, Voice model, Controls, Settings).
+/// This file has the window itself and the Home tab; the rest are in their own partial files.
 /// </summary>
 [SuppressMessage("Design", "CA1001", Justification = "Its CancellationTokenSources live for one operation each and are disposed in that operation's finally block; a Window has no Dispose to hang them on.")]
 public sealed partial class MainWindow : Window
@@ -34,6 +36,7 @@ public sealed partial class MainWindow : Window
     readonly Brush warningBrush = Brush("WarningBrush");
     bool updating, shutDown;
     ButtonStyle? shownStyle; // the controller whose icons are showing
+    DictationPhase phase;
 
     /// <param name="engine">Null when the settings couldn't be loaded; the window then only shows why.</param>
     /// <param name="configError">Why the settings couldn't be loaded.</param>
@@ -47,6 +50,7 @@ public sealed partial class MainWindow : Window
 
         LogList.ItemsSource = log;
         ModelList.ItemsSource = modelRows;
+        AdvancedModelList.ItemsSource = advancedRows;
         Log.Written += OnLogWritten;
         Closed += OnClosed;
         Root.PreviewKeyDown += OnPreviewKeyDown;
@@ -55,18 +59,24 @@ public sealed partial class MainWindow : Window
         this.engine = engine;
         if (engine is null)
         {
-            ButtonPrompt.Fill(StatusText, configError ?? "");
-            ActiveSwitch.IsEnabled = TestMicButton.IsEnabled = false;
+            ShowStatus("Can't load settings", configError ?? "", StatusTone.Problem);
+            ActiveSwitch.IsEnabled = TestMicButton.IsEnabled = HomeTestMicButton.IsEnabled = false;
             return;
         }
         engine.StateChanged += () => DispatcherQueue.TryEnqueue(UpdateState);
         engine.Transcribed += (text, took, seconds) => DispatcherQueue.TryEnqueue(() => ShowHeard(text, took, seconds));
-        engine.PhaseChanged += phase => DispatcherQueue.TryEnqueue(() => Logo.Show(phase));
+        engine.PhaseChanged += phase => DispatcherQueue.TryEnqueue(() =>
+        {
+            this.phase = phase;
+            Logo.Show(phase);
+            UpdateState();
+        });
 
         Log.Info($"Settings file: {AppPaths.Config}");
         ShowBindings();
         InitializePauseSlider();
         LoadStartingModel();
+        ShowSetupIfNeeded();
         engine.Start();
         UpdateState();
         Root.Loaded += async (_, _) =>
@@ -95,7 +105,7 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Sizes the window so the Speech model tab, the tallest, fits without scrolling; the other
+    /// Sizes the window so the Voice model tab, the tallest, fits without scrolling; the other
     /// tabs stretch to match. Capped at the screen's working area.
     /// </summary>
     void FitToSpeechModelTab()
@@ -122,23 +132,41 @@ public sealed partial class MainWindow : Window
         updating = false;
 
         var cfg = engine.Config;
-        if (engine.StartError is { } error) ButtonPrompt.Fill(StatusText, error);
-        else if (!engine.IsRunning) ButtonPrompt.Fill(StatusText, "Paused: ignoring the controller and keyboard shortcut");
-        else if (engine.ControllerSlot < 0)
-            ButtonPrompt.Fill(StatusText, cfg.KeyboardShortcut is { } key ? $"No controller connected · keyboard shortcut {key} is ready" : "Waiting for a controller…");
-        else if (engine.ChatOpen) ButtonPrompt.Fill(StatusText, "Chat open · press {0} to dictate", engine.ButtonStyle, Chord.Parse(cfg.DictateChord));
-        else ButtonPrompt.Fill(StatusText, "Controller connected · open chat with {0}", engine.ButtonStyle, Chord.Parse(cfg.OpenChatChord));
         if (engine.ButtonStyle != shownStyle) ShowBindings(); // a different kind of controller: its own icons
+        var status = HomeStatus.Of(engine.StartError, engine.IsRunning, phase, engine.LoadedModel is not null, engine.IsLoadingModel,
+                                   gameChecked && !engine.GameFound, engine.ControllerSlot >= 0, engine.ChatOpen, cfg.KeyboardShortcut);
+        ShowStatus(status.Headline, status.Detail, status.Tone);
+        ControllerText.Text = !engine.IsRunning ? "" : engine.ControllerSlot >= 0 ? engine.ControllerName ?? "Controller connected" : "No controller";
         ActiveSwitch.IsEnabled = recording == Recording.None;
+        GlanceModelText.Text = engine.LoadedModel is { } model ? ModelCatalog.DisplayName(model) : engine.IsLoadingModel ? "Loading…" : "None yet";
+        GlanceMicText.Text = cfg.MicDevice < 0 ? "Windows default" : $"Device {cfg.MicDevice}";
+        GlanceShortcutText.Text = cfg.KeyboardShortcut ?? "Off";
 
         UpdateButtonsTab();
         UpdateSpeechModelTab();
         UpdateSettingsTab();
+        UpdateSetup();
+    }
+
+    /// <summary>The Home tab's status: "{0}" and "{1}" in the detail are drawn as the open-chat and dictate buttons.</summary>
+    void ShowStatus(string headline, string detail, StatusTone tone)
+    {
+        StatusHeadline.Text = headline;
+        if (engine is null) ButtonPrompt.Fill(StatusText, detail);
+        else ButtonPrompt.Fill(StatusText, detail, engine.ButtonStyle, Chord.Parse(engine.Config.OpenChatChord), Chord.Parse(engine.Config.DictateChord));
+        StatusDot.Fill = StatusRing.Stroke = StatusIcon.Foreground = Brush($"Tone{tone}Brush");
+        StatusRing.Fill = Brush($"Tone{tone}FillBrush");
+        StatusIcon.Glyph = tone == StatusTone.Problem ? "\uE7BA" : "\uE720"; // warning, or the microphone
     }
 
     void Tabs_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
     {
-        int tab = sender.Items.IndexOf(sender.SelectedItem);
+        if (!inSetup) ShowTab(sender.Items.IndexOf(sender.SelectedItem));
+    }
+
+    void ShowTab(int tab)
+    {
+        if (Tabs.SelectedItem != Tabs.Items[tab]) Tabs.SelectedItem = Tabs.Items[tab]; // comes back here through SelectionChanged
         DictationPage.Visibility = tab == 0 ? Visibility.Visible : Visibility.Collapsed;
         ModelPage.Visibility = tab == SpeechModelTab ? Visibility.Visible : Visibility.Collapsed;
         ButtonsPage.Visibility = tab == 2 ? Visibility.Visible : Visibility.Collapsed;
@@ -154,22 +182,40 @@ public sealed partial class MainWindow : Window
         else engine.Stop();
     }
 
-    // ---- Dictation tab --------------------------------------------------------------------
+    // ---- Home tab --------------------------------------------------------------------
 
     void ShowHeard(string text, TimeSpan took, double seconds)
     {
         LastHeardHint.Visibility = Visibility.Collapsed;
         LastHeardText.Visibility = Visibility.Visible;
         LastHeardText.Text = text.Length > 0 ? text : "(nothing recognisable)";
+        CopyHeardButton.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        LastHeardMeta.Visibility = Visibility.Visible;
         var model = engine?.LoadedModel is { } path ? ModelCatalog.DisplayName(path) : "?";
         LastHeardMeta.Text = $"{seconds:F1} s of speech · transcribed in {took.TotalMilliseconds:F0} ms by {model}";
+    }
+
+    void CopyHeardButton_Click(object sender, RoutedEventArgs e)
+    {
+        var data = new DataPackage();
+        data.SetText(LastHeardText.Text);
+        Clipboard.SetContent(data);
+    }
+
+    /// <summary>The activity log is for when something goes wrong, so it stays folded away until asked for.</summary>
+    void ActivityToggle_Click(object sender, RoutedEventArgs e)
+    {
+        bool show = LogBorder.Visibility != Visibility.Visible;
+        LogBorder.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        ActivityToggle.Content = show ? "Hide activity" : "Show activity";
+        if (show && log.Count > 0) LogList.ScrollIntoView(log[^1]);
     }
 
     void OnLogWritten(string line, bool warning) => DispatcherQueue.TryEnqueue(() =>
     {
         log.Add(new LogLine(line, warning ? warningBrush : normalBrush));
         if (log.Count > MaxLogLines) log.RemoveAt(0);
-        if (DictationPage.Visibility == Visibility.Visible) LogList.ScrollIntoView(log[^1]);
+        if (DictationPage.Visibility == Visibility.Visible && LogBorder.Visibility == Visibility.Visible) LogList.ScrollIntoView(log[^1]);
     });
 
     /// <summary>

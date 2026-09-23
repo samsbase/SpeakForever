@@ -9,7 +9,7 @@ using Windows.UI.Core;
 
 namespace SpeakForever.Gui.Views;
 
-/// <summary>The Buttons &amp; shortcuts tab: rebinding the controller buttons and the keyboard shortcut.</summary>
+/// <summary>The Controls tab: rebinding the controller buttons and the keyboard shortcut.</summary>
 public sealed partial class MainWindow
 {
     static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(10);
@@ -35,7 +35,10 @@ public sealed partial class MainWindow
         DictateButton.IsEnabled = recording == Recording.Dictate || (canRebind && recording == Recording.None);
         KeyboardButton.IsEnabled = recording is Recording.Keyboard or Recording.None;
         KeyboardOffButton.Visibility = cfg.KeyboardShortcut is null || recording == Recording.Keyboard ? Visibility.Collapsed : Visibility.Visible;
-        KeyboardCaption.Foreground = engine.KeyboardError is null ? Brush("SilverBrush") : warningBrush;
+        RebindHint.Text = !engine.IsRunning ? "Turn on Active (on the Home tab) to change the controller buttons."
+                        : "Connect a controller to change its buttons.";
+        RebindHint.Visibility = canRebind || recording != Recording.None ? Visibility.Collapsed : Visibility.Visible;
+        KeyboardCaption.Foreground = engine.KeyboardError is null ? Brush("MutedBrush") : warningBrush;
         KeyboardCaption.Text = engine.KeyboardError
             ?? "Optional. Types into whichever text box you're in, in any program, like Windows+H. Press it again to finish early.";
     }
@@ -51,8 +54,7 @@ public sealed partial class MainWindow
         if (recording != Recording.Dictate) DictateCap.Child = ButtonPrompt.Icons(dictate, style);
         KeyboardText.Text = cfg.KeyboardShortcut ?? "Off";
         ButtonPrompt.Fill(PauseHint, "Or press {0} again to finish straight away.", style, dictate);
-        ButtonPrompt.Fill(LastHeardHint, "Nothing yet. In the game, open chat with {0} and press {1}. Or try Test microphone on the Speech model tab.",
-                          style, openChat, dictate);
+        ButtonPrompt.Fill(LastHeardHint, "Nothing yet. What you say shows up here as well as in the game.");
     }
 
     /// <summary>A message under the bindings; "{0}" in it is drawn as the chord's button icons.</summary>

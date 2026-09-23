@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- A framed banner at the top of the Dictation tab: something needs the user's attention. -->
-    <ContentControl Style="{StaticResource Frame}">
+    <ContentControl Style="{StaticResource Card}">
         <Grid ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -14,10 +14,10 @@
             </Grid.ColumnDefinitions>
             <FontIcon x:Name="IconGlyph" FontSize="22" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" />
             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                <TextBlock x:Name="TitleText" Style="{StaticResource FrameHeader}" TextWrapping="Wrap" />
+                <TextBlock x:Name="TitleText" Style="{StaticResource ItemTitle}" TextWrapping="Wrap" />
                 <TextBlock x:Name="BodyText" TextWrapping="Wrap" />
             </StackPanel>
-            <Button x:Name="ActionButton" Grid.Column="2" Style="{StaticResource PanelButton}" VerticalAlignment="Center" Click="ActionButton_Click" />
+            <Button x:Name="ActionButton" Grid.Column="2" Style="{StaticResource AccentButton}" VerticalAlignment="Center" Click="ActionButton_Click" />
         </Grid>
     </ContentControl>
 </UserControl>
