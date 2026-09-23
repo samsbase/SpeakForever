@@ -40,9 +40,9 @@ static class Diagnostics
             await Task.Delay(TimeSpan.FromSeconds(1), ct);
         }
         var fg = Native.Foreground();
-        if (!cfg.IsGame(fg.Process))
+        if (!cfg.IsGame(fg.Process, fg.Path))
         {
-            Log.Warn($"Not typing: foreground is '{fg.Process}', not the game ({string.Join(", ", cfg.ProcessNames)}).");
+            Log.Warn($"Not typing: foreground is '{fg.Process}', not the game.");
             return 1;
         }
         if (Native.TypeText(text) is { } error)

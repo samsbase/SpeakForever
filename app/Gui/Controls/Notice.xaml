@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="SpeakForever.Gui.Controls.Notice"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- A framed banner at the top of the Dictation tab: something needs the user's attention. -->
+    <ContentControl Style="{StaticResource Frame}">
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <FontIcon x:Name="IconGlyph" FontSize="22" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                <TextBlock x:Name="TitleText" Style="{StaticResource FrameHeader}" TextWrapping="Wrap" />
+                <TextBlock x:Name="BodyText" TextWrapping="Wrap" />
+            </StackPanel>
+            <Button x:Name="ActionButton" Grid.Column="2" Style="{StaticResource PanelButton}" VerticalAlignment="Center" Click="ActionButton_Click" />
+        </Grid>
+    </ContentControl>
+</UserControl>

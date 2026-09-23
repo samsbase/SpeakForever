@@ -2,130 +2,148 @@
 
 # Speak Forever
 
-Voice-to-chat for WoW: Forever in gamepad mode. Open chat, click the right stick, and say your message. It's typed into the chat box, and you press **A** to send it. Keyboard players can set a shortcut instead, which works like Windows+H.
+[![Build](https://github.com/samsbase/SpeakForever/actions/workflows/build.yml/badge.svg)](https://github.com/samsbase/SpeakForever/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/samsbase/SpeakForever)](https://github.com/samsbase/SpeakForever/releases/latest)
 
-Speech recognition is [Whisper](https://github.com/openai/whisper), running locally on your GPU through [whisper.cpp](https://github.com/ggml-org/whisper.cpp). Nothing is sent anywhere. There's no addon: the app works with WoW's own gamepad chat panel.
+Chat in **World of Warcraft: Forever** with your voice. Open chat with your controller, click the right stick, and say your message: it's typed into the chat box, and you press **A** to send it. Keyboard players can use a shortcut instead, which works like Windows+H.
 
-## Using it
+Speech recognition is [Whisper](https://github.com/openai/whisper), running on your own PC through [whisper.cpp](https://github.com/ggml-org/whisper.cpp). What you say never leaves your computer. There's no addon: Speak Forever works alongside WoW's own gamepad chat panel.
 
-1. **LB+RB+Down** opens the chat panel, as normal. Opening it from the radial menu works too (**Menu** button, then Chat on the Main Menu page).
-2. **Click the right stick** (RS). You hear a beep: speak for as long as you like.
-3. Stop talking and it finishes after a 1.5 s pause. Or **click RS again** to finish straight away. A rising two-tone beep means it heard you, and the text appears in the chat box a second or two later.
-4. **A** sends it. **B** backs out. **X** changes channel, as normal.
+WoW: Forever is in beta; Speak Forever works with the beta client.
 
-Press RS again to add more to the same message. Pressing A or B mid-dictation discards the dictation.
+## Download and install
 
-**Both buttons can be changed** in the app's **Buttons & shortcuts** tab. Click **Change**, hold any modifier buttons, press the last button, then let go. The app can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here. Combos that clash with the chat panel's own buttons (A, B, X, Y) are refused.
+1. Go to the **[latest release](https://github.com/samsbase/SpeakForever/releases/latest)** and, under **Assets**, download **`SpeakForever-Setup-<version>.exe`**.
+2. Run it. It installs for your Windows account only, so it doesn't need admin rights.
+   - The installer isn't code-signed yet, so Windows SmartScreen may say "Windows protected your PC". Click **More info**, then **Run anyway**.
+   - If your PC doesn't have Microsoft's Visual C++ runtime (14.44 or later), Windows asks once to install it.
+   - Options: a desktop shortcut, and starting Speak Forever when you sign in. Both are off by default.
+3. Speak Forever is now in the Start menu: search for it, or right-click it to pin it to Start or the taskbar.
 
-The app works out whether chat is open by watching the same buttons WoW responds to. RS only dictates while the chat panel's text box is open, and it never types into anything but the game, so stray text can't turn into key presses in game. Inside the chat panel, RS normally just toggles tooltips.
+**You need:** Windows 10 (version 2004) or Windows 11, 64-bit; WoW: Forever; a microphone (a headset works best). A controller for gamepad mode, or just a keyboard. A graphics card with Vulkan makes recognition fast, but it also works on the processor.
 
-The radial menu is tracked the way WoW draws it: it always opens on the Main Menu page, LB/RB cycle pages (wrapping round), and a selection happens when the right stick springs back to centre. If you've moved the radial menu to another button in WoW, set `RadialMenuChord` in the config to match.
+**Updates:** Speak Forever checks for a new version when it starts and every few hours, and says so on its Dictation tab. **Settings › Check for updates** checks now. Download the new installer and run it: it updates in place, keeping your settings and speech models.
 
-### Keyboard shortcut
+**Uninstalling:** Windows Settings › Apps › Speak Forever. It asks whether to delete your downloaded speech models and settings too; the default is to keep them.
 
-Off by default. In **Buttons & shortcuts**, click **Change** next to *Dictate (keyboard)* and press the combination, for example Ctrl+Shift+Space (**Turn off** removes it). It must include Ctrl, Alt, Shift or Windows, or be an F key, so it doesn't steal a key you type with. If another program already owns it, the app says so in red; pick another.
+## First run
 
-Like Windows+H, the shortcut dictates into **whatever text box has focus**, in any program: open chat with Enter, press the shortcut, speak. Press it again to finish early.
-
-Sound cues: a beep means it's listening. A rising two-tone means it heard you and is transcribing. A short blip means the dictation was discarded. A low buzz means it wasn't possible (chat not open, nothing heard, or an error).
-
-## Install
-
-1. Run **`SpeakForever-Setup-1.0.0.exe`**. It installs for your Windows account only, so it needs no admin rights. The one exception is Microsoft's Visual C++ runtime (14.44 or later): if your PC doesn't already have it, Windows asks once to install it. Windows 10 (2004) or later, 64-bit.
-   - The installer isn't code-signed yet, so SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
-   - Options: a desktop shortcut, and starting with Windows. Both are off by default.
-   - Afterwards, Speak Forever is in the Start menu: search for it, or right-click it to pin it to Start or the taskbar. Win+R `SpeakForever` also starts it.
-2. **Pick a speech model** in the app's **Speech model** tab and click **Download**. Each model shows its download size and how much memory it holds while running. Downloads are checked against a SHA-256 hash before use, and can be cancelled.
+1. **Speak Forever finds WoW: Forever** where Battle.net installed it. If it can't, it asks: choose the folder with the game in it (in the beta, `World of Warcraft\_classic_beta_`; choosing the `World of Warcraft` folder works too). You can change it any time on the **Settings** tab. Speak Forever only ever types into the game it finds there.
+2. **Download a speech model** on the **Speech model** tab. Each model shows its download size and how much memory it uses while running. Downloads come from the whisper.cpp project on Hugging Face and are checked against a SHA-256 hash.
 
    | Model | Download | Memory while running | Notes |
    |---|---|---|---|
-   | **Turbo** (recommended) | 574 MB | about 1.0 GB | As accurate as full precision in the benchmark |
-   | Turbo 8-bit | 874 MB | about 1.2 GB | Same transcripts as full precision |
+   | **Turbo** (recommended) | 574 MB | about 1.0 GB | As accurate as full precision in testing |
+   | Turbo 8-bit | 874 MB | about 1.2 GB | Same results as Turbo |
    | Turbo full precision | 1.6 GB | about 2.0 GB | No more accurate in testing |
-   | Small | 488 MB | about 1.0 GB | Less accurate, and slower |
-   | Base | 148 MB | about 0.6 GB | For low-memory PCs; makes several times more mistakes |
+   | Small | 488 MB | about 1.0 GB | For PCs without a capable graphics card; more mistakes |
+   | Base | 148 MB | about 0.6 GB | For low-memory PCs; several times more mistakes |
 
-   Models are saved in `%LOCALAPPDATA%\SpeakForever\models\`. Any other `ggml-*.bin` from [huggingface.co/ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp) dropped in there also appears in the list.
+   The first time a model runs on your graphics card, the driver prepares it, which can take 20 seconds or more. After that it loads in a few seconds.
+3. **Leave Speak Forever running** while you play. Play WoW in **Windowed (Fullscreen)** or windowed mode.
 
-   WoW fills most of a 16 GB card's video memory, so the model usually runs from system RAM instead. The app uses flash attention to stay fast when that happens; without it, the same message took 4.6 s.
-3. **Leave the app open** while you play.
+## Using it
 
-**Uninstalling** (Settings › Apps) asks whether to delete your downloaded models and settings as well. The default is to keep them.
+### With a controller
 
-WoW must be in **Windowed (Fullscreen)** or windowed mode, and in the foreground.
+1. **LB+RB+Down** opens the chat panel, as normal. Opening Chat from the radial menu (the **Menu** button) works too.
+2. **Click the right stick** (RS). You hear a beep: speak for as long as you like.
+3. Stop talking and it finishes after a 1.5 second pause, or **click RS again** to finish straight away. A rising two-tone beep means it heard you, and your words appear in the chat box a second or two later.
+4. **A** sends it. **B** backs out. **X** changes channel, as normal.
 
-## The app
+Click RS again to add more to the same message. Pressing A or B while you're speaking discards it.
 
-Styled after WoW Classic's frames, in the arcane blue of the logo. The logo in the title bar is still while you play, which costs nothing. It ripples while it's listening and quickens while transcribing, so it doubles as a status light. The headings use Cinzel, a free font under the SIL Open Font License (bundled with its licence); WoW's own font is licensed and can't be shipped. All artwork is original.
+Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open, and it never types into anything but the game, so stray words can't turn into key presses in game.
 
+**Changing the buttons:** on the **Buttons & shortcuts** tab, click **Change**, hold any modifier buttons, press the last button, then let go. Speak Forever can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here.
 
-The status line and the **Active / Paused** switch sit above three tabs: **Dictation** (Last heard and Activity), **Speech model**, and **Buttons & shortcuts**.
+### With a keyboard
 
-- **The status line** shows whether the controller is connected and whether chat is open.
-- **Active / Paused** turns controller watching and the keyboard shortcut on and off.
-- **Speech model** lists the models with their download size and memory use: **Download**, **Use** (switches live; the choice is remembered), or the bin icon to delete one.
-- **Stop listening after a pause of** sets how long a pause ends a dictation (0.5–4 s). Raise it if you pause mid-thought; RS always finishes straight away.
-- **Test microphone** runs one dictation without the game, handy for comparing models on your own voice.
-- **Buttons & shortcuts** shows the open-chat combo, the dictate button and the keyboard shortcut, with **Change** to rebind them. Changes apply immediately.
-- **Last heard** shows the latest transcript, how long the speech was, how long transcription took, and which model did it.
-- **Activity** is the live log. It's also written to `%LOCALAPPDATA%\SpeakForever\speakforever.log`.
+On the **Buttons & shortcuts** tab, click **Change** next to *Dictate (keyboard)* and press a combination such as Ctrl+Shift+Space. It must include Ctrl, Alt, Shift or Windows, or be an F key, so it doesn't take a key you type with.
 
-The first time a model runs on the GPU, the graphics driver compiles its shaders, which can take 20+ seconds. After that it loads in a few seconds.
+Like Windows+H, the shortcut types into **whatever has focus**: in WoW, open chat with Enter first, then press the shortcut and speak. Press it again to finish early.
 
-## Checks to run in game first
+### Sound cues
 
-| # | Question | How |
-|---|---|---|
-| 1 | Does typed text reach the chat box **in gamepad mode**? | `publish\SpeakForeverCli.exe --test-type`, then open chat (LB+RB+Down) within 5 s. |
-| 2 | Does the app follow the chat panel? | Watch the app's status line while you open chat, open the X menu, pick a channel, and send. |
-| 3 | End to end | LB+RB+Down, click RS, say something, wait for the text, press A. |
-| 4 | **Safety** | Click RS, start talking, press **B** mid-sentence. Nothing should be typed, and your character mustn't move. |
+A beep means it's listening. A rising two-tone means it heard you and is transcribing. A short blip means the dictation was discarded. A low buzz means it couldn't (chat not open, nothing heard, or an error).
 
-## Config (`%LOCALAPPDATA%\SpeakForever\speakforever.json`)
+### The window
 
-Plain JSON, checked at launch: a misspelt setting, a value out of range or a comment is reported (in the app's status line, or by the CLI) rather than silently ignored. Comments aren't allowed because the app rewrites the file whenever a setting changes, which would lose them.
+The status line shows whether your controller is connected and whether chat is open; **Active / Paused** turns Speak Forever on and off. The logo in the title bar ripples while it's listening and quickens while transcribing.
+
+| Tab | What's there |
+|---|---|
+| **Dictation** | Anything that needs your attention, what it last heard (with timings), and the activity log |
+| **Speech model** | Download, switch (**Use**) or delete models; **Test microphone**; how long a pause ends a dictation |
+| **Buttons & shortcuts** | The controller buttons and the keyboard shortcut |
+| **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); version, **Check for updates**, and whether to check automatically |
+
+## Privacy
+
+Your voice is recognised on your PC and never sent anywhere. Speak Forever connects to the internet only to download the speech models you choose (from Hugging Face) and to check GitHub for new versions. Turn the update check off on the **Settings** tab.
+
+## Limitations
+
+- **Chat opened with the keyboard** (Enter) isn't seen by the controller tracking, so RS won't dictate into it. Open chat with the controller, or use the keyboard shortcut.
+- **The keyboard shortcut types into whatever has focus.** In WoW, open chat first, or the words become key presses.
+- **WoW's chat box holds 255 characters**, about 40–50 words. Longer dictations are cut at the last whole word, and the activity log shows what was dropped.
+- **Dictation ends on a pause**, detected by volume. Loud game audio through speakers can keep it listening; a headset avoids that.
+- **Terms of service:** Speak Forever types only your own dictated words into one game client, as dictation software does. Blizzard's enforced policy targets input broadcasting across several clients, but Blizzard hasn't explicitly approved this.
+
+## Troubleshooting
+
+- **Nothing is typed:** check the Dictation tab's notices. Speak Forever needs a speech model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
+- **"Chat isn't open":** open chat with LB+RB+Down (or the radial menu), not Enter, or use the keyboard shortcut.
+- **It keeps listening:** raise the pause on the Speech model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
+- The log is also written to `%LOCALAPPDATA%\SpeakForever\speakforever.log`.
+
+## Advanced
+
+### Settings file (`%LOCALAPPDATA%\SpeakForever\speakforever.json`)
+
+Most settings are in the app. The file is plain JSON, checked at launch: a misspelt setting, a value out of range or a comment is reported rather than silently ignored. (Comments aren't allowed because the app rewrites the file when a setting changes, which would lose them.)
 
 | Key | Default | Meaning |
 |---|---|---|
-| `ProcessNames` | `["WowB"]` | Game process names without `.exe`. The beta is `WowB`; the live release may differ. |
-| `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set it from the app's Buttons & shortcuts tab. |
-| `DictateChord` | `RS` | Starts a dictation while chat is open. Also set from the app. |
-| `RadialMenuChord` | `START` | WoW's radial menu button (the Menu button), so chat opened from the radial is seen too |
-| `KeyboardShortcut` | `null` (off) | e.g. `Ctrl+Shift+Space`. Dictates into whichever window has focus. Set from the app. |
+| `GameFolder` | found on first run | The WoW: Forever folder. Speak Forever only types into a program running from here. Set on the Settings tab. |
+| `ProcessNames` | `["WowB"]` | Used only while `GameFolder` isn't set: game process names without `.exe`. |
+| `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Buttons & shortcuts tab. |
+| `DictateChord` | `RS` | Starts a dictation while chat is open. Also set in the app. |
+| `RadialMenuChord` | `START` | WoW's radial menu button, so chat opened from the radial is seen too |
+| `KeyboardShortcut` | `null` (off) | e.g. `Ctrl+Shift+Space`. Set in the app. |
 | `SendChord`, `BackChord` | `A`, `B` | The chat panel's Send and Back |
-| `MenuChords` | `X`, `Y` | The panel's Chat Channels and Tab Settings menus |
-| `Prompt` | WoW place names | Words Whisper should expect. Without it, it hears "Iron Fudge" and "Dead Minds". Add guild and friends' names. |
-| `ModelPath` | Turbo (q5_0) | The model list's **Use** sets this. |
-| `Language` | `en` | Whisper language code, or `auto`. |
-| `UseGpu` | `true` | Vulkan GPU; `false` for CPU only. Takes effect after a restart. |
-| `BeamSize` | `1` | Decoding width. 1 (greedy) matched 5-beam accuracy on turbo in the benchmark, faster and lighter. |
-| `MicDevice` | `-1` | `-1` is the Windows default mic. `--test-mic` lists the others. |
-| `SilenceMs` | `1500` | Pause that ends a dictation. Set from the app's slider. |
-| `NoSpeechTimeoutSeconds` | `6` | Gives up if you don't start talking. |
-| `MaxSeconds` | `120` | Only a guard against a mic that never goes quiet; far longer than a chat message. |
-| `SpeechThresholdDb` | `10` | How far above background noise counts as speech. Raise it if game audio from speakers triggers it; a headset helps. |
-| `DelayMs` | `150` | Pause after RS before recording, so the beep isn't recorded. |
-| `Sounds` | `true` | The audio cues. |
+| `MenuChords` | `X`, `Y` | The chat panel's Chat Channels and Tab Settings menus |
+| `CheckForUpdates` | `true` | Check GitHub for new versions at launch and every 6 hours. Set on the Settings tab. |
+| `Prompt` | WoW place names | Words Whisper should expect. Without it, it hears "Iron Fudge" and "Dead Minds". Add your guild's and friends' names. |
+| `ModelPath` | set by **Use** | The speech model in use |
+| `Language` | `en` | Whisper language code, or `auto` |
+| `UseGpu` | `true` | Vulkan graphics card; `false` for the processor only. Takes effect after a restart. |
+| `BeamSize` | `1` | Decoding width. 1 (greedy) matched 5-beam accuracy on Turbo in testing, and is faster and lighter. |
+| `MicDevice` | `-1` | `-1` is the Windows default microphone. `SpeakForeverCli --test-mic` lists the others. |
+| `SilenceMs` | `1500` | The pause that ends a dictation. Set by the slider. |
+| `NoSpeechTimeoutSeconds` | `6` | Gives up if you don't start talking |
+| `MaxSeconds` | `120` | Only a guard against a microphone that never goes quiet |
+| `SpeechThresholdDb` | `10` | How far above background noise counts as speech |
+| `DelayMs` | `150` | Pause after the dictate button before recording, so the beep isn't recorded |
+| `Sounds` | `true` | The sound cues |
 
-## CLI (`SpeakForeverCli.exe`)
+### Command line (`SpeakForeverCli.exe`, installed beside the app)
 
 | Command | Does |
 |---|---|
-| *(none)* | Headless mode, the same as the app without a window |
-| `--probe` | Logs controller presses and chat-panel tracking. Records and types nothing. |
-| `--test-mic` | One dictation from the microphone, printed with timing |
-| `--test-type [text]` | Types text into WoW's chat box after a 5 s countdown |
+| *(none)* | Headless mode: the app without a window |
+| `--probe` | Logs controller presses and chat tracking; records and types nothing |
+| `--test-mic` | One dictation from the microphone, printed with timings |
+| `--test-type [text]` | Types text into WoW's chat box after a 5 second countdown |
 | `--transcribe file.wav` | Transcribes a file |
-| `--benchmark` | Memory, speed and word error rate for every installed model, at beam 5 and greedy (see below) |
+| `--benchmark [filter]` | Memory, speed and accuracy for every installed model (below) |
 | `--model path …` | Uses a different model for any of the above |
 
-Only one copy, app or CLI, can watch the controller at a time; otherwise both would type every message.
+Only one copy, app or command line, watches the controller at a time; otherwise both would type every message.
 
-## Benchmark
+### Benchmark
 
-`SpeakForeverCli.exe --benchmark` measures every model in the models folder at both decoding widths, each in its own process: RAM, GPU memory (in video memory and spilled to system RAM), peak during transcription, speed, and word error rate. The test set is `%LOCALAPPDATA%\SpeakForever\benchmark\`: `.wav` files each with a `.txt` of what was said. Every clip is also run with noise mixed in. `powershell.exe -File tools\make-benchmark-clips.ps1` generates 24 clips with the Windows voices; add your own recordings the same way for a truer test.
-
-Results with WoW running (8-second clips; memory in MB, held between dictations):
+`SpeakForeverCli --benchmark` measures each installed model, each in its own process: memory (RAM, video memory, and GPU memory spilled to RAM), speed, and word error rate on clean and noisy audio. The test clips are `.wav` files with a `.txt` of what was said, in `%LOCALAPPDATA%\SpeakForever\benchmark\`; `powershell -File tools\make-benchmark-clips.ps1` generates 24 with the Windows voices. Results with WoW running (memory in MB, held between dictations):
 
 | Model | Decoding | Idle memory | Peak | Errors, clean | Errors, noisy | Per clip |
 |---|---|---|---|---|---|---|
@@ -135,47 +153,51 @@ Results with WoW running (8-second clips; memory in MB, held between dictations)
 | small | beam 5 | 979 | 1,835 | 0.4% | 3.4% | 921 ms |
 | base | greedy | 599 | – | 1.9% | 8.0% | 190 ms |
 
-The test clips are synthetic voices. Adding a few recordings of your own voice to the benchmark folder is the best check that q5_0 holds up for you.
+## For developers
 
-## Limitations
-
-- **Chat opened with the keyboard** (Enter) isn't seen by the app, so RS won't dictate into it. Open chat with the controller, or use the keyboard shortcut.
-- **The keyboard shortcut has no chat check**: like Windows+H, it types into whatever has focus. In WoW, open chat first, or the words become key presses.
-- **WoW's chat box holds 255 characters**, roughly 40–50 words. Longer dictations are cut at the last whole word, and the app logs what was dropped.
-- **Recognition ends on a pause**, detected by volume. Loud game audio through speakers can keep it listening; a headset avoids that.
-- **Terms of service:** the app types only your own dictated words into one game client, as dictation software does. Blizzard's enforced policy targets input broadcasting across multiple clients. This is not something Blizzard has explicitly approved, though.
-
-## Building
+### Building
 
 ```
-.\build.ps1              # self-contained app and CLI in publish\
+.\build.ps1              # tests, then the self-contained app and CLI in publish\
 .\build.ps1 -Installer   # also dist\SpeakForever-Setup-<version>.exe
 ```
 
-The installer needs [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later. The version number comes from `Directory.Build.props`. `SpeakForever.slnx` opens everything in Visual Studio or Rider.
+Needs the .NET 10 SDK (pinned in `global.json`) and, for the installer, [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later. The Visual C++ redistributable isn't kept in git: `build.ps1 -Installer` downloads it from Microsoft the first time and checks its signature. `SpeakForever.slnx` opens everything in Visual Studio or Rider.
 
-**Tests.** `dotnet test --project tests\SpeakForever.Core.Tests` runs the engine's tests (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings and shortcuts, the settings file and the model list. They use a temporary data folder (`SPEAKFOREVER_DATA`), never your real settings. `build.ps1` runs them first and stops if any fail.
+- **Tests:** `dotnet test --project tests\SpeakForever.Core.Tests` (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings, shortcuts, the settings file, finding the game, update checks and the model list. They use a temporary data folder (`SPEAKFOREVER_DATA`), never your real settings.
+- **Linting:** every build runs the .NET analyzers (latest-recommended) and the style rules in `.editorconfig`; warnings fail the build. Package versions are in `Directory.Packages.props`; `nuget.config` pins the feed to nuget.org.
 
-**Linting.** Every build runs the .NET analyzers (`AnalysisLevel` latest-recommended) and the code style rules in `.editorconfig`, and warnings fail the build. Package versions live in `Directory.Packages.props`, `nuget.config` pins the feed to nuget.org, and `global.json` pins the .NET SDK. The Visual C++ redistributable isn't kept in git: `build.ps1 -Installer` downloads it from Microsoft the first time and checks its signature.
+### Releasing
 
-**Layout.** Namespaces follow folders.
+[`.github/workflows/build.yml`](.github/workflows/build.yml) builds and tests every pull request. Every merge to `main` also builds the installer, keeps it with the workflow run, and, **if the version is new**, publishes it as a GitHub release tagged `v<version>`. To release:
+
+1. Bump `<Version>` in `Directory.Build.props`.
+2. Merge to `main`. The release appears with the installer attached, and installed copies offer the update within a few hours.
+
+The app checks for updates in the repository it was built from: the workflow passes `github.repository`, and local builds use `<GitHubRepository>` in `Directory.Build.props`. If the repository moves, change that and the links at the top of this README.
+
+### Layout
+
+Namespaces follow folders.
 
 | Folder | What's there |
 |---|---|
-| `app\Core` | The engine library. `Engine.cs` ties it together. |
-| `app\Core\Configuration` | `Config` (the settings file) and `AppPaths` |
+| `app\Core` | The engine library; `Engine.cs` ties it together |
+| `app\Core\Configuration` | The settings file (`Config`) and data folder (`AppPaths`) |
+| `app\Core\Game` | Finding WoW: Forever in a Battle.net install |
 | `app\Core\Input` | XInput, chords, the chat panel and radial menu trackers, the keyboard shortcut |
-| `app\Core\Presentation` | The model list's row view model: no UI types, so it's tested without WinUI |
 | `app\Core\Speech` | Recording, end-of-speech detection, Whisper, the model catalog and downloads |
 | `app\Core\Dictation` | One dictation from button to typed text, and the sound cues |
+| `app\Core\Updates` | Checking GitHub for a newer release |
+| `app\Core\Presentation` | The model list's row view model (no UI types, so it's tested without WinUI) |
 | `app\Core\Interop`, `app\Core\Logging` | Typing via SendInput; the log |
-| `app\Gui` | The WinUI 3 app: `Views\MainWindow` (one partial file per tab), `Controls\LogoView`, `Models` |
-| `app\Cli` | Headless mode; `Commands` has the benchmark and setup checks |
+| `app\Gui` | The WinUI 3 app: `Views\MainWindow` (one partial file per tab), `Controls`, `Models` |
+| `app\Cli` | The command line; `Commands` has the benchmark and setup checks |
 | `tests\SpeakForever.Core.Tests` | The engine's tests |
-| `installer` | Inno Setup script, branded wizard art, the Visual C++ redistributable |
-| `tools` | Benchmark clips; `IconGen` draws the app icon and installer art from the logo geometry (`IconGen icon <out.ico>`, `IconGen wizard installerrt app\Gui\Assets\Fonts\Cinzel.ttf`) |
+| `installer` | Inno Setup script and wizard art |
+| `tools` | Benchmark clips; `IconGen` draws the app icon and installer art (`IconGen icon <out.ico>`, `IconGen wizard installer\art app\Gui\Assets\Fonts\Cinzel.ttf`) |
 | `assets` | Logo SVGs |
 
-`THIRD-PARTY-NOTICES.txt` ships with the app.
+Speak Forever was called Voice Forever (and before that ForeverVoice); data in those folders under `%LOCALAPPDATA%` moves across on first launch, and the installer upgrades a Voice Forever install in place.
 
-Data from before the rename to Speak Forever (`%LOCALAPPDATA%\ForeverVoice`) moves across automatically on first launch.
+The app's look is original artwork styled after WoW Classic's frames; headings use Cinzel (SIL Open Font License, bundled with its licence). Third-party licences are in `THIRD-PARTY-NOTICES.txt`, which ships with the app. World of Warcraft is a trademark of Blizzard Entertainment, Inc.; Speak Forever is not affiliated with or endorsed by Blizzard.

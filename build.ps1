@@ -1,8 +1,10 @@
 # Builds Speak Forever: publishes the app and the CLI into .\publish, then (with -Installer) the
 # installer into .\dist. Both apps are self-contained: no .NET or Windows App SDK to install.
-param([switch]$Installer)
+# -Repository owner/repo: where the app looks for updates (the GitHub Action passes its own repository).
+param([switch]$Installer, [string]$Repository)
 $ErrorActionPreference = 'Stop'
 $out = Join-Path $PSScriptRoot 'publish'
+$repoArg = if ($Repository) { "-p:GitHubRepository=$Repository" } else { $null }
 $version = ([xml](Get-Content "$PSScriptRoot\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ }
 
 # Nothing is published unless the tests pass.
@@ -10,9 +12,9 @@ dotnet test --project "$PSScriptRoot\tests\SpeakForever.Core.Tests" -c Release
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
 if (Test-Path $out) { Remove-Item $out -Recurse -Force }
-dotnet publish "$PSScriptRoot\app\Gui" -c Release -p:Platform=x64 -r win-x64 --self-contained -o $out
+dotnet publish "$PSScriptRoot\app\Gui" -c Release -p:Platform=x64 -r win-x64 --self-contained -o $out $repoArg
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
-dotnet publish "$PSScriptRoot\app\Cli" -c Release -r win-x64 --self-contained -o $out
+dotnet publish "$PSScriptRoot\app\Cli" -c Release -r win-x64 --self-contained -o $out $repoArg
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
 # The speech engine's packages carry builds for every platform; x64 Windows needs only its own.

@@ -41,7 +41,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             }
         }
         var fg = Native.Foreground();
-        if (!anyWindow && !cfg.IsGame(fg.Process))
+        if (!anyWindow && !cfg.IsGame(fg.Process, fg.Path))
         {
             Log.Warn($"{trigger}: ignored, foreground is '{fg.Process}', not the game.");
             Cue.Error(cfg);
@@ -155,7 +155,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
         if (!anyWindow)
         {
             var fg = Native.Foreground();
-            if (!cfg.IsGame(fg.Process))
+            if (!cfg.IsGame(fg.Process, fg.Path))
             {
                 Log.Warn($"Not typing, foreground is '{fg.Process}', not the game.");
                 Cue.Error(cfg);

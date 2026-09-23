@@ -77,21 +77,23 @@ public sealed partial class MainWindow
     /// <param name="installed">Models are on disk, so one is there but failed to load.</param>
     void ShowModelNotice(bool noModel, bool installed)
     {
-        ModelNotice.Visibility = noModel ? Visibility.Visible : Visibility.Collapsed;
-        if (!noModel) return;
-        bool downloading = downloads.Count > 0;
-        ModelNoticeTitle.Text = downloading ? "Downloading a speech model"
-            : engine!.RemovedModel is not null && !installed ? "Your speech model was removed"
-            : installed ? "Speech model not loaded"
-            : "Download a speech model to start";
-        ModelNoticeText.Text = downloading ? "Dictation starts working as soon as it finishes. Progress is on the Speech model tab."
-            : installed ? $"{engine!.ModelStatus}. Pick another on the Speech model tab."
-            : engine!.RemovedModel is { } removed ? $"{removed} is no longer on this PC. Download it again, or another model, before you can dictate."
-            : "Speak Forever needs a speech model before it can dictate. Turbo is recommended: a 574 MB download, about 1 GB of memory while running.";
-        ModelNoticeButton.Content = downloading ? "Show progress" : "Choose a model";
+        if (!noModel)
+        {
+            ModelNotice.Show(null);
+            return;
+        }
+        if (downloads.Count > 0)
+            ModelNotice.Show("Downloading a speech model", "Dictation starts working as soon as it finishes. Progress is on the Speech model tab.", "Show progress");
+        else if (installed)
+            ModelNotice.Show("Speech model not loaded", $"{engine!.ModelStatus}. Pick another on the Speech model tab.", "Choose a model");
+        else if (engine!.RemovedModel is { } removed)
+            ModelNotice.Show("Your speech model was removed", $"{removed} is no longer on this PC. Download it again, or another model, before you can dictate.", "Choose a model");
+        else
+            ModelNotice.Show("Download a speech model to start",
+                "Speak Forever needs a speech model before it can dictate. Turbo is recommended: a 574 MB download, about 1 GB of memory while running.", "Choose a model");
     }
 
-    void ModelNoticeButton_Click(object sender, RoutedEventArgs e) => Tabs.SelectedItem = Tabs.Items[SpeechModelTab];
+    void ModelNotice_ActionClick(object sender, RoutedEventArgs e) => Tabs.SelectedItem = Tabs.Items[SpeechModelTab];
 
     // ---- Row actions (the buttons in the model list's template) ------------------------------
 

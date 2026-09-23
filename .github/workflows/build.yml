@@ -1,0 +1,73 @@
+# Builds and tests every pull request. On main, also builds the installer and, when the version in
+# Directory.Build.props is new, publishes it as a GitHub release: the app's update check finds it there.
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # creating releases
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install Inno Setup
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest 'https://jrsoftware.org/download.php/is.exe' -OutFile "$env:RUNNER_TEMP\is.exe"
+          Start-Process "$env:RUNNER_TEMP\is.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER' -Wait
+
+      - name: Test
+        if: github.event_name == 'pull_request'
+        run: dotnet test --project tests/SpeakForever.Core.Tests -c Release
+
+      - name: Build the app and installer
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: ./build.ps1 -Installer -Repository '${{ github.repository }}'
+
+      - name: Read the version
+        if: github.event_name != 'pull_request'
+        id: version
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version | Where-Object { $_ }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Keep the installer with this run
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeakForever-Setup-${{ steps.version.outputs.version }}
+          path: dist/SpeakForever-Setup-${{ steps.version.outputs.version }}.exe
+
+      - name: Publish a release for a new version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $tag = "v$env:VERSION"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            "Release $tag already exists: bump <Version> in Directory.Build.props to publish a new one."
+            exit 0
+          }
+          gh release create $tag "dist/SpeakForever-Setup-$env:VERSION.exe" --title "Speak Forever $env:VERSION" --generate-notes --target $env:GITHUB_SHA

@@ -60,6 +60,7 @@
                 <SelectorBarItem Text="Dictation" FontFamily="{StaticResource Cinzel}" IsSelected="True" />
                 <SelectorBarItem Text="Speech model" FontFamily="{StaticResource Cinzel}" />
                 <SelectorBarItem Text="Buttons &amp; shortcuts" FontFamily="{StaticResource Cinzel}" />
+                <SelectorBarItem Text="Settings" FontFamily="{StaticResource Cinzel}" />
             </SelectorBar>
 
             <!-- Dictation: the log fills whatever height the window has. -->
@@ -69,23 +70,12 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <!-- Shown until a model is in use: nothing can be dictated without one. -->
-                <ContentControl x:Name="ModelNotice" Style="{StaticResource Frame}" Visibility="Collapsed">
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <FontIcon Glyph="&#xE896;" FontSize="22" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" />
-                        <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ModelNoticeTitle" Style="{StaticResource FrameHeader}" />
-                            <TextBlock x:Name="ModelNoticeText" TextWrapping="Wrap" />
-                        </StackPanel>
-                        <Button x:Name="ModelNoticeButton" Grid.Column="2" Content="Choose a model" Style="{StaticResource PanelButton}"
-                                VerticalAlignment="Center" Click="ModelNoticeButton_Click" />
-                    </Grid>
-                </ContentControl>
+                <!-- What needs attention first: the game not found, no speech model, an update. -->
+                <StackPanel Spacing="14">
+                    <controls:Notice x:Name="GameNotice" Glyph="&#xE7FC;" Visibility="Collapsed" ActionClick="GameNotice_ActionClick" />
+                    <controls:Notice x:Name="ModelNotice" Glyph="&#xE896;" Visibility="Collapsed" ActionClick="ModelNotice_ActionClick" />
+                    <controls:Notice x:Name="UpdateNotice" Glyph="&#xE777;" Visibility="Collapsed" ActionClick="DownloadUpdate_Click" />
+                </StackPanel>
                 <ContentControl Grid.Row="1" Style="{StaticResource Frame}">
                     <StackPanel Spacing="6">
                         <TextBlock Text="Last heard" Style="{StaticResource FrameHeader}" />
@@ -253,6 +243,53 @@
                         <TextBlock x:Name="BindingMessage" Style="{StaticResource Caption}" Visibility="Collapsed" />
                     </StackPanel>
                 </ContentControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <ScrollViewer x:Name="SettingsPage" Grid.Row="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <StackPanel Padding="0,8,0,22" Spacing="14">
+                    <ContentControl Style="{StaticResource Frame}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="WoW: Forever" Style="{StaticResource FrameHeader}" />
+                            <TextBlock Style="{StaticResource Caption}" TextWrapping="Wrap"
+                                       Text="Speak Forever only ever types into the game, so it needs to know where the game is installed. It looks where Battle.net installs WoW when it first runs." />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="GameFolderText" Foreground="{StaticResource StarlightBrush}" VerticalAlignment="Center"
+                                           TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button x:Name="FindGameButton" Content="Find it" Style="{StaticResource PanelButton}" Click="FindGameButton_Click" />
+                                    <Button x:Name="ChooseGameButton" Content="Choose folder" Style="{StaticResource PanelButton}" Click="ChooseGameButton_Click" />
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock x:Name="GameMessage" Style="{StaticResource Caption}" TextWrapping="Wrap" Visibility="Collapsed" />
+                        </StackPanel>
+                    </ContentControl>
+
+                    <ContentControl Style="{StaticResource Frame}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Updates" Style="{StaticResource FrameHeader}" />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock x:Name="VersionText" Foreground="{StaticResource StarlightBrush}" />
+                                    <TextBlock x:Name="UpdateStatusText" Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button x:Name="DownloadUpdateButton" Content="Download" Style="{StaticResource PanelButton}" Visibility="Collapsed" Click="DownloadUpdate_Click" />
+                                    <Button x:Name="CheckUpdatesButton" Content="Check for updates" Style="{StaticResource PanelButton}" Click="CheckUpdatesButton_Click" />
+                                </StackPanel>
+                            </Grid>
+                            <ToggleSwitch x:Name="AutoUpdateSwitch" OnContent="Check automatically, at launch and every 6 hours"
+                                          OffContent="Check automatically, at launch and every 6 hours" Toggled="AutoUpdateSwitch_Toggled" />
+                        </StackPanel>
+                    </ContentControl>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

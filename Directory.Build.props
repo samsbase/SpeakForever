@@ -3,7 +3,14 @@
   <PropertyGroup>
     <Version>1.0.0</Version>
     <Product>Speak Forever</Product>
+    <!-- Where releases are published: the app checks here for updates. The GitHub Action passes the
+         real repository (-p:GitHubRepository=owner/repo), so this default only matters for local builds. -->
+    <GitHubRepository Condition="'$(GitHubRepository)' == ''">samsbase/SpeakForever</GitHubRepository>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="GitHubRepository" Value="$(GitHubRepository)" />
+  </ItemGroup>
 
   <PropertyGroup>
     <Nullable>enable</Nullable>

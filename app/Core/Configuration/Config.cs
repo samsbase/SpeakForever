@@ -12,8 +12,14 @@ namespace SpeakForever.Configuration;
 public sealed record Config
 {
     /// <summary>
-    /// Game client process names, without ".exe". The WoW: Forever beta runs as WowB (the
-    /// _classic_beta_ flavor); the live release may use a different name.
+    /// The WoW: Forever folder, the one with the game's .exe in it: found on first run, or chosen
+    /// on the Settings tab. The app only types into a program running from here.
+    /// </summary>
+    public string GameFolder { get; init; } = "";
+
+    /// <summary>
+    /// Game process names, without ".exe": what counts as the game while <see cref="GameFolder"/>
+    /// isn't set. The WoW: Forever beta runs as WowB.
     /// </summary>
     public IReadOnlyList<string> ProcessNames { get; init; } = ["WowB"];
 
@@ -90,7 +96,17 @@ public sealed record Config
 
     public bool Sounds { get; init; } = true;
 
-    public bool IsGame(string process) => ProcessNames.Contains(process, StringComparer.OrdinalIgnoreCase);
+    /// <summary>Checks for updates on GitHub at launch and every few hours.</summary>
+    public bool CheckForUpdates { get; init; } = true;
+
+    /// <summary>
+    /// The foreground program is the game: its .exe is in <see cref="GameFolder"/>. Without a
+    /// folder, or when the .exe's path can't be read, its process name is one of <see cref="ProcessNames"/>.
+    /// </summary>
+    public bool IsGame(string process, string exePath) =>
+        GameFolder.Length > 0 && exePath.Length > 0
+            ? string.Equals(Path.GetDirectoryName(exePath), Path.TrimEndingDirectorySeparator(GameFolder), StringComparison.OrdinalIgnoreCase)
+            : ProcessNames.Contains(process, StringComparer.OrdinalIgnoreCase);
 
     static readonly JsonSerializerOptions Json = new()
     {

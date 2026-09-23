@@ -7,7 +7,8 @@ namespace SpeakForever.Interop;
 public static partial class Native
 {
     const uint INPUT_KEYBOARD = 1, KEYEVENTF_KEYUP = 0x2, KEYEVENTF_UNICODE = 0x4;
-    const int MaxTitleLength = 256;
+    const int MaxTitleLength = 256, MaxPathLength = 32767;
+    const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
 
     /// <summary>
     /// Types text into the focused window as Unicode characters, independent of keyboard layout.
@@ -32,25 +33,47 @@ public static partial class Native
         Union = new InputUnion { Keyboard = new KeybdInput { Scan = c, Flags = KEYEVENTF_UNICODE | (up ? KEYEVENTF_KEYUP : 0) } },
     };
 
-    /// <summary>The foreground window's process name (without .exe) and title.</summary>
-    public static unsafe (string Process, string Title) Foreground()
+    /// <summary>The foreground window's process name (without .exe), the .exe's full path ("" if it can't be read), and its title.</summary>
+    public static unsafe (string Process, string Path, string Title) Foreground()
     {
         var h = GetForegroundWindow();
-        if (h == IntPtr.Zero) return ("", "");
+        if (h == IntPtr.Zero) return ("", "", "");
         GetWindowThreadProcessId(h, out var pid);
+        var path = ImagePath(pid);
         string name;
-        try
+        if (path.Length > 0) name = System.IO.Path.GetFileNameWithoutExtension(path);
+        else
         {
-            using var p = Process.GetProcessById((int)pid);
-            name = p.ProcessName;
-        }
-        catch (ArgumentException)
-        {
-            name = "?"; // exited in between
+            try
+            {
+                using var p = Process.GetProcessById((int)pid);
+                name = p.ProcessName;
+            }
+            catch (ArgumentException)
+            {
+                name = "?"; // exited in between
+            }
         }
         char* title = stackalloc char[MaxTitleLength];
         int length = GetWindowText(h, title, MaxTitleLength);
-        return (name, new string(title, 0, Math.Max(0, length)));
+        return (name, path, new string(title, 0, Math.Max(0, length)));
+    }
+
+    /// <summary>A process's .exe path, or "" if it can't be read (it exited, or it's elevated and we're not).</summary>
+    static unsafe string ImagePath(uint pid)
+    {
+        var process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (process == IntPtr.Zero) return "";
+        try
+        {
+            char* buffer = stackalloc char[MaxPathLength];
+            uint length = MaxPathLength;
+            return QueryFullProcessImageName(process, 0, buffer, ref length) ? new string(buffer, 0, (int)length) : "";
+        }
+        finally
+        {
+            CloseHandle(process);
+        }
     }
 
     // The union must be sized for MOUSEINPUT, the largest member, or SendInput rejects cbSize.
@@ -95,4 +118,15 @@ public static partial class Native
 
     [LibraryImport("user32.dll", EntryPoint = "GetWindowTextW")]
     private static unsafe partial int GetWindowText(IntPtr hWnd, char* text, int maxCount);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    private static partial IntPtr OpenProcess(uint access, [MarshalAs(UnmanagedType.Bool)] bool inherit, uint processId);
+
+    [LibraryImport("kernel32.dll", EntryPoint = "QueryFullProcessImageNameW", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static unsafe partial bool QueryFullProcessImageName(IntPtr process, uint flags, char* name, ref uint size);
+
+    [LibraryImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool CloseHandle(IntPtr handle);
 }

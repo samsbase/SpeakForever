@@ -65,7 +65,11 @@ public sealed partial class MainWindow : Window
         LoadStartingModel();
         engine.Start();
         UpdateState();
-        Root.Loaded += (_, _) => FitToSpeechModelTab();
+        Root.Loaded += async (_, _) =>
+        {
+            FitToSpeechModelTab();
+            await StartupChecksAsync();
+        };
     }
 
     /// <summary>Our own title row, with the logo; the caption buttons keep Windows' behaviour in our colours.</summary>
@@ -123,6 +127,7 @@ public sealed partial class MainWindow : Window
 
         UpdateButtonsTab();
         UpdateSpeechModelTab();
+        UpdateSettingsTab();
     }
 
     void Tabs_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
@@ -131,6 +136,7 @@ public sealed partial class MainWindow : Window
         DictationPage.Visibility = tab == 0 ? Visibility.Visible : Visibility.Collapsed;
         ModelPage.Visibility = tab == SpeechModelTab ? Visibility.Visible : Visibility.Collapsed;
         ButtonsPage.Visibility = tab == 2 ? Visibility.Visible : Visibility.Collapsed;
+        SettingsPage.Visibility = tab == SettingsTab ? Visibility.Visible : Visibility.Collapsed;
         if (tab == 0 && log.Count > 0) LogList.ScrollIntoView(log[^1]); // lines logged while hidden didn't scroll it
         if (tab == SpeechModelTab) RefreshModels(); // picks up models added or removed outside the app
     }
@@ -169,9 +175,11 @@ public sealed partial class MainWindow : Window
         args.Handled = true;
         AppWindow.Hide();
         Log.Written -= OnLogWritten;
+        stopUpdates.Cancel();
         foreach (var cancel in downloads.Values) cancel.Cancel();
         await SavePauseAsync();
         if (engine is not null) await engine.DisposeAsync();
+        stopUpdates.Dispose();
         shutDown = true;
         // Queued rather than called here: closing again from inside the handling of the first
         // close leaves the process running after the window has gone.
