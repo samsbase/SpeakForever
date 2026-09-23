@@ -25,11 +25,15 @@ public sealed partial class OverlayWindow : Window
     const uint DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWA_BORDER_COLOR = 34;
     const int DWMWCP_DONOTROUND = 1;
     const uint DWMWA_COLOR_NONE = 0xFFFFFFFE;
+    const uint DWM_BB_ENABLE = 1, DWM_BB_BLURREGION = 2;
 
     static readonly UISettings Settings = new();
 
+    static readonly double[] BarShape = [0.6, 0.85, 1, 0.85, 0.6]; // tallest in the middle, like the website's
+
     readonly IntPtr hwnd;
-    bool shown;
+    readonly double[] recent = new double[3]; // the latest loudness first
+    bool shown, followVoice;
 
     public OverlayWindow()
     {
@@ -49,6 +53,11 @@ public sealed partial class OverlayWindow : Window
         int corners = DWMWCP_DONOTROUND, border = unchecked((int)DWMWA_COLOR_NONE);
         _ = DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref corners, sizeof(int));
         _ = DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref border, sizeof(int));
+        // Without this Windows fills the window before ClearBackdrop's clear brush, and the pill sits in a dark square.
+        // Blur-behind over an empty region blurs nothing but has the window composited with its transparency.
+        var blur = new DwmBlurBehind { Flags = DWM_BB_ENABLE | DWM_BB_BLURREGION, Enable = 1, BlurRegion = CreateRectRgn(-2, -2, -1, -1) };
+        _ = DwmEnableBlurBehindWindow(hwnd, ref blur);
+        DeleteObject(blur.BlurRegion);
     }
 
     /// <summary>Shows the pill, or changes what it says if it's already up.</summary>
@@ -57,7 +66,43 @@ public sealed partial class OverlayWindow : Window
     /// <param name="detail">Fills a smaller line under the headline; null for none.</param>
     /// <param name="warning">In the warning colour, with a warning sign instead of the moving bars.</param>
     /// <param name="barSpeed">How fast the bars move: 1 while listening, faster while transcribing.</param>
-    public void Show(string headline, FrameworkElement? button = null, Action<RichTextBlock>? detail = null, bool warning = false, double barSpeed = 1)
+    /// <param name="followVoice">The bars rise and fall with the mic (<see cref="ShowLevel"/>) instead of on their own.</param>
+    public void Show(string headline, FrameworkElement? button = null, Action<RichTextBlock>? detail = null, bool warning = false,
+        double barSpeed = 1, bool followVoice = false)
+    {
+        Fill(headline, button, detail, warning);
+
+        // Still while nothing's happening, and with Windows' animation effects off; the bars still show it's listening.
+        Wave.Stop();
+        this.followVoice = followVoice && !warning && Settings.AnimationsEnabled;
+        if (this.followVoice) ShowLevel(0);
+        else if (!warning && Settings.AnimationsEnabled)
+        {
+            Wave.SpeedRatio = barSpeed;
+            Wave.Begin();
+        }
+
+        // Placed only as it appears: moving or resizing it between states made it flash.
+        if (shown) return;
+        Place();
+        AppWindow.Show(activateWindow: false);
+        shown = true;
+    }
+
+    /// <summary>
+    /// Fixes the pill at the size of this content, the longest it'll show, so changing state only
+    /// changes what's inside it. It stays a pill however tall that makes it.
+    /// </summary>
+    public void FitTo(string headline, FrameworkElement? button = null, Action<RichTextBlock>? detail = null, bool warning = false)
+    {
+        Fill(headline, button, detail, warning);
+        Pill.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        Pill.Width = Pill.DesiredSize.Width - Pill.Margin.Left - Pill.Margin.Right;
+        Pill.Height = Pill.DesiredSize.Height - Pill.Margin.Top - Pill.Margin.Bottom;
+        Pill.CornerRadius = new CornerRadius(Pill.Height / 2);
+    }
+
+    void Fill(string headline, FrameworkElement? button, Action<RichTextBlock>? detail, bool warning)
     {
         ButtonSlot.Child = button;
         ButtonSlot.Visibility = button is null ? Visibility.Collapsed : Visibility.Visible;
@@ -68,19 +113,20 @@ public sealed partial class OverlayWindow : Window
         WarningIcon.Visibility = warning ? Visibility.Visible : Visibility.Collapsed;
         Bars.Visibility = warning ? Visibility.Collapsed : Visibility.Visible;
         Pill.BorderBrush = (Brush)Application.Current.Resources[warning ? "WarningBrush" : "ArcaneBrush"];
+    }
 
-        // Still while nothing's happening, and with Windows' animation effects off; the bars still show it's listening.
-        Wave.Stop();
-        if (!warning && Settings.AnimationsEnabled)
-        {
-            Wave.SpeedRatio = barSpeed;
-            Wave.Begin();
-        }
-
-        Place();
-        if (shown) return;
-        AppWindow.Show(activateWindow: false);
-        shown = true;
+    /// <summary>
+    /// The mic's loudness, 0 to 1, every 30 ms while listening. The middle bar takes it now and each
+    /// pair further out a frame later, so the voice ripples outwards.
+    /// </summary>
+    public void ShowLevel(double level)
+    {
+        if (!followVoice) return;
+        Array.Copy(recent, 0, recent, 1, recent.Length - 1);
+        recent[0] = level;
+        ScaleTransform[] bars = [Bar1, Bar2, Bar3, Bar4, Bar5];
+        for (int i = 0; i < bars.Length; i++)
+            bars[i].ScaleY = 0.15 + 0.85 * BarShape[i] * recent[Math.Abs(i - 2)];
     }
 
     public void Hide()
@@ -102,7 +148,9 @@ public sealed partial class OverlayWindow : Window
         double scale = GetDpiForWindow(hwnd) / 96.0;
         Pill.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         int width = (int)Math.Ceiling(Pill.DesiredSize.Width * scale), height = (int)Math.Ceiling(Pill.DesiredSize.Height * scale);
-        AppWindow.MoveAndResize(new RectInt32(screen.X + (screen.Width - width) / 2, top, width, height));
+        // The client area, not the outer size: a borderless WinUI window still keeps a few pixels of frame, which cropped the pill's bottom.
+        AppWindow.Move(new PointInt32(screen.X + (screen.Width - width) / 2, top));
+        AppWindow.ResizeClient(new SizeInt32(width, height));
     }
 
     [LibraryImport("user32.dll")]
@@ -116,6 +164,25 @@ public sealed partial class OverlayWindow : Window
 
     [LibraryImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
     private static partial IntPtr SetWindowLongPtr(IntPtr hwnd, int index, IntPtr value);
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct DwmBlurBehind
+    {
+        public uint Flags;
+        public int Enable;
+        public IntPtr BlurRegion;
+        public int TransitionOnMaximized;
+    }
+
+    [LibraryImport("dwmapi.dll")]
+    private static partial int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DwmBlurBehind blurBehind);
+
+    [LibraryImport("gdi32.dll")]
+    private static partial IntPtr CreateRectRgn(int left, int top, int right, int bottom);
+
+    [LibraryImport("gdi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool DeleteObject(IntPtr handle);
 
     [LibraryImport("dwmapi.dll")]
     private static partial int DwmSetWindowAttribute(IntPtr hwnd, uint attribute, ref int value, int size);

@@ -15,19 +15,23 @@ public static class Recorder
     const int PaddingSamples = SampleRate * 300 / 1000;
     const int InitialSeconds = 10;
 
+    /// <summary>Every 30 ms while recording: how loud the mic is, 0 to 1. Raised on the audio thread.</summary>
+    public static event Action<double>? Level;
+
     /// <summary>
     /// The recorded speech, trimmed with a little padding, or null if nobody spoke. Triggering
     /// <paramref name="finish"/> ends it now and keeps what was said; <paramref name="ct"/> discards it.
     /// </summary>
     public static async Task<float[]?> RecordUtteranceAsync(Config cfg, CancellationToken finish, CancellationToken ct)
     {
+        if (WaveIn.DeviceCount == 0) throw new InvalidOperationException(Microphones.NoneFound);
         var samples = new List<float>(SampleRate * InitialSeconds);
         var endpointer = new Endpointer(cfg);
         var finished = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         using var wave = new WaveIn
         {
-            DeviceNumber = cfg.MicDevice,
+            DeviceNumber = Microphones.Resolve(cfg.MicDevice),
             WaveFormat = new WaveFormat(SampleRate, 16, 1),
             BufferMilliseconds = Endpointer.FrameMs,
         };
@@ -47,6 +51,7 @@ public static class Recorder
                 {
                     var frame = CollectionsMarshal.AsSpan(samples).Slice(endpointer.Consumed, Endpointer.FrameSamples);
                     if (endpointer.Feed(frame) is { } outcome) finished.TrySetResult(outcome);
+                    Level?.Invoke(endpointer.Loudness);
                 }
             }
         };

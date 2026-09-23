@@ -32,7 +32,7 @@ public sealed partial class MainWindow
     void UpdateSpeechModelTab()
     {
         if (engine is null) return;
-        TestMicButton.IsEnabled = HomeTestMicButton.IsEnabled = !testingMic && !engine.IsLoadingModel && engine.LoadedModel is not null;
+        TestMicButton.IsEnabled = HomeTestMicButton.IsEnabled = !testingMic && !engine.IsLoadingModel && engine.LoadedModel is not null && micFound;
         // Refreshing reads the models folder, so it only happens when something it shows has changed.
         var now = (engine.LoadedModel, engine.LoadingModel, engine.ModelStatus, testingMic);
         if (now != shownModels) RefreshModels();

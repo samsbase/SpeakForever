@@ -64,9 +64,10 @@ public sealed partial class MainWindow
         }
 
         SetupMicText.Text = heardInSetup is { } text ? $"Heard you: \"{text}\""
+            : !micFound ? "No microphone found. Plug one in to test it."
             : modelDone ? "Say something to check your microphone."
             : "A quick microphone test, once the model is ready.";
-        SetupMicButton.IsEnabled = modelDone && !testingMic;
+        SetupMicButton.IsEnabled = modelDone && !testingMic && micFound;
         SetupMicButton.Style = ButtonStyle(modelDone && !heard ? "AccentButton" : "PanelButton");
 
         // One accent button at a time: the next step's, then this once everything's done.

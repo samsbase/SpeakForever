@@ -183,6 +183,7 @@
                 <!-- What needs attention first: the game not found, no speech model, an update. -->
                 <StackPanel Spacing="12">
                     <controls:Notice x:Name="GameNotice" Glyph="&#xE7FC;" Visibility="Collapsed" ActionClick="GameNotice_ActionClick" />
+                    <controls:Notice x:Name="MicNotice" Glyph="&#xEC54;" Visibility="Collapsed" ActionClick="SoundSettings_Click" />
                     <controls:Notice x:Name="ModelNotice" Glyph="&#xE896;" Visibility="Collapsed" ActionClick="ModelNotice_ActionClick" />
                     <controls:Notice x:Name="UpdateNotice" Glyph="&#xE777;" Visibility="Collapsed" ActionClick="DownloadUpdate_Click" />
                 </StackPanel>
@@ -249,7 +250,8 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="2">
                                 <TextBlock Text="Microphone" Style="{StaticResource Caption}" />
-                                <TextBlock x:Name="GlanceMicText" Style="{StaticResource ItemTitle}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                                <ComboBox x:Name="HomeMicCombo" HorizontalAlignment="Stretch" MinHeight="30" Padding="8,3,0,4" PlaceholderText="None found"
+                                          AutomationProperties.Name="Microphone" DropDownOpened="MicCombo_DropDownOpened" SelectionChanged="MicCombo_SelectionChanged" />
                             </StackPanel>
                             <Button x:Name="HomeTestMicButton" Grid.Column="1" Content="Test" Style="{StaticResource PanelButton}" MinWidth="0" MinHeight="30" Padding="10,4"
                                     VerticalAlignment="Center" AutomationProperties.Name="Test microphone" Click="TestMicButton_Click" />
@@ -435,6 +437,24 @@
                                 </StackPanel>
                             </Grid>
                             <TextBlock x:Name="GameMessage" Style="{StaticResource Caption}" Visibility="Collapsed" />
+                        </StackPanel>
+                    </ContentControl>
+
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Microphone" Style="{StaticResource FrameHeader}" />
+                            <TextBlock Style="{StaticResource Caption}"
+                                       Text="The one Speak Forever listens to. Default follows the one set in Windows' sound settings." />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="MicCombo" HorizontalAlignment="Stretch" PlaceholderText="None found" AutomationProperties.Name="Microphone"
+                                          DropDownOpened="MicCombo_DropDownOpened" SelectionChanged="MicCombo_SelectionChanged" />
+                                <Button Grid.Column="1" Content="Sound settings" Style="{StaticResource QuietButton}" Click="SoundSettings_Click" />
+                            </Grid>
+                            <TextBlock x:Name="MicMessage" FontSize="13" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" Visibility="Collapsed" />
                         </StackPanel>
                     </ContentControl>
 

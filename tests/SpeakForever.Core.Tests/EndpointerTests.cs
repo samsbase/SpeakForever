@@ -92,6 +92,19 @@ public sealed class EndpointerTests
     }
 
     [Fact]
+    public void LoudnessIsLowInTheRoomAndHighWhileTalking()
+    {
+        var e = new Endpointer(new Config());
+        double Last(float[] audio)
+        {
+            for (int i = 0; i + Frame <= audio.Length; i += Frame) e.Feed(audio.AsSpan(i, Frame));
+            return e.Loudness;
+        }
+        Assert.InRange(Last(Quiet(0.5)), 0, 0.3);
+        Assert.InRange(Last(Tone(0.3, 0.1)), 0.9, 1);
+    }
+
+    [Fact]
     public void AClickAsTheMicOpensIsIgnored()
     {
         var r = Run(new Config(), Tone(0.06, 0.3), Quiet(0.4), Tone(2, 0.1));

@@ -9,12 +9,11 @@ namespace SpeakForever.Gui.Views;
 /// <summary>The in-game overlay: when it shows and what it says. The window itself is <see cref="OverlayWindow"/>.</summary>
 public sealed partial class MainWindow
 {
-    const int MaxLeftOutShown = 60; // characters of the left-out words quoted in the overlay; the Home tab has them all
     static readonly TimeSpan TooLongShowsFor = TimeSpan.FromSeconds(6);
 
     OverlayWindow? overlay;
     DispatcherQueueTimer? tooLongTimer;
-    string? tooLong; // what didn't fit in the chat box, while the overlay is saying so
+    bool tooLong; // the overlay is saying a message didn't fit
     bool overlayClosed; // the app is closing: a late dictation event mustn't open a new overlay window
 
     /// <summary>Follows the dictation: listening, then typing, then gone, unless it's saying a message didn't fit.</summary>
@@ -28,11 +27,11 @@ public sealed partial class MainWindow
         }
         if (phase == DictationPhase.Listening)
         {
-            tooLong = null; // a new dictation: the warning has done its job
-            Overlay().Show("Listening", FinishButton());
+            tooLong = false; // a new dictation: the warning has done its job
+            Overlay().Show("Listening", FinishButton(), followVoice: true);
         }
         else if (phase == DictationPhase.Transcribing) Overlay().Show("Typing…", barSpeed: 2.5);
-        else if (tooLong is not null) ShowTooLongOverlay();
+        else if (tooLong) ShowTooLongOverlay();
         else overlay?.Hide();
     }
 
@@ -42,7 +41,7 @@ public sealed partial class MainWindow
         LastHeardTooLong.Text = $"Too long for WoW's chat box, so this was left out: \"{leftOut}\"";
         LastHeardTooLong.Visibility = Visibility.Visible;
         if (engine?.Config.ShowOverlay != true || overlayClosed) return;
-        tooLong = leftOut;
+        tooLong = true;
         ShowTooLongOverlay();
         if (tooLongTimer is null)
         {
@@ -50,7 +49,7 @@ public sealed partial class MainWindow
             tooLongTimer.IsRepeating = false;
             tooLongTimer.Tick += (_, _) =>
             {
-                tooLong = null;
+                tooLong = false;
                 UpdateOverlay();
             };
         }
@@ -58,19 +57,19 @@ public sealed partial class MainWindow
         tooLongTimer.Start(); // restarts it if a warning is already showing
     }
 
-    void ShowTooLongOverlay()
+    void ShowTooLongOverlay() =>
+        Overlay().Show("Too long for chat", warning: true, detail: TooLongDetail(engine!.ControllerSlot >= 0));
+
+    /// <summary>Short, so the pill stays small: what was left out is on the Home tab, not quoted here.</summary>
+    Action<RichTextBlock> TooLongDetail(bool controller)
     {
-        var quoted = tooLong!.Length <= MaxLeftOutShown ? tooLong : tooLong[..MaxLeftOutShown].TrimEnd() + "…";
-        // Braces would read as a button in the template; Whisper doesn't write them, but a stray one mustn't break the line.
-        var text = $"Left out: \"{quoted.Replace('{', '(').Replace('}', ')')}\"";
         var style = engine!.ButtonStyle;
         var redo = Chord.Parse(engine.Config.RedoChord);
-        bool controller = engine.ControllerSlot >= 0;
-        Overlay().Show("Too long for chat", warning: true, detail: target =>
+        return target =>
         {
-            if (controller) ButtonPrompt.Fill(target, text + " Press {0} to start over.", style, redo);
-            else ButtonPrompt.Fill(target, text);
-        });
+            if (controller) ButtonPrompt.Fill(target, "Press {0} to start over.", style, redo);
+            else ButtonPrompt.Fill(target, "The rest is in the app.");
+        };
     }
 
     /// <summary>What finishes the dictation early: the dictate button with a controller, otherwise the keyboard shortcut.</summary>
@@ -88,7 +87,14 @@ public sealed partial class MainWindow
     }
 
     /// <summary>Made the first time it's needed, so it costs nothing for anyone who turns it off.</summary>
-    OverlayWindow Overlay() => overlay ??= new OverlayWindow();
+    OverlayWindow Overlay()
+    {
+        if (overlay is not null) return overlay;
+        overlay = new OverlayWindow();
+        // Its biggest message, the warning with the controller prompt: every state then fits the one pill.
+        overlay.FitTo("Too long for chat", warning: true, detail: TooLongDetail(controller: true));
+        return overlay;
+    }
 
     void CloseOverlay()
     {

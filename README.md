@@ -139,7 +139,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `Language` | `en` | Whisper language code, or `auto` |
 | `UseGpu` | `true` | Vulkan graphics card; `false` for the processor only. Takes effect after a restart. |
 | `BeamSize` | `1` | Decoding width. 1 (greedy) matched 5-beam accuracy on Turbo in testing, and is faster and lighter. |
-| `MicDevice` | `-1` | `-1` is the Windows default microphone. `SpeakForeverCli --test-mic` lists the others. |
+| `MicDevice` | `-1` | `-1` is the Windows default microphone. Pick another on the Settings tab; `SpeakForeverCli --test-mic` lists them. |
 | `SilenceMs` | `1500` | The pause that ends a dictation. Set by the slider. |
 | `NoSpeechTimeoutSeconds` | `6` | Gives up if you don't start talking |
 | `MaxSeconds` | `120` | Only a guard against a microphone that never goes quiet |

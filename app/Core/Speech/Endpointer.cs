@@ -29,7 +29,10 @@ public sealed class Endpointer(Config cfg)
     public string EndedBy { get; set; } = "?";
     public string Levels => $"Levels: background {noiseDb:F0} dB, speech above {Threshold:F0} dB, loudest {loudestDb:F0} dB.";
 
-    double Threshold => Math.Max(noiseDb + cfg.SpeechThresholdDb, FloorDb);
+    /// <summary>How far the last frame is above the room's noise, 0 to 1 over 30 dB, for the overlay's bars.</summary>
+    public double Loudness => noiseDb == double.MaxValue ? 0 : Math.Clamp((frameDb[^1] - noiseDb) / 30, 0, 1);
+
+    double Threshold =>Math.Max(noiseDb + cfg.SpeechThresholdDb, FloorDb);
 
     /// <summary>True when speech has ended, false when none came, null to keep recording.</summary>
     public bool? Feed(ReadOnlySpan<float> frame)

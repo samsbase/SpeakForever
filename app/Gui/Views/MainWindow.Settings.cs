@@ -3,13 +3,14 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SpeakForever.Logging;
+using SpeakForever.Speech;
 using SpeakForever.Updates;
 using Windows.Storage.Pickers;
 using Windows.System;
 
 namespace SpeakForever.Gui.Views;
 
-/// <summary>The Settings tab: where WoW: Forever is installed, updates, and starting with Windows.</summary>
+/// <summary>The Settings tab: where WoW: Forever is installed, the microphone, updates, and starting with Windows.</summary>
 public sealed partial class MainWindow
 {
     const int SettingsTab = 3;
@@ -19,7 +20,7 @@ public sealed partial class MainWindow
     readonly UpdateChecker updateChecker = new();
     readonly CancellationTokenSource stopUpdates = new();
     UpdateInfo? update;
-    bool gameChecked, checkingUpdates, installingUpdate;
+    bool gameChecked, checkingUpdates, installingUpdate, micFound = true;
 
     /// <summary>The tab's contents, before the window is sized to fit them: the startup card is only for an installed copy.</summary>
     void InitializeSettingsTab()
@@ -65,6 +66,62 @@ public sealed partial class MainWindow
     }
 
     void GameNotice_ActionClick(object sender, RoutedEventArgs e) => ShowTab(SettingsTab);
+
+    // ---- Microphone -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Lists the microphones again: at startup, when the window comes back to the front and when the
+    /// list opens, so one plugged in meanwhile shows up. WinMM has no event for it.
+    /// </summary>
+    void RefreshMics()
+    {
+        if (engine is null) return;
+        var names = Microphones.Names();
+        micFound = names.Count > 0;
+        string[] items = micFound ? ["Default", .. names] : []; // empty shows "None found"
+        int selected = micFound ? Microphones.Resolve(engine.Config.MicDevice) + 1 : -1;
+        updating = true;
+        foreach (var combo in (ComboBox[])[MicCombo, HomeMicCombo])
+        {
+            // Only when it changed: replacing the list under an open dropdown would close it.
+            if (combo.ItemsSource is not string[] shown || !shown.SequenceEqual(items)) combo.ItemsSource = items;
+            combo.SelectedIndex = selected;
+            combo.IsEnabled = micFound;
+        }
+        updating = false;
+        UpdateState();
+    }
+
+    void UpdateMic()
+    {
+        MicMessage.Text = Microphones.NoneFound;
+        MicMessage.Visibility = micFound ? Visibility.Collapsed : Visibility.Visible;
+        MicNotice.Show(micFound ? null : "No microphone found", "Plug in a microphone or headset, or turn yours on in Windows' sound settings.", "Sound settings");
+    }
+
+    void MicCombo_DropDownOpened(object sender, object e) => RefreshMics();
+
+    /// <summary>The Home tab's and the Settings tab's lists are the same setting.</summary>
+    async void MicCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (updating || engine is null || sender is not ComboBox { SelectedIndex: >= 0 } combo) return;
+        int device = combo.SelectedIndex - 1;
+        updating = true;
+        MicCombo.SelectedIndex = HomeMicCombo.SelectedIndex = combo.SelectedIndex;
+        updating = false;
+        Log.Info($"Microphone: {combo.SelectedItem}.");
+        try
+        {
+            await engine.UpdateConfigAsync(c => c with { MicDevice = device });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log.Warn($"Couldn't save settings: {ex.Message}");
+        }
+        UpdateState();
+    }
+
+    async void SoundSettings_Click(object sender, RoutedEventArgs e) => await Launcher.LaunchUriAsync(new Uri("ms-settings:sound"));
 
     async void OverlaySwitch_Toggled(object sender, RoutedEventArgs e)
     {

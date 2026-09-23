@@ -73,6 +73,7 @@ public sealed partial class MainWindow : Window
             UpdateOverlay();
         });
         engine.TooLong += leftOut => DispatcherQueue.TryEnqueue(() => ShowTooLong(leftOut));
+        Recorder.Level += level => DispatcherQueue.TryEnqueue(() => overlay?.ShowLevel(level));
 
         Log.Info($"Settings file: {AppPaths.Config}");
         ShowBindings();
@@ -81,7 +82,11 @@ public sealed partial class MainWindow : Window
         LoadStartingModel();
         ShowSetupIfNeeded();
         engine.Start();
-        UpdateState();
+        RefreshMics(); // and the rest of the state
+        Activated += (_, e) =>
+        {
+            if (e.WindowActivationState != WindowActivationState.Deactivated) RefreshMics();
+        };
         Root.Loaded += async (_, _) =>
         {
             FitToTallestTab();
@@ -151,7 +156,7 @@ public sealed partial class MainWindow : Window
         ControllerText.Text = !engine.IsRunning ? "" : engine.ControllerSlot >= 0 ? engine.ControllerName ?? "Controller connected" : "No controller";
         ActiveSwitch.IsEnabled = recording == Recording.None;
         GlanceModelText.Text = engine.LoadedModel is { } model ? ModelCatalog.DisplayName(model) : engine.IsLoadingModel ? "Loading…" : "None yet";
-        GlanceMicText.Text = cfg.MicDevice < 0 ? "Windows default" : $"Device {cfg.MicDevice}";
+        UpdateMic();
         GlanceShortcutText.Text = cfg.KeyboardShortcut ?? "Off";
 
         UpdateButtonsTab();
