@@ -203,4 +203,8 @@ Namespaces follow folders.
 
 Speak Forever was called Voice Forever (and before that ForeverVoice); data in those folders under `%LOCALAPPDATA%` moves across on first launch, and the installer upgrades a Voice Forever install in place.
 
+## Licence
+
+Speak Forever is free and open source under the [MIT License](LICENSE).
+
 The app's look is original artwork styled after WoW Classic's frames; headings use Cinzel (SIL Open Font License, bundled with its licence). Third-party licences are in `THIRD-PARTY-NOTICES.txt`, which ships with the app. World of Warcraft is a trademark of Blizzard Entertainment, Inc.; Speak Forever is not affiliated with or endorsed by Blizzard.
