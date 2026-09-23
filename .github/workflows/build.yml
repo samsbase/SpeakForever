@@ -20,18 +20,22 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
       - name: Install Inno Setup
         if: github.event_name != 'pull_request'
         shell: pwsh
+        # Pinned to the version the installer script is built with, from Inno Setup's own GitHub releases.
         run: |
-          Invoke-WebRequest 'https://jrsoftware.org/download.php/is.exe' -OutFile "$env:RUNNER_TEMP\is.exe"
-          Start-Process "$env:RUNNER_TEMP\is.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER' -Wait
+          $setup = "$env:RUNNER_TEMP\innosetup-6.7.3.exe"
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe' -OutFile $setup
+          $signature = Get-AuthenticodeSignature $setup
+          if ($signature.Status -ne 'Valid') { throw "Inno Setup's installer isn't validly signed ($($signature.Status))." }
+          Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER' -Wait
 
       - name: Test
         if: github.event_name == 'pull_request'
@@ -52,7 +56,7 @@ jobs:
 
       - name: Keep the installer with this run
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SpeakForever-Setup-${{ steps.version.outputs.version }}
           path: dist/SpeakForever-Setup-${{ steps.version.outputs.version }}.exe
