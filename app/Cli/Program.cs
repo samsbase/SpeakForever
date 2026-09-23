@@ -6,6 +6,7 @@ using VoiceForever.Logging;
 
 // Headless Voice Forever plus the setup checks. The WinUI app is the everyday front end.
 AppPaths.MigrateFromOldName();
+Log.ToConsole();
 Log.ToFile("voiceforever-cli.log");
 
 using var quit = new CancellationTokenSource();

@@ -30,7 +30,7 @@ public sealed partial class MainWindow : Window
     readonly ObservableCollection<LogLine> log = [];
     readonly Brush normalBrush = Brush("PaleArcaneBrush");
     readonly Brush warningBrush = Brush("WarningBrush");
-    bool updating, heardAnything;
+    bool updating, heardAnything, shutDown;
 
     /// <param name="engine">Null when the settings couldn't be loaded; the window then only shows why.</param>
     /// <param name="configError">Why the settings couldn't be loaded.</param>
@@ -43,6 +43,7 @@ public sealed partial class MainWindow : Window
         StyleTitleBar(scale);
 
         LogList.ItemsSource = log;
+        ModelList.ItemsSource = modelRows;
         Log.Written += OnLogWritten;
         Closed += OnClosed;
         Root.PreviewKeyDown += OnPreviewKeyDown;
@@ -158,12 +159,23 @@ public sealed partial class MainWindow : Window
         if (DictationPage.Visibility == Visibility.Visible) LogList.ScrollIntoView(log[^1]);
     });
 
-    void OnClosed(object sender, WindowEventArgs args)
+    /// <summary>
+    /// Closing hides the window at once, then keeps it until the engine has shut down (a dictation
+    /// in progress, the model's native memory) and any pending setting is saved, and closes again.
+    /// </summary>
+    async void OnClosed(object sender, WindowEventArgs args)
     {
+        if (shutDown) return;
+        args.Handled = true;
+        AppWindow.Hide();
         Log.Written -= OnLogWritten;
-        foreach (var download in downloads.Values) download.Cancel.Cancel();
-        SavePauseNow();
-        engine?.Stop();
+        foreach (var cancel in downloads.Values) cancel.Cancel();
+        await SavePauseAsync();
+        if (engine is not null) await engine.DisposeAsync();
+        shutDown = true;
+        // Queued rather than called here: closing again from inside the handling of the first
+        // close leaves the process running after the window has gone.
+        DispatcherQueue.TryEnqueue(Close);
     }
 
     [LibraryImport("user32.dll")]

@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
 using VoiceForever.Configuration;
@@ -8,10 +9,14 @@ namespace VoiceForever.Gui;
 
 public partial class App : Application
 {
+    /// <summary>Also set on the installer's Start menu shortcut, so a pinned app and its window are one taskbar item.</summary>
+    const string AppUserModelId = "VoiceForever.App";
+
     Window? window;
 
     public App()
     {
+        SetCurrentProcessExplicitAppUserModelID(AppUserModelId);
         InitializeComponent();
         UnhandledException += (_, e) => Log.Warn($"Unhandled: {e.Exception}");
         TaskScheduler.UnobservedTaskException += (_, e) => Log.Warn($"Unobserved task error: {e.Exception.GetBaseException().Message}");
@@ -36,4 +41,7 @@ public partial class App : Application
         window = new MainWindow(engine, configError);
         window.Activate();
     }
+
+    [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    private static partial int SetCurrentProcessExplicitAppUserModelID(string appId);
 }

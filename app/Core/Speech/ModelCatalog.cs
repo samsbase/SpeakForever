@@ -34,7 +34,10 @@ public static class ModelCatalog
             147951465, "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe", 0.6),
     ];
 
-    static readonly HttpClient Http = new() { DefaultRequestHeaders = { { "User-Agent", "VoiceForever" } } };
+    static readonly HttpClient Http = new()
+    {
+        DefaultRequestHeaders = { { "User-Agent", $"VoiceForever/{typeof(ModelCatalog).Assembly.GetName().Version?.ToString(3)}" } },
+    };
 
     public static ModelInfo? Find(string path) =>
         All.FirstOrDefault(m => string.Equals(m.File, Path.GetFileName(path), StringComparison.OrdinalIgnoreCase));

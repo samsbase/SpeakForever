@@ -103,7 +103,7 @@ static partial class Benchmark
     /// <summary>One model at one beam width, in its own process. Prints a RESULT line for RunAllAsync.</summary>
     public static async Task<int> RunOneAsync(Config cfg, string model, int beam, CancellationToken ct)
     {
-        cfg.BeamSize = beam;
+        cfg = cfg with { BeamSize = beam };
         var clips = Directory.EnumerateFiles(AppPaths.Benchmark, "*.wav").Order()
             .Select(wav => (Name: Path.GetFileNameWithoutExtension(wav), Audio: Diagnostics.ReadWav(wav),
                             Reference: File.ReadAllText(Path.ChangeExtension(wav, ".txt")).Trim()))

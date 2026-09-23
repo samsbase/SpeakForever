@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:VoiceForever.Gui.Controls"
     xmlns:models="using:VoiceForever.Gui.Models"
+    xmlns:presentation="using:VoiceForever.Presentation"
     Title="Voice Forever">
 
     <Grid x:Name="Root" Background="{StaticResource WindowBackground}">
@@ -138,7 +139,50 @@
                         </Grid>
                         <TextBlock x:Name="ModelStatusText" Style="{StaticResource Caption}" />
                         <!-- Filled in code: one row per downloadable model, plus any the user added. -->
-                        <StackPanel x:Name="ModelList" Margin="0,4,0,0" />
+                        <ItemsControl x:Name="ModelList" Margin="0,4,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="presentation:ModelRow">
+                                    <StackPanel>
+                                        <Rectangle Height="1" Fill="{StaticResource IndigoBrush}" Visibility="{x:Bind HasDivider, Mode=OneWay}" />
+                                        <Grid ColumnSpacing="12" Padding="0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Spacing="2">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{x:Bind Name}" FontSize="15" Foreground="{StaticResource StarlightBrush}" VerticalAlignment="Center" />
+                                                    <Border Visibility="{x:Bind IsRecommended}" Background="#2E3F8F" BorderBrush="{StaticResource SilverBrush}"
+                                                            BorderThickness="1" CornerRadius="3" Padding="6,1,6,2" VerticalAlignment="Center">
+                                                        <TextBlock Text="Recommended" FontSize="11" FontFamily="{StaticResource Cinzel}" Foreground="{StaticResource StarlightBrush}" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{x:Bind Summary}" Style="{StaticResource Caption}" Foreground="{StaticResource ArcaneBrush}" />
+                                                <TextBlock Text="{x:Bind Blurb}" Style="{StaticResource Caption}" Visibility="{x:Bind HasBlurb}" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                <ProgressBar Width="130" Maximum="1" Value="{x:Bind Progress, Mode=OneWay}" VerticalAlignment="Center"
+                                                             Visibility="{x:Bind ShowProgress, Mode=OneWay}" />
+                                                <TextBlock Text="{x:Bind ProgressText, Mode=OneWay}" MinWidth="38" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center"
+                                                           Visibility="{x:Bind ShowProgress, Mode=OneWay}" />
+                                                <Button Content="Cancel" Style="{StaticResource PanelButton}" Click="CancelDownload_Click"
+                                                        Visibility="{x:Bind ShowProgress, Mode=OneWay}" />
+                                                <TextBlock Text="{x:Bind StateLabel, Mode=OneWay}" FontFamily="{StaticResource Cinzel}" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" Visibility="{x:Bind ShowStatus, Mode=OneWay}" />
+                                                <Button Content="Use" Style="{StaticResource PanelButton}" Click="UseModel_Click"
+                                                        IsEnabled="{x:Bind CanUse, Mode=OneWay}" Visibility="{x:Bind ShowUse, Mode=OneWay}" />
+                                                <Button Style="{StaticResource PanelButton}" MinWidth="0" Click="DeleteModel_Click" Visibility="{x:Bind ShowUse, Mode=OneWay}"
+                                                        ToolTipService.ToolTip="{x:Bind DeleteLabel}" AutomationProperties.Name="{x:Bind DeleteLabel}">
+                                                    <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                                </Button>
+                                                <Button Content="Download" Style="{StaticResource PanelButton}" Click="DownloadModel_Click"
+                                                        Visibility="{x:Bind ShowDownload, Mode=OneWay}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <Grid ColumnSpacing="12" Margin="0,6,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />

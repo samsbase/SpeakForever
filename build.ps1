@@ -5,6 +5,10 @@ $ErrorActionPreference = 'Stop'
 $out = Join-Path $PSScriptRoot 'publish'
 $version = ([xml](Get-Content "$PSScriptRoot\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ }
 
+# Nothing is published unless the tests pass.
+dotnet test --project "$PSScriptRoot\tests\VoiceForever.Core.Tests" -c Release
+if ($LASTEXITCODE) { exit $LASTEXITCODE }
+
 if (Test-Path $out) { Remove-Item $out -Recurse -Force }
 dotnet publish "$PSScriptRoot\app\Gui" -c Release -p:Platform=x64 -r win-x64 --self-contained -o $out
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
@@ -25,6 +29,18 @@ if ($Installer) {
     $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe", "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe") |
         Where-Object { Test-Path $_ } | Select-Object -First 1
     if (-not $iscc) { throw 'Inno Setup 6 is needed for the installer: winget install JRSoftware.InnoSetup' }
+
+    # Microsoft's Visual C++ runtime installer isn't kept in the repo; fetch it once and check it's Microsoft-signed.
+    $redist = "$PSScriptRoot\installer\redist\vc_redist.x64.exe"
+    if (-not (Test-Path $redist)) {
+        New-Item -ItemType Directory -Force (Split-Path $redist) | Out-Null
+        Invoke-WebRequest 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile $redist
+    }
+    $signature = Get-AuthenticodeSignature $redist
+    if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation') {
+        Remove-Item $redist
+        throw "vc_redist.x64.exe isn't validly signed by Microsoft ($($signature.Status)); deleted it."
+    }
     & $iscc "/DAppVersion=$version" "$PSScriptRoot\installer\VoiceForever.iss"
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
     Write-Host "`nInstaller: $(Join-Path $PSScriptRoot "dist\VoiceForever-Setup-$version.exe")"

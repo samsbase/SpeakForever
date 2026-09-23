@@ -1,11 +1,11 @@
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
-using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Media;
 using VoiceForever.Logging;
+using VoiceForever.Presentation;
 using VoiceForever.Speech;
 
 namespace VoiceForever.Gui.Views;
@@ -15,20 +15,13 @@ public sealed partial class MainWindow
 {
     static readonly TimeSpan SaveDelay = TimeSpan.FromMilliseconds(500);
 
-    readonly Dictionary<string, Download> downloads = new(StringComparer.OrdinalIgnoreCase);
+    readonly ObservableCollection<ModelRow> modelRows = [];
+    readonly Dictionary<string, CancellationTokenSource> downloads = new(StringComparer.OrdinalIgnoreCase);
     DispatcherQueueTimer? pauseSave;
+    int? pendingSilenceMs;
     CancellationTokenSource? testFinish;
     bool testingMic;
     (string? Loaded, string? Loading, string Status, bool Testing) shownModels;
-
-    /// <summary>A download in progress, and the row controls showing it (rebuilt with the list).</summary>
-    sealed class Download
-    {
-        public CancellationTokenSource Cancel { get; } = new();
-        public ProgressBar? Bar { get; set; }
-        public TextBlock? Percent { get; set; }
-        public double Progress { get; set; }
-    }
 
     void LoadStartingModel()
     {
@@ -40,12 +33,12 @@ public sealed partial class MainWindow
     {
         if (engine is null) return;
         TestMicButton.IsEnabled = testingMic || (!engine.IsLoadingModel && engine.LoadedModel is not null);
-        // The list reads the models folder, so it's only rebuilt when something it shows has changed.
+        // Refreshing reads the models folder, so it only happens when something it shows has changed.
         var now = (engine.LoadedModel, engine.LoadingModel, engine.ModelStatus, testingMic);
         if (now != shownModels) RefreshModels();
     }
 
-    /// <summary>Rebuilds the model list and the no-model notice from what's on disk now.</summary>
+    /// <summary>Brings the model list and the no-model notice up to date with what's on disk now.</summary>
     void RefreshModels()
     {
         if (engine is null) return;
@@ -55,13 +48,29 @@ public sealed partial class MainWindow
 
         var installed = ModelCatalog.Installed();
         ShowModelNotice(noModel, installed.Count > 0);
-        ModelList.Children.Clear();
-        foreach (var model in ModelCatalog.All)
-            AddModelRow(model.Name, model.Recommended, model.Summary, model.Blurb, model.LocalPath, model);
 
-        // Models the user put in the folder themselves.
-        foreach (var path in installed.Where(p => ModelCatalog.Find(p) is null))
-            AddModelRow(ModelCatalog.DisplayName(path), false, "Added by you", null, path, null);
+        // The catalog's models, then any the user put in the folder themselves. Rows are kept while
+        // their model stays listed, so a download's progress survives a refresh.
+        var listed = ModelCatalog.All.Select(m => (m.LocalPath, m.Name, m.Summary, (string?)m.Blurb, (ModelInfo?)m))
+            .Concat(installed.Where(p => ModelCatalog.Find(p) is null)
+                .Select(p => (p, ModelCatalog.DisplayName(p), "Added by you", (string?)null, (ModelInfo?)null)))
+            .ToList();
+        if (!listed.Select(m => m.Item1).SequenceEqual(modelRows.Select(r => r.Path), StringComparer.OrdinalIgnoreCase))
+        {
+            var existing = modelRows.ToDictionary(r => r.Path, StringComparer.OrdinalIgnoreCase);
+            modelRows.Clear();
+            foreach (var (path, name, summary, blurb, entry) in listed)
+                modelRows.Add(existing.GetValueOrDefault(path) ?? new ModelRow(path, name, summary, blurb, entry));
+        }
+
+        var onDisk = installed.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < modelRows.Count; i++)
+        {
+            var row = modelRows[i];
+            row.HasDivider = i > 0;
+            row.State = ModelRow.StateOf(row.Path, onDisk.Contains(row.Path), engine.LoadedModel, engine.LoadingModel, downloads.ContainsKey(row.Path));
+            row.CanUse = !engine.IsLoadingModel && !testingMic;
+        }
     }
 
     /// <summary>Nothing can be dictated without a model, so say so on the tab people land on.</summary>
@@ -84,109 +93,41 @@ public sealed partial class MainWindow
 
     void ModelNoticeButton_Click(object sender, RoutedEventArgs e) => Tabs.SelectedItem = Tabs.Items[SpeechModelTab];
 
-    void AddModelRow(string name, bool recommended, string summary, string? blurb, string path, ModelInfo? catalogEntry)
+    // ---- Row actions (the buttons in the model list's template) ------------------------------
+
+    static ModelRow RowOf(object sender) => (ModelRow)((FrameworkElement)sender).DataContext;
+
+    async void UseModel_Click(object sender, RoutedEventArgs e) => await engine!.LoadModelAsync(RowOf(sender).Path); // logs its own failures
+
+    async void DownloadModel_Click(object sender, RoutedEventArgs e)
     {
-        bool first = ModelList.Children.Count == 0;
-        var row = new Grid
-        {
-            ColumnSpacing = 12,
-            Padding = new Thickness(0, 8, 0, 8),
-            BorderBrush = Brush("IndigoBrush"),
-            BorderThickness = new Thickness(0, first ? 0 : 1, 0, 0),
-        };
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        var title = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        title.Children.Add(new TextBlock { Text = name, FontSize = 15, Foreground = Brush("StarlightBrush"), VerticalAlignment = VerticalAlignment.Center });
-        if (recommended) title.Children.Add(RecommendedBadge());
-        var text = new StackPanel { Spacing = 2 };
-        text.Children.Add(title);
-        text.Children.Add(new TextBlock { Text = summary, Style = CaptionStyle, Foreground = Brush("ArcaneBrush") });
-        if (blurb is not null) text.Children.Add(new TextBlock { Text = blurb, Style = CaptionStyle });
-        row.Children.Add(text);
-
-        var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, VerticalAlignment = VerticalAlignment.Center };
-        Grid.SetColumn(actions, 1);
-        bool inUse = string.Equals(path, engine!.LoadedModel, StringComparison.OrdinalIgnoreCase)
-                     || string.Equals(path, engine.LoadingModel, StringComparison.OrdinalIgnoreCase);
-
-        if (downloads.TryGetValue(path, out var download))
-        {
-            download.Bar = new ProgressBar { Width = 130, Maximum = 1, Value = download.Progress, VerticalAlignment = VerticalAlignment.Center };
-            download.Percent = new TextBlock { Text = $"{download.Progress:P0}", MinWidth = 38, Foreground = Brush("ArcaneBrush"), VerticalAlignment = VerticalAlignment.Center };
-            actions.Children.Add(download.Bar);
-            actions.Children.Add(download.Percent);
-            actions.Children.Add(PanelButton("Cancel", (_, _) => download.Cancel.Cancel()));
-        }
-        else if (inUse)
-        {
-            actions.Children.Add(new TextBlock
-            {
-                Text = engine.IsLoadingModel ? "Loading..." : "In use",
-                FontFamily = CinzelFont,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Foreground = Brush("ArcaneBrush"),
-                VerticalAlignment = VerticalAlignment.Center,
-            });
-        }
-        else if (catalogEntry is null || catalogEntry.IsInstalled)
-        {
-            var use = PanelButton("Use", async (_, _) => await engine.LoadModelAsync(path));
-            use.IsEnabled = !engine.IsLoadingModel && !testingMic;
-            actions.Children.Add(use);
-            var delete = PanelButton("", async (_, _) => await DeleteModelAsync(name, path));
-            delete.Content = new FontIcon { Glyph = "", FontSize = 14 };
-            delete.MinWidth = 0;
-            ToolTipService.SetToolTip(delete, $"Delete {name}");
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(delete, $"Delete {name}");
-            actions.Children.Add(delete);
-        }
-        else
-        {
-            actions.Children.Add(PanelButton("Download", async (_, _) => await DownloadAsync(catalogEntry)));
-        }
-        row.Children.Add(actions);
-        ModelList.Children.Add(row);
+        if (RowOf(sender).CatalogEntry is { } model) await DownloadAsync(model);
     }
 
-    static Style CaptionStyle => (Style)Application.Current.Resources["Caption"];
-    static FontFamily CinzelFont => (FontFamily)Application.Current.Resources["Cinzel"];
-
-    static Border RecommendedBadge() => new()
+    async void DeleteModel_Click(object sender, RoutedEventArgs e)
     {
-        Background = new SolidColorBrush(ColorHelper.FromArgb(255, 0x2E, 0x3F, 0x8F)),
-        BorderBrush = Brush("SilverBrush"),
-        BorderThickness = new Thickness(1),
-        CornerRadius = new CornerRadius(3),
-        Padding = new Thickness(6, 1, 6, 2),
-        VerticalAlignment = VerticalAlignment.Center,
-        Child = new TextBlock { Text = "Recommended", FontSize = 11, FontFamily = CinzelFont, Foreground = Brush("StarlightBrush") },
-    };
+        var row = RowOf(sender);
+        await DeleteModelAsync(row.Name, row.Path);
+    }
 
-    static Button PanelButton(string label, RoutedEventHandler click)
+    void CancelDownload_Click(object sender, RoutedEventArgs e)
     {
-        var button = new Button { Content = label, Style = (Style)Application.Current.Resources["PanelButton"] };
-        button.Click += click;
-        return button;
+        if (downloads.TryGetValue(RowOf(sender).Path, out var cancel)) cancel.Cancel();
     }
 
     /// <summary>Downloads a model with progress in its row; the first model downloaded is loaded straight away.</summary>
     async Task DownloadAsync(ModelInfo model)
     {
-        var download = new Download();
-        downloads[model.LocalPath] = download;
+        using var cancel = new CancellationTokenSource();
+        downloads[model.LocalPath] = cancel;
         RefreshModels();
+        var row = modelRows.First(r => string.Equals(r.Path, model.LocalPath, StringComparison.OrdinalIgnoreCase));
+        row.Progress = 0;
         // Created on the UI thread, so reports arrive here; the downloader sends at most 101 of them.
-        var progress = new Progress<double>(p =>
-        {
-            download.Progress = p;
-            if (download.Bar is { } bar) bar.Value = p;
-            if (download.Percent is { } percent) percent.Text = $"{p:P0}";
-        });
+        var progress = new Progress<double>(p => row.Progress = p);
         try
         {
-            await ModelCatalog.DownloadAsync(model, progress, download.Cancel.Token);
+            await ModelCatalog.DownloadAsync(model, progress, cancel.Token);
             if (engine!.LoadedModel is null && !engine.IsLoadingModel)
                 _ = engine.LoadModelAsync(model.LocalPath); // logs its own failures
         }
@@ -201,7 +142,6 @@ public sealed partial class MainWindow
         finally
         {
             downloads.Remove(model.LocalPath);
-            download.Cancel.Dispose();
             RefreshModels();
         }
     }
@@ -243,37 +183,31 @@ public sealed partial class MainWindow
         PauseSlider.Value = engine!.Config.SilenceMs / 1000.0;
         PauseText.Text = $"{PauseSlider.Value:F1} s";
         PauseSlider.ValueChanged += PauseSlider_ValueChanged;
-        // Dragging fires ValueChanged dozens of times; save once it settles, not on every step.
+        // Dragging fires ValueChanged dozens of times; apply and save once it settles.
         pauseSave = DispatcherQueue.CreateTimer();
         pauseSave.Interval = SaveDelay;
         pauseSave.IsRepeating = false;
-        pauseSave.Tick += async (_, _) => await SaveConfigAsync();
+        pauseSave.Tick += async (_, _) => await SavePauseAsync();
     }
 
     void PauseSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
         PauseText.Text = $"{e.NewValue:F1} s";
-        if (engine is null) return;
-        engine.Config.SilenceMs = (int)Math.Round(e.NewValue * 1000);
+        pendingSilenceMs = (int)Math.Round(e.NewValue * 1000);
         pauseSave?.Start(); // restarts the delay if it's already pending
     }
 
-    /// <summary>On close: a pending slider change is saved before the app exits.</summary>
-    void SavePauseNow()
+    /// <summary>Applies a slider change the user has finished making; also run on close, so none is lost.</summary>
+    async Task SavePauseAsync()
     {
-        if (pauseSave is not { IsRunning: true }) return;
-        pauseSave.Stop();
-        // Blocking is acceptable here: the window is closing, and it's one small file.
-        engine?.Config.SaveAsync().GetAwaiter().GetResult();
-    }
-
-    async Task SaveConfigAsync()
-    {
+        pauseSave?.Stop();
+        if (pendingSilenceMs is not { } ms || engine is null) return;
+        pendingSilenceMs = null;
         try
         {
-            await engine!.Config.SaveAsync();
+            await engine.UpdateConfigAsync(c => c with { SilenceMs = ms });
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or FormatException)
         {
             Log.Warn($"Couldn't save settings: {e.Message}");
         }

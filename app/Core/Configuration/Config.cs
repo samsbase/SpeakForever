@@ -1,89 +1,94 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace VoiceForever.Configuration;
 
 /// <summary>
-/// The user's settings, kept as hand-editable JSON in <see cref="AppPaths.Config"/>. The app reads
-/// and changes it from the UI thread and the controller thread reads it, so writes are whole
-/// values (a string or an int), never partial updates.
+/// The user's settings, kept as hand-editable JSON in <see cref="AppPaths.Config"/>. Immutable: a
+/// change makes a new Config (<c>with</c>) that <see cref="Engine.UpdateConfigAsync"/> swaps in whole,
+/// so the UI, controller and dictation threads always see one consistent set of settings.
 /// </summary>
-public sealed class Config
+public sealed record Config
 {
     /// <summary>
     /// Game client process names, without ".exe". The WoW: Forever beta runs as WowB (the
     /// _classic_beta_ flavor); the live release may use a different name.
     /// </summary>
-    public string[] ProcessNames { get; set; } = ["WowB"];
+    public IReadOnlyList<string> ProcessNames { get; init; } = ["WowB"];
 
     /// <summary>XInput slot 0-3, or -1 for the first controller found.</summary>
-    public int ControllerSlot { get; set; } = -1;
+    public int ControllerSlot { get; init; } = -1;
 
     // The app follows WoW's gamepad chat panel from these buttons, so it only ever types into an
     // open chat box. They mirror the game's defaults; change them if you rebind the game.
 
     /// <summary>WoW's chord that opens the chat panel.</summary>
-    public string OpenChatChord { get; set; } = "LB+RB+DOWN";
+    public string OpenChatChord { get; init; } = "LB+RB+DOWN";
 
     /// <summary>Starts a dictation while the chat panel is open. In the panel WoW only uses it to toggle tooltips.</summary>
-    public string DictateChord { get; set; } = "RS";
+    public string DictateChord { get; init; } = "RS";
 
-    public string SendChord { get; set; } = "A";
-    public string BackChord { get; set; } = "B";
+    public string SendChord { get; init; } = "A";
+    public string BackChord { get; init; } = "B";
 
     /// <summary>The panel's Chat Channels and Tab Settings menus, which reuse A and B.</summary>
-    public string[] MenuChords { get; set; } = ["X", "Y"];
+    public IReadOnlyList<string> MenuChords { get; init; } = ["X", "Y"];
 
     /// <summary>WoW's radial menu button (the Menu / "three lines" button). Picking Chat there opens chat too.</summary>
-    public string RadialMenuChord { get; set; } = "START";
+    public string RadialMenuChord { get; init; } = "START";
 
     /// <summary>
     /// Optional system-wide shortcut, e.g. "Ctrl+Shift+Space": dictates into whatever text box has
     /// focus, in any program, like Win+H. Off (null) by default.
     /// </summary>
-    public string? KeyboardShortcut { get; set; }
+    public string? KeyboardShortcut { get; init; }
 
     /// <summary>Pause after the dictate button before recording, so the start beep isn't recorded.</summary>
-    public int DelayMs { get; set; } = 150;
+    public int DelayMs { get; init; } = 150;
 
     /// <summary>The model last used; empty until one is. Set by the app's model list.</summary>
-    public string ModelPath { get; set; } = "";
+    public string ModelPath { get; init; } = "";
 
     /// <summary>Whisper language code, or "auto" to detect it each time.</summary>
-    public string Language { get; set; } = "en";
+    public string Language { get; init; } = "en";
 
     /// <summary>
     /// Words Whisper should expect. Game names are its weak spot: without this it hears
     /// "Iron Fudge" and "Dead Minds". Add your guild, friends' names or anything it mishears.
     /// </summary>
-    public string Prompt { get; set; } =
+    public string Prompt { get; init; } =
         "World of Warcraft chat. Ironforge, Stormwind, Orgrimmar, Undercity, Darnassus, Thunder Bluff, " +
         "Deadmines, Westfall, Elwynn Forest, Stranglethorn, Molten Core, Onyxia, Blackrock, Hyjal, Skyborne.";
 
-    public bool UseGpu { get; set; } = true;
+    /// <summary>
+    /// Vulkan GPU, or false for CPU only. Takes effect after a restart: whisper.cpp's native library
+    /// is chosen once per process, when the first model loads.
+    /// </summary>
+    public bool UseGpu { get; init; } = true;
 
     /// <summary>
     /// Beam search width; 5 matches OpenAI's reference transcriber, 1 decodes greedily. On turbo the
     /// benchmark found greedy just as accurate, faster, and lighter at peak.
     /// </summary>
-    public int BeamSize { get; set; } = 1;
+    public int BeamSize { get; init; } = 1;
 
     /// <summary>Recording device index, or -1 for the Windows default microphone.</summary>
-    public int MicDevice { get; set; } = -1;
+    public int MicDevice { get; init; } = -1;
 
     /// <summary>A pause this long ends the recording. Pressing the dictate button again ends it straight away.</summary>
-    public int SilenceMs { get; set; } = 1500;
+    public int SilenceMs { get; init; } = 1500;
 
     /// <summary>Give up if no speech starts within this long.</summary>
-    public int NoSpeechTimeoutSeconds { get; set; } = 6;
+    public int NoSpeechTimeoutSeconds { get; init; } = 6;
 
     /// <summary>Only a guard against a microphone that never goes quiet; far longer than a chat message.</summary>
-    public int MaxSeconds { get; set; } = 120;
+    public int MaxSeconds { get; init; } = 120;
 
     /// <summary>How far above the measured background noise counts as speech.</summary>
-    public double SpeechThresholdDb { get; set; } = 10;
+    public double SpeechThresholdDb { get; init; } = 10;
 
-    public bool Sounds { get; set; } = true;
+    public bool Sounds { get; init; } = true;
 
     public bool IsGame(string process) => ProcessNames.Contains(process, StringComparer.OrdinalIgnoreCase);
 
@@ -91,19 +96,45 @@ public sealed class Config
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true,
+        // A misspelt setting is an error rather than silently ignored. Comments are refused too
+        // (the default): every save rewrites the file, so they would quietly disappear.
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         // A hand edit that sets a required value to null is an error, not a crash later on.
         RespectNullableAnnotations = true,
         // Keep "+" and "\" readable; this file is meant to be edited by hand.
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    // The app, the controller thread and model loads can all save; one write at a time.
+    // Saves from anywhere happen one at a time.
     static readonly SemaphoreSlim SaveGate = new(1, 1);
 
-    /// <summary>Reads the settings, or starts from the defaults the first time.</summary>
-    /// <exception cref="JsonException">The file isn't valid settings JSON.</exception>
+    /// <summary>Checks every value is usable; the file is edited by hand, so this is the trust boundary.</summary>
+    /// <exception cref="FormatException">A value is missing or out of range; the message names it.</exception>
+    public Config Validated()
+    {
+        if (ProcessNames.Count == 0 || ProcessNames.Any(string.IsNullOrWhiteSpace))
+            throw new FormatException($"{nameof(ProcessNames)} needs at least one game process name.");
+        Range(ControllerSlot, -1, 3, nameof(ControllerSlot));
+        Range(MicDevice, -1, 31, nameof(MicDevice));
+        Range(DelayMs, 0, 2000, nameof(DelayMs));
+        Range(BeamSize, 1, 16, nameof(BeamSize));
+        Range(SilenceMs, 300, 10_000, nameof(SilenceMs));
+        Range(NoSpeechTimeoutSeconds, 1, 60, nameof(NoSpeechTimeoutSeconds));
+        Range(MaxSeconds, 5, 600, nameof(MaxSeconds));
+        Range(SpeechThresholdDb, 1, 40, nameof(SpeechThresholdDb));
+        if (string.IsNullOrWhiteSpace(Language)) throw new FormatException($"{nameof(Language)} needs a Whisper language code, or \"auto\".");
+        return this;
+
+        static void Range(double value, double min, double max, string name)
+        {
+            if (value < min || value > max) throw new FormatException($"{name} is {value}; it must be from {min} to {max}.");
+        }
+    }
+
+    /// <summary>Reads and checks the settings, or starts from the defaults the first time.</summary>
+    /// <exception cref="JsonException">The file isn't valid settings JSON, or names a setting that doesn't exist.</exception>
+    /// <exception cref="FormatException">A value is out of range.</exception>
     public static async Task<Config> LoadOrCreateAsync(CancellationToken ct = default)
     {
         var cfg = new Config();
@@ -114,7 +145,8 @@ public sealed class Config
                 cfg = await JsonSerializer.DeserializeAsync<Config>(stream, Json, ct).ConfigureAwait(false) ?? cfg;
         }
         if (cfg.ModelPath.StartsWith(AppPaths.OldRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            cfg.ModelPath = AppPaths.Root + cfg.ModelPath[AppPaths.OldRoot.Length..];
+            cfg = cfg with { ModelPath = AppPaths.Root + cfg.ModelPath[AppPaths.OldRoot.Length..] };
+        cfg.Validated();
         await cfg.SaveAsync(ct).ConfigureAwait(false); // writes out settings added since the file was created, with their defaults
         return cfg;
     }

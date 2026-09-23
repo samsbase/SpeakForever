@@ -3,6 +3,8 @@
 ; runtime, and only on PCs that don't already have version 14.44 or later.
 
 #define AppName "Voice Forever"
+; The same as App.AppUserModelId in the app.
+#define AppUserModelId "VoiceForever.App"
 #ifndef AppVersion
   #define AppVersion "1.0.0"
 #endif
@@ -53,11 +55,17 @@ Source: "..\publish\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversio
 Source: "..\THIRD-PARTY-NOTICES.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "redist\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedistNeeded
 
+; The Start menu entry is what Windows search finds and what "Pin to Start" and "Pin to taskbar"
+; pin. Its AppUserModelID matches the one the app sets on itself, so the running window groups
+; under a pinned icon instead of appearing beside it.
 [Icons]
-Name: "{autoprograms}\{#AppName}"; Filename: "{app}\VoiceForever.exe"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\VoiceForever.exe"; Tasks: desktopicon
+Name: "{autoprograms}\{#AppName}"; Filename: "{app}\VoiceForever.exe"; AppUserModelID: "{#AppUserModelId}"; Comment: "Chat in World of Warcraft: Forever by voice"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\VoiceForever.exe"; AppUserModelID: "{#AppUserModelId}"; Comment: "Chat in World of Warcraft: Forever by voice"; Tasks: desktopicon
 
 [Registry]
+; App Paths: Win+R and Start search both find "VoiceForever".
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\VoiceForever.exe"; ValueType: string; ValueName: ""; ValueData: "{app}\VoiceForever.exe"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\App Paths\VoiceForever.exe"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#AppName}"; ValueData: """{app}\VoiceForever.exe"""; Flags: uninsdeletevalue; Tasks: startup
 
 [Run]

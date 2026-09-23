@@ -4,7 +4,7 @@ using VoiceForever.Configuration;
 namespace VoiceForever.Logging;
 
 /// <summary>
-/// The app's log: the console, the <see cref="Written"/> event (the app's Activity list) and,
+/// The app's log: the <see cref="Written"/> event (the app's Activity list), optionally the console, and,
 /// once <see cref="ToFile"/> is called, a file. Callers include the UI and controller threads, so
 /// the file is written by a background task and logging never waits on the disk.
 /// </summary>
@@ -13,12 +13,16 @@ public static class Log
     static readonly Lock ConsoleGate = new();
     static readonly Channel<string> FileLines = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true });
     static Task? fileWriter;
+    static volatile bool toConsole;
 
     /// <summary>Raised for every line, on the thread that logged it.</summary>
     public static event Action<string, bool>? Written;
 
     public static void Info(string message) => Write(message, warning: false);
     public static void Warn(string message) => Write(message, warning: true);
+
+    /// <summary>Also write to the console, for the CLI. The app has no console, so it doesn't.</summary>
+    public static void ToConsole() => toConsole = true;
 
     /// <summary>Also write to a log file in the app folder; it starts fresh each run.</summary>
     public static void ToFile(string fileName)
@@ -66,11 +70,14 @@ public static class Log
     static void Write(string message, bool warning)
     {
         var line = $"{DateTime.Now:HH:mm:ss.fff} {message}";
-        lock (ConsoleGate)
+        if (toConsole)
         {
-            Console.ForegroundColor = warning ? ConsoleColor.Yellow : ConsoleColor.Gray;
-            Console.WriteLine(line);
-            Console.ResetColor();
+            lock (ConsoleGate)
+            {
+                Console.ForegroundColor = warning ? ConsoleColor.Yellow : ConsoleColor.Gray;
+                Console.WriteLine(line);
+                Console.ResetColor();
+            }
         }
         if (fileWriter is not null) FileLines.Writer.TryWrite(warning ? "! " + line : line);
         Written?.Invoke(line, warning);

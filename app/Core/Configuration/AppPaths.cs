@@ -5,7 +5,10 @@ public static class AppPaths
 {
     static readonly string LocalAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-    public static string Root { get; } = Path.Combine(LocalAppData, "VoiceForever");
+    /// <summary>%LOCALAPPDATA%\VoiceForever, or the VOICEFOREVER_DATA folder if that's set (tests use it to stay off real data).</summary>
+    public static string Root { get; } = Environment.GetEnvironmentVariable("VOICEFOREVER_DATA") is { Length: > 0 } custom
+        ? Path.GetFullPath(custom)
+        : Path.Combine(LocalAppData, "VoiceForever");
     public static string Config { get; } = Path.Combine(Root, "voiceforever.json");
     public static string Models { get; } = Path.Combine(Root, "models");
     public static string Benchmark { get; } = Path.Combine(Root, "benchmark");

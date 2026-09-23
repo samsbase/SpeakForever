@@ -11,10 +11,11 @@ namespace VoiceForever.Dictation;
 /// type. From the controller it types only into the game's open chat box, and a chat box that
 /// closes first discards it. From the keyboard shortcut it types into whatever has focus, like Win+H.
 /// </summary>
+/// <param name="settings">The current settings; each dictation reads them once, at its start.</param>
 /// <param name="currentModel">The loaded model at the moment it's needed; it can change between dictations.</param>
 /// <param name="transcribed">Each result: text, transcription time, seconds of audio.</param>
 /// <param name="phase">Listening, then transcribing, then idle.</param>
-sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string, TimeSpan, double> transcribed, Action<DictationPhase> phase)
+sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Action<string, TimeSpan, double> transcribed, Action<DictationPhase> phase)
 {
     readonly Lock gate = new();
     CancellationTokenSource? active;
@@ -25,6 +26,7 @@ sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string,
     /// <param name="anyWindow">Keyboard shortcut: type into whatever has focus, not only the game.</param>
     public void Start(string trigger, bool anyWindow = false)
     {
+        var cfg = settings();
         lock (gate)
         {
             if (active is not null)
@@ -60,7 +62,7 @@ sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string,
         }
         // Off the caller's thread (the controller loop, or the hotkey listener): recording and
         // transcribing take seconds. RunAsync handles all of its own errors.
-        _ = Task.Run(() => RunAsync(trigger, anyWindow, cts, finish));
+        _ = Task.Run(() => RunAsync(cfg, trigger, anyWindow, cts, finish));
     }
 
     /// <summary>The chat box is closing or losing focus, so drop anything still in flight.</summary>
@@ -73,13 +75,13 @@ sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string,
             active.Cancel();
         }
         Log.Info($"{why}, dictation discarded.");
-        Cue.Cancel(cfg);
+        Cue.Cancel(settings());
     }
 
     /// <summary>Drops any dictation in flight, for when the controller loop stops.</summary>
     public void CancelAll() => ChatClosing("Stopped");
 
-    async Task RunAsync(string trigger, bool anyWindow, CancellationTokenSource cts, CancellationTokenSource finish)
+    async Task RunAsync(Config cfg, string trigger, bool anyWindow, CancellationTokenSource cts, CancellationTokenSource finish)
     {
         var ct = cts.Token;
         try
@@ -124,7 +126,7 @@ sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string,
             lock (gate)
             {
                 ct.ThrowIfCancellationRequested();
-                Type(text, anyWindow);
+                Type(cfg, text, anyWindow);
             }
         }
         catch (OperationCanceledException)
@@ -148,7 +150,7 @@ sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string,
     }
 
     /// <summary>Types the result, re-checking the game is still in front. Called under the lock.</summary>
-    void Type(string text, bool anyWindow)
+    void Type(Config cfg, string text, bool anyWindow)
     {
         if (!anyWindow)
         {

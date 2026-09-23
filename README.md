@@ -34,6 +34,7 @@ Sound cues: a beep means it's listening. A rising two-tone means it heard you an
 1. Run **`VoiceForever-Setup-1.0.0.exe`**. It installs for your Windows account only, so it needs no admin rights. The one exception is Microsoft's Visual C++ runtime (14.44 or later): if your PC doesn't already have it, Windows asks once to install it. Windows 10 (2004) or later, 64-bit.
    - The installer isn't code-signed yet, so SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
    - Options: a desktop shortcut, and starting with Windows. Both are off by default.
+   - Afterwards, Voice Forever is in the Start menu: search for it, or right-click it to pin it to Start or the taskbar. Win+R `VoiceForever` also starts it.
 2. **Pick a speech model** in the app's **Speech model** tab and click **Download**. Each model shows its download size and how much memory it holds while running. Downloads are checked against a SHA-256 hash before use, and can be cancelled.
 
    | Model | Download | Memory while running | Notes |
@@ -82,6 +83,8 @@ The first time a model runs on the GPU, the graphics driver compiles its shaders
 
 ## Config (`%LOCALAPPDATA%\VoiceForever\voiceforever.json`)
 
+Plain JSON, checked at launch: a misspelt setting, a value out of range or a comment is reported (in the app's status line, or by the CLI) rather than silently ignored. Comments aren't allowed because the app rewrites the file whenever a setting changes, which would lose them.
+
 | Key | Default | Meaning |
 |---|---|---|
 | `ProcessNames` | `["WowB"]` | Game process names without `.exe`. The beta is `WowB`; the live release may differ. |
@@ -94,7 +97,7 @@ The first time a model runs on the GPU, the graphics driver compiles its shaders
 | `Prompt` | WoW place names | Words Whisper should expect. Without it, it hears "Iron Fudge" and "Dead Minds". Add guild and friends' names. |
 | `ModelPath` | Turbo (q5_0) | The model list's **Use** sets this. |
 | `Language` | `en` | Whisper language code, or `auto`. |
-| `UseGpu` | `true` | Vulkan GPU; `false` for CPU only. |
+| `UseGpu` | `true` | Vulkan GPU; `false` for CPU only. Takes effect after a restart. |
 | `BeamSize` | `1` | Decoding width. 1 (greedy) matched 5-beam accuracy on turbo in the benchmark, faster and lighter. |
 | `MicDevice` | `-1` | `-1` is the Windows default mic. `--test-mic` lists the others. |
 | `SilenceMs` | `1500` | Pause that ends a dictation. Set from the app's slider. |
@@ -151,7 +154,9 @@ The test clips are synthetic voices. Adding a few recordings of your own voice t
 
 The installer needs [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later. The version number comes from `Directory.Build.props`. `VoiceForever.slnx` opens everything in Visual Studio or Rider.
 
-**Linting.** Every build runs the .NET analyzers (`AnalysisLevel` latest-recommended) and the code style rules in `.editorconfig`, and warnings fail the build. Package versions live in `Directory.Packages.props`, and `nuget.config` pins the feed to nuget.org.
+**Tests.** `dotnet test --project tests\VoiceForever.Core.Tests` runs the engine's tests (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings and shortcuts, the settings file and the model list. They use a temporary data folder (`VOICEFOREVER_DATA`), never your real settings. `build.ps1` runs them first and stops if any fail.
+
+**Linting.** Every build runs the .NET analyzers (`AnalysisLevel` latest-recommended) and the code style rules in `.editorconfig`, and warnings fail the build. Package versions live in `Directory.Packages.props`, `nuget.config` pins the feed to nuget.org, and `global.json` pins the .NET SDK. The Visual C++ redistributable isn't kept in git: `build.ps1 -Installer` downloads it from Microsoft the first time and checks its signature.
 
 **Layout.** Namespaces follow folders.
 
@@ -159,12 +164,14 @@ The installer needs [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later
 |---|---|
 | `app\Core` | The engine library. `Engine.cs` ties it together. |
 | `app\Core\Configuration` | `Config` (the settings file) and `AppPaths` |
-| `app\Core\Input` | XInput, chords, the radial menu, the keyboard shortcut |
+| `app\Core\Input` | XInput, chords, the chat panel and radial menu trackers, the keyboard shortcut |
+| `app\Core\Presentation` | The model list's row view model: no UI types, so it's tested without WinUI |
 | `app\Core\Speech` | Recording, end-of-speech detection, Whisper, the model catalog and downloads |
 | `app\Core\Dictation` | One dictation from button to typed text, and the sound cues |
 | `app\Core\Interop`, `app\Core\Logging` | Typing via SendInput; the log |
 | `app\Gui` | The WinUI 3 app: `Views\MainWindow` (one partial file per tab), `Controls\LogoView`, `Models` |
 | `app\Cli` | Headless mode; `Commands` has the benchmark and setup checks |
+| `tests\VoiceForever.Core.Tests` | The engine's tests |
 | `installer` | Inno Setup script, branded wizard art, the Visual C++ redistributable |
 | `tools` | Benchmark clips; `IconGen` draws the app icon and installer art from the logo geometry (`IconGen icon <out.ico>`, `IconGen wizard installerrt app\Gui\Assets\Fonts\Cinzel.ttf`) |
 | `assets` | Logo SVGs |

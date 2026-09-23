@@ -110,7 +110,7 @@ public sealed partial class Transcriber : IAsyncDisposable
         return (text, Stopwatch.GetElapsedTime(started));
     }
 
-    static string Clean(string raw)
+    internal static string Clean(string raw)
     {
         // Whisper marks non-speech as [BLANK_AUDIO], (music), *laughs* and the like.
         var text = NonSpeech().Replace(raw, " ");

@@ -1,10 +1,13 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using VoiceForever.Configuration;
 using VoiceForever.Dictation;
 using VoiceForever.Input;
 using VoiceForever.Interop;
 using VoiceForever.Logging;
 using VoiceForever.Speech;
+
+[assembly: InternalsVisibleTo("VoiceForever.Core.Tests")]
 
 namespace VoiceForever;
 
@@ -14,37 +17,34 @@ namespace VoiceForever;
 /// </summary>
 public sealed class Engine : IAsyncDisposable
 {
-    // One controller watcher per session: two would both type every message.
-    static readonly Semaphore ControllerLock = new(1, 1, @"Local\VoiceForever.Controller");
-
-    const int PollMs = 8;              // Windows' timer tick makes this ~15 ms in practice: still under a frame
-    const int RescanMs = 1000;         // polling empty XInput slots is slow, so look for a new pad once a second
-    const int MenuDepthTextBox = 0, MenuDepthMenu = 1, MenuDepthSubmenu = 2;
+    const int PollMs = 8;      // Windows' timer tick makes this ~15 ms in practice: still under a frame
+    const int RescanMs = 1000; // polling empty XInput slots is slow, so look for a new pad once a second
 
     readonly HotkeyListener hotkey = new();
     readonly RadialMenu radialMenu = new();
+    readonly ChatPanel chat = new();
     readonly Session session;
-    volatile Bindings bindings;
+    readonly SemaphoreSlim configGate = new(1, 1);
+    volatile Config config;
+    volatile ControllerBindings bindings;
     volatile ChordRecorder? recorder;
     TaskCompletionSource<Chord>? recorded;
-    volatile bool chatOpen;
-    volatile int menuDepth; // MenuDepthTextBox, MenuDepthMenu or MenuDepthSubmenu
     volatile int controllerSlot = -1;
     volatile Thread? thread;
     Transcriber? transcriber;
     CancellationTokenSource? stopping;
-    bool holdsLock;
+    FileStream? controllerLock;
 
-    /// <exception cref="FormatException">A chord in the config doesn't parse.</exception>
+    /// <exception cref="FormatException">A chord in the settings doesn't parse.</exception>
     public Engine(Config config)
     {
-        Config = config;
-        bindings = Bindings.From(config);
-        session = new Session(config, () => transcriber, (text, took, seconds) => Transcribed?.Invoke(text, took, seconds),
+        this.config = config;
+        bindings = ControllerBindings.From(config);
+        session = new Session(() => this.config, () => transcriber, (text, took, seconds) => Transcribed?.Invoke(text, took, seconds),
             phase => PhaseChanged?.Invoke(phase));
         hotkey.Pressed += () =>
         {
-            if (IsRunning) session.Start(Config.KeyboardShortcut ?? "Shortcut", anyWindow: true);
+            if (IsRunning) session.Start(this.config.KeyboardShortcut ?? "Shortcut", anyWindow: true);
         };
     }
 
@@ -57,7 +57,9 @@ public sealed class Engine : IAsyncDisposable
     /// <summary>Raised on a background thread as a dictation starts listening, transcribes, and finishes.</summary>
     public event Action<DictationPhase>? PhaseChanged;
 
-    public Config Config { get; }
+    /// <summary>The current settings. A snapshot: change them with <see cref="UpdateConfigAsync"/>.</summary>
+    public Config Config => config;
+
     public bool IsRunning => thread is not null;
     public int ControllerSlot => controllerSlot;
     public bool IsLoadingModel => LoadingModel is not null;
@@ -69,7 +71,7 @@ public sealed class Engine : IAsyncDisposable
     public string? RemovedModel { get; private set; }
 
     /// <summary>The chat panel is open with its text box focused (not in one of its menus).</summary>
-    public bool ChatOpen => chatOpen && menuDepth == MenuDepthTextBox;
+    public bool ChatOpen => chat.InTextBox;
 
     /// <summary>Why the last Start() refused, or null.</summary>
     public string? StartError { get; private set; }
@@ -77,15 +79,29 @@ public sealed class Engine : IAsyncDisposable
     /// <summary>Why the keyboard shortcut couldn't be registered, or null.</summary>
     public string? KeyboardError { get; private set; }
 
-    // ---- Bindings ---------------------------------------------------------------------------
+    // ---- Settings ---------------------------------------------------------------------------
 
-    /// <summary>Swapped as a whole when the user rebinds, so the controller thread never sees half a change.</summary>
-    sealed record Bindings(Chord OpenChat, Chord Dictate, Chord Send, Chord Back, Chord[] Menus, Chord Radial)
+    /// <summary>
+    /// Changes the settings and saves them. Changes apply one at a time, each to the latest
+    /// settings, so two made at once can't lose either; readers see the old or the new, never a mix.
+    /// </summary>
+    /// <exception cref="FormatException">The change puts a value out of range; nothing is changed.</exception>
+    public async Task UpdateConfigAsync(Func<Config, Config> change, CancellationToken ct = default)
     {
-        public static Bindings From(Config c) => new(
-            Chord.Parse(c.OpenChatChord), Chord.Parse(c.DictateChord), Chord.Parse(c.SendChord), Chord.Parse(c.BackChord),
-            [.. c.MenuChords.Select(Chord.Parse)], Chord.Parse(c.RadialMenuChord));
+        await configGate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var updated = change(config).Validated();
+            config = updated;
+            await updated.SaveAsync(ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            configGate.Release();
+        }
     }
+
+    // ---- Controller bindings ----------------------------------------------------------------
 
     /// <summary>
     /// Records the next chord pressed on the controller instead of acting on it. Null if nothing
@@ -96,7 +112,7 @@ public sealed class Engine : IAsyncDisposable
     {
         if (!IsRunning) throw new InvalidOperationException("Set Voice Forever to Active first.");
         session.ChatClosing("Rebinding");
-        chatOpen = false;
+        chat.Close();
         var done = recorded = new TaskCompletionSource<Chord>(TaskCreationOptions.RunContinuationsAsynchronously);
         recorder = new ChordRecorder();
         try
@@ -128,11 +144,10 @@ public sealed class Engine : IAsyncDisposable
             if (!other.SameButtons(mine) && other.SameButtons(chord))
                 return $"{chord.Text} is already used for {name}.";
 
-        if (which == BindingKind.OpenChat) Config.OpenChatChord = chord.Text;
-        else Config.DictateChord = chord.Text;
-        bindings = Bindings.From(Config);
-        chatOpen = false;
-        await Config.SaveAsync(ct).ConfigureAwait(false);
+        await UpdateConfigAsync(c => which == BindingKind.OpenChat ? c with { OpenChatChord = chord.Text } : c with { DictateChord = chord.Text }, ct)
+            .ConfigureAwait(false);
+        bindings = ControllerBindings.From(config);
+        chat.Close();
         Log.Info($"{(which == BindingKind.OpenChat ? "Open chat" : "Dictate")} is now {chord.Text}.");
         Changed();
         return null;
@@ -145,17 +160,19 @@ public sealed class Engine : IAsyncDisposable
     {
         if (shortcut is { } s && s.Modifiers == 0 && !s.IsFunctionKey)
             return $"{s} on its own would take that key from every program. Add Ctrl, Alt or Shift, or use an F key.";
-        var previous = Config.KeyboardShortcut;
+        var text = shortcut?.ToString();
         hotkey.Unregister();
-        Config.KeyboardShortcut = shortcut?.ToString();
-        if (IsRunning) RegisterKeyboardShortcut();
-        if (KeyboardError is { } error)
+        if (IsRunning)
         {
-            Config.KeyboardShortcut = previous;
-            if (IsRunning) RegisterKeyboardShortcut();
-            return error;
+            RegisterKeyboardShortcut(text);
+            if (KeyboardError is { } error)
+            {
+                RegisterKeyboardShortcut(config.KeyboardShortcut); // put the old one back
+                return error;
+            }
         }
-        await Config.SaveAsync(ct).ConfigureAwait(false);
+        else KeyboardError = null; // registered for real when the app is next set to Active
+        await UpdateConfigAsync(c => c with { KeyboardShortcut = text }, ct).ConfigureAwait(false);
         if (shortcut is null) Log.Info("Keyboard shortcut is off.");
         Changed();
         return null;
@@ -166,13 +183,13 @@ public sealed class Engine : IAsyncDisposable
 
     public void ResumeKeyboardShortcut()
     {
-        if (IsRunning) RegisterKeyboardShortcut();
+        if (IsRunning) RegisterKeyboardShortcut(config.KeyboardShortcut);
     }
 
-    void RegisterKeyboardShortcut()
+    void RegisterKeyboardShortcut(string? text)
     {
         KeyboardError = null;
-        if (Config.KeyboardShortcut is not { } text) return;
+        if (text is null) return;
         try
         {
             KeyboardError = hotkey.Register(Shortcut.Parse(text));
@@ -193,14 +210,14 @@ public sealed class Engine : IAsyncDisposable
     /// </summary>
     public string? StartingModel()
     {
+        var saved = config.ModelPath;
         var installed = ModelCatalog.Installed();
-        var saved = installed.FirstOrDefault(p => string.Equals(p, Config.ModelPath, StringComparison.OrdinalIgnoreCase));
-        if (saved is not null) return saved;
+        if (installed.FirstOrDefault(p => string.Equals(p, saved, StringComparison.OrdinalIgnoreCase)) is { } found) return found;
         var fallback = ModelCatalog.All.Where(m => m.IsInstalled).Select(m => m.LocalPath).FirstOrDefault()
                        ?? (installed.Count > 0 ? installed[0] : null);
-        if (Config.ModelPath.Length > 0)
+        if (saved.Length > 0)
         {
-            RemovedModel = ModelCatalog.DisplayName(Config.ModelPath);
+            RemovedModel = ModelCatalog.DisplayName(saved);
             Log.Warn(fallback is null
                 ? $"{RemovedModel} is no longer in the models folder. Download a speech model to dictate."
                 : $"{RemovedModel} is no longer in the models folder, so using {ModelCatalog.DisplayName(fallback)} instead.");
@@ -218,16 +235,12 @@ public sealed class Engine : IAsyncDisposable
         try
         {
             var started = Stopwatch.GetTimestamp();
-            var loaded = await Transcriber.LoadAsync(Config, path, ct).ConfigureAwait(false);
+            var loaded = await Transcriber.LoadAsync(config, path, ct).ConfigureAwait(false);
             var old = Interlocked.Exchange(ref transcriber, loaded);
             LoadedModel = path;
             ModelStatus = $"{name} ready in {Stopwatch.GetElapsedTime(started).TotalSeconds:F1}s on {Transcriber.RuntimeInfo}";
             Log.Info(ModelStatus);
-            if (Config.ModelPath != path)
-            {
-                Config.ModelPath = path;
-                await Config.SaveAsync(ct).ConfigureAwait(false);
-            }
+            if (config.ModelPath != path) await UpdateConfigAsync(c => c with { ModelPath = path }, ct).ConfigureAwait(false);
             if (old is not null) await old.DisposeAsync().ConfigureAwait(false);
         }
         catch (Exception e)
@@ -264,14 +277,15 @@ public sealed class Engine : IAsyncDisposable
     public async Task<(string Text, TimeSpan Took, double Seconds)?> TestMicAsync(CancellationToken finish = default, CancellationToken ct = default)
     {
         var model = transcriber ?? throw new InvalidOperationException("No speech model is loaded.");
+        var cfg = config;
         try
         {
-            Cue.Start(Config);
+            Cue.Start(cfg);
             PhaseChanged?.Invoke(DictationPhase.Listening);
-            await Task.Delay(Config.DelayMs, ct).ConfigureAwait(false);
-            var audio = await Recorder.RecordUtteranceAsync(Config, finish, ct).ConfigureAwait(false);
+            await Task.Delay(cfg.DelayMs, ct).ConfigureAwait(false);
+            var audio = await Recorder.RecordUtteranceAsync(cfg, finish, ct).ConfigureAwait(false);
             if (audio is null) return null;
-            Cue.Heard(Config);
+            Cue.Heard(cfg);
             PhaseChanged?.Invoke(DictationPhase.Transcribing);
             var (text, took) = await model.TimedAsync(audio, ct).ConfigureAwait(false);
             return (text, took, audio.Length / (double)Recorder.SampleRate);
@@ -296,7 +310,7 @@ public sealed class Engine : IAsyncDisposable
     public bool Start(bool probe = false)
     {
         if (IsRunning) return true;
-        if (!probe && !ControllerLock.WaitOne(0))
+        if (!probe && !TryTakeControllerLock())
         {
             StartError = "Another Voice Forever window or CLI is already watching the controller. Close it first, or both would type.";
             Log.Warn(StartError);
@@ -304,7 +318,6 @@ public sealed class Engine : IAsyncDisposable
             return false;
         }
         StartError = null;
-        holdsLock = !probe;
         var cts = stopping = new CancellationTokenSource();
         // A dedicated thread, not a timer or a task: XInput has no events, so this is a blocking
         // poll for the app's lifetime, which would otherwise pin a thread-pool thread.
@@ -312,9 +325,29 @@ public sealed class Engine : IAsyncDisposable
         thread = poller;
         poller.Start();
         Log.Info(probe ? "Probe mode: logging presses only, nothing is recorded." : "Watching the controller.");
-        if (!probe) RegisterKeyboardShortcut();
+        if (!probe) RegisterKeyboardShortcut(config.KeyboardShortcut);
         Changed();
         return true;
+    }
+
+    /// <summary>
+    /// One controller watcher at a time, or both would type every message. An exclusively opened
+    /// file rather than a named semaphore or mutex: Windows closes it if the process dies, and any
+    /// thread can release it.
+    /// </summary>
+    bool TryTakeControllerLock()
+    {
+        try
+        {
+            Directory.CreateDirectory(AppPaths.Root);
+            controllerLock = new FileStream(Path.Combine(AppPaths.Root, "controller.lock"), FileMode.OpenOrCreate,
+                FileAccess.ReadWrite, FileShare.None, bufferSize: 1, FileOptions.DeleteOnClose);
+            return true;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
     }
 
     public void Stop()
@@ -327,10 +360,10 @@ public sealed class Engine : IAsyncDisposable
         stopping = null;
         session.CancelAll();
         hotkey.Unregister();
-        chatOpen = false;
+        chat.Close();
         radialMenu.Reset();
-        if (holdsLock) ControllerLock.Release();
-        holdsLock = false;
+        controllerLock?.Dispose();
+        controllerLock = null;
         controllerSlot = -1;
         Log.Info("Stopped watching the controller.");
         Changed();
@@ -352,7 +385,7 @@ public sealed class Engine : IAsyncDisposable
             if (controllerSlot < 0 && Environment.TickCount64 >= nextScan)
             {
                 nextScan = Environment.TickCount64 + RescanMs;
-                controllerSlot = Gamepad.FindSlot(Config.ControllerSlot);
+                controllerSlot = Gamepad.FindSlot(config.ControllerSlot);
                 if (controllerSlot >= 0)
                 {
                     Log.Info($"Controller connected on slot {controllerSlot}.");
@@ -383,85 +416,60 @@ public sealed class Engine : IAsyncDisposable
         }
     }
 
-    /// <summary>
-    /// Follows WoW's gamepad chat panel from the same presses the game sees. Its menus reuse A and
-    /// B: in the channel menu the first A opens a submenu (General, Custom, Language) and the next
-    /// picks an item, landing back in the text box; B backs out one level. When unsure, it errs
-    /// towards "not in the text box", which only costs a refused dictation.
-    /// </summary>
-    void OnButtons(uint prev, uint cur, bool probe)
+    /// <summary>One change in the buttons held: the radial menu gets it if it's open, otherwise the chat panel.</summary>
+    internal void OnButtons(uint prev, uint cur, bool probe)
     {
-        var (openChat, dictate, send, back, menus, radial) = bindings;
+        var b = bindings;
         bool wasOpen = ChatOpen;
 
         if (radialMenu.IsOpen)
         {
-            radialMenu.OnButtons(prev, cur, radial, back);
+            radialMenu.OnButtons(prev, cur, b.Radial, b.Back);
             return;
         }
-        if (radial.FiredBy(prev, cur))
+        if (b.Radial.FiredBy(prev, cur))
         {
             radialMenu.Open();
-            chatOpen = false;
-            menuDepth = MenuDepthTextBox;
+            chat.Close();
             session.ChatClosing("Radial menu opened");
             if (wasOpen) Changed();
             return;
         }
-        if (openChat.FiredBy(prev, cur))
+
+        switch (chat.OnButtons(prev, cur, b))
         {
-            chatOpen = true;
-            menuDepth = MenuDepthTextBox;
-        }
-        else if (!chatOpen)
-        {
-            if (dictate.FiredBy(prev, cur))
-            {
-                Log.Warn($"{dictate.Text}: chat isn't open. Open it with {openChat.Text} first.");
-                Cue.Error(Config);
-            }
-            return;
-        }
-        else if (dictate.FiredBy(prev, cur))
-        {
-            if (menuDepth > MenuDepthTextBox)
-            {
-                Log.Warn($"{dictate.Text}: close the chat menu first.");
-                Cue.Error(Config);
-            }
-            else if (probe) Log.Info($"  would dictate ({dictate.Text})");
-            else session.Start(dictate.Text);
-        }
-        else if (menuDepth == MenuDepthTextBox && menus.Any(m => m.FiredBy(prev, cur)))
-        {
-            menuDepth = MenuDepthMenu;
-            session.ChatClosing("Chat menu opened", keepsText: true);
-        }
-        else if (send.FiredBy(prev, cur))
-        {
-            if (menuDepth == MenuDepthTextBox) chatOpen = false;
-            else menuDepth = menuDepth == MenuDepthMenu ? MenuDepthSubmenu : MenuDepthTextBox;
-        }
-        else if (back.FiredBy(prev, cur))
-        {
-            if (menuDepth == MenuDepthTextBox) chatOpen = false;
-            else menuDepth--;
+            case ChatAction.Dictate when probe:
+                Log.Info($"  would dictate ({b.Dictate.Text})");
+                break;
+            case ChatAction.Dictate:
+                session.Start(b.Dictate.Text);
+                break;
+            case ChatAction.DictateWhileClosed:
+                Log.Warn($"{b.Dictate.Text}: chat isn't open. Open it with {b.OpenChat.Text} first.");
+                Cue.Error(config);
+                break;
+            case ChatAction.DictateInMenu:
+                Log.Warn($"{b.Dictate.Text}: close the chat menu first.");
+                Cue.Error(config);
+                break;
+            case ChatAction.MenuOpened:
+                session.ChatClosing("Chat menu opened", keepsText: true);
+                break;
         }
 
         if (wasOpen != ChatOpen)
         {
-            if (!ChatOpen && !chatOpen) session.ChatClosing("Chat closed");
-            Log.Info(ChatOpen ? "Chat open." : chatOpen ? "In a chat menu." : "Chat closed.");
+            if (!chat.IsOpen) session.ChatClosing("Chat closed");
+            Log.Info(ChatOpen ? "Chat open." : chat.IsOpen ? "In a chat menu." : "Chat closed.");
             Changed();
         }
     }
 
     /// <summary>The right stick while the radial menu is open: picking Chat there opens chat.</summary>
-    void OnRightStick(float x, float y)
+    internal void OnRightStick(float x, float y)
     {
         if (!radialMenu.OnRightStick(x, y)) return;
-        chatOpen = true;
-        menuDepth = MenuDepthTextBox;
+        chat.Open();
         Changed();
     }
 
@@ -472,5 +480,6 @@ public sealed class Engine : IAsyncDisposable
         Stop();
         hotkey.Dispose();
         if (Interlocked.Exchange(ref transcriber, null) is { } t) await t.DisposeAsync().ConfigureAwait(false);
+        configGate.Dispose();
     }
 }
