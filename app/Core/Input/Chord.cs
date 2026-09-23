@@ -1,4 +1,4 @@
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>
 /// A WoW-style binding: modifiers held first, then a key. "LT+RT+A" fires when A goes down while

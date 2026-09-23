@@ -1,4 +1,4 @@
-Voice Forever includes or downloads the following third-party components.
+Speak Forever includes or downloads the following third-party components.
 
 Whisper speech recognition models (downloaded by the app on request)
   OpenAI, https://github.com/openai/whisper
@@ -33,5 +33,5 @@ Microsoft Visual C++ Redistributable
   Microsoft Corporation. Installed by Microsoft's own installer when it isn't
   already present, under Microsoft's license terms for that package.
 
-World of Warcraft is a trademark of Blizzard Entertainment, Inc. Voice Forever is
+World of Warcraft is a trademark of Blizzard Entertainment, Inc. Speak Forever is
 not affiliated with or endorsed by Blizzard Entertainment.

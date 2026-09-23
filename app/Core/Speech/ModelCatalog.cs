@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.Security.Cryptography;
-using VoiceForever.Configuration;
-using VoiceForever.Logging;
+using SpeakForever.Configuration;
+using SpeakForever.Logging;
 
-namespace VoiceForever.Speech;
+namespace SpeakForever.Speech;
 
 /// <summary>The models the app offers, the ones on disk, and downloading them.</summary>
 public static class ModelCatalog
@@ -36,7 +36,7 @@ public static class ModelCatalog
 
     static readonly HttpClient Http = new()
     {
-        DefaultRequestHeaders = { { "User-Agent", $"VoiceForever/{typeof(ModelCatalog).Assembly.GetName().Version?.ToString(3)}" } },
+        DefaultRequestHeaders = { { "User-Agent", $"SpeakForever/{typeof(ModelCatalog).Assembly.GetName().Version?.ToString(3)}" } },
     };
 
     public static ModelInfo? Find(string path) =>

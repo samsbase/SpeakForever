@@ -2,11 +2,11 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using VoiceForever.Input;
+using SpeakForever.Input;
 using Windows.System;
 using Windows.UI.Core;
 
-namespace VoiceForever.Gui.Views;
+namespace SpeakForever.Gui.Views;
 
 /// <summary>The Buttons &amp; shortcuts tab: rebinding the controller buttons and the keyboard shortcut.</summary>
 public sealed partial class MainWindow

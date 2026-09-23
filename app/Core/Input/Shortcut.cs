@@ -1,4 +1,4 @@
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>A keyboard shortcut such as "Ctrl+Shift+Space": modifier flags plus one virtual key.</summary>
 public readonly record struct Shortcut(uint Modifiers, uint Key)

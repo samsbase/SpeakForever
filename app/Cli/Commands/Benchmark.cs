@@ -2,16 +2,16 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using VoiceForever.Configuration;
-using VoiceForever.Logging;
-using VoiceForever.Speech;
+using SpeakForever.Configuration;
+using SpeakForever.Logging;
+using SpeakForever.Speech;
 
-namespace VoiceForever.Cli.Commands;
+namespace SpeakForever.Cli.Commands;
 
 /// <summary>
 /// --benchmark: memory, speed and accuracy for every installed model at both decoding widths.
 /// Each combination runs in its own process so memory readings don't mix. The test set is
-/// %LOCALAPPDATA%\VoiceForever\benchmark\*.wav, each with a .txt of what was said; each clip is
+/// %LOCALAPPDATA%\SpeakForever\benchmark\*.wav, each with a .txt of what was said; each clip is
 /// also run with white noise mixed in, since clean audio hides differences between models.
 /// </summary>
 static partial class Benchmark

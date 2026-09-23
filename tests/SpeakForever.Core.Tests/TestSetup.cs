@@ -1,23 +1,23 @@
 using System.Runtime.CompilerServices;
-using VoiceForever.Configuration;
-using VoiceForever.Input;
+using SpeakForever.Configuration;
+using SpeakForever.Input;
 
 // Several tests read and write the settings file; one at a time keeps them from racing each other.
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 static class TestSetup
 {
     /// <summary>
     /// Runs before anything touches AppPaths: every test's settings and models live in a fresh
-    /// temporary folder, never the user's real %LOCALAPPDATA%\VoiceForever.
+    /// temporary folder, never the user's real %LOCALAPPDATA%\SpeakForever.
     /// </summary>
     [ModuleInitializer]
     internal static void UseTemporaryDataFolder()
     {
-        var folder = Path.Combine(Path.GetTempPath(), "VoiceForeverTests", Guid.NewGuid().ToString("N"));
-        Environment.SetEnvironmentVariable("VOICEFOREVER_DATA", folder);
+        var folder = Path.Combine(Path.GetTempPath(), "SpeakForeverTests", Guid.NewGuid().ToString("N"));
+        Environment.SetEnvironmentVariable("SPEAKFOREVER_DATA", folder);
         AppDomain.CurrentDomain.ProcessExit += (_, _) =>
         {
             try { Directory.Delete(folder, recursive: true); }

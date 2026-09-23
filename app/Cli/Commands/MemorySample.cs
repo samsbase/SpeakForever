@@ -1,4 +1,4 @@
-namespace VoiceForever.Cli.Commands;
+namespace SpeakForever.Cli.Commands;
 
 /// <summary>A process's memory at one moment, in MB.</summary>
 /// <param name="PrivateMB">System RAM the process holds.</param>

@@ -1,6 +1,6 @@
-using VoiceForever.Configuration;
+using SpeakForever.Configuration;
 
-namespace VoiceForever.Speech;
+namespace SpeakForever.Speech;
 
 /// <summary>
 /// Energy-based end-of-speech detection over 30 ms frames. The room's noise level is the quietest

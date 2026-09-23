@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
 using NAudio.Wave;
-using VoiceForever.Configuration;
-using VoiceForever.Logging;
+using SpeakForever.Configuration;
+using SpeakForever.Logging;
 
-namespace VoiceForever.Speech;
+namespace SpeakForever.Speech;
 
 /// <summary>
 /// Records one utterance: until you pause, or until told to finish. Captures 16 kHz mono, which

@@ -1,13 +1,13 @@
 using System.Text.Json;
-using VoiceForever;
-using VoiceForever.Cli.Commands;
-using VoiceForever.Configuration;
-using VoiceForever.Logging;
+using SpeakForever;
+using SpeakForever.Cli.Commands;
+using SpeakForever.Configuration;
+using SpeakForever.Logging;
 
-// Headless Voice Forever plus the setup checks. The WinUI app is the everyday front end.
+// Headless Speak Forever plus the setup checks. The WinUI app is the everyday front end.
 AppPaths.MigrateFromOldName();
 Log.ToConsole();
-Log.ToFile("voiceforever-cli.log");
+Log.ToFile("speakforever-cli.log");
 
 using var quit = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) =>
@@ -50,7 +50,7 @@ async Task<int> RunAsync()
         return await Benchmark.RunOneAsync(cfg, benchModel, int.Parse(beam, System.Globalization.CultureInfo.InvariantCulture), quit.Token);
 
     if (args is ["--test-type", ..])
-        return await Diagnostics.TestTypeAsync(cfg, args.Length > 1 ? string.Join(' ', args[1..]) : "Hello from Voice Forever!", quit.Token);
+        return await Diagnostics.TestTypeAsync(cfg, args.Length > 1 ? string.Join(' ', args[1..]) : "Hello from Speak Forever!", quit.Token);
 
     if (args.Contains("--probe"))
     {
@@ -62,7 +62,7 @@ async Task<int> RunAsync()
     if (model is null || !File.Exists(model))
     {
         Log.Warn(model is null ? "No speech model yet." : $"Whisper model not found: {model}");
-        Log.Warn($"Download one in the Voice Forever app, or put a ggml model from https://huggingface.co/ggerganov/whisper.cpp in {AppPaths.Models}.");
+        Log.Warn($"Download one in the Speak Forever app, or put a ggml model from https://huggingface.co/ggerganov/whisper.cpp in {AppPaths.Models}.");
         return 1;
     }
     await engine.LoadModelAsync(model, quit.Token);

@@ -1,4 +1,4 @@
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>
 /// Records one chord from live presses, the way WoW reads a binding: the last button to go down

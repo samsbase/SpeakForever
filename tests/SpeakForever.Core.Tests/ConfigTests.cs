@@ -1,7 +1,7 @@
 using System.Text.Json;
-using VoiceForever.Configuration;
+using SpeakForever.Configuration;
 
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 /// <summary>The hand-editable settings file: saving, loading, and rejecting what would be lost or misread.</summary>
 public sealed class ConfigTests

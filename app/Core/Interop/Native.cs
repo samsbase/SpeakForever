@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace VoiceForever.Interop;
+namespace SpeakForever.Interop;
 
 /// <summary>Typing into other windows, and finding out which one is in front.</summary>
 public static partial class Native

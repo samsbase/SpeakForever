@@ -6,14 +6,14 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using VoiceForever.Configuration;
-using VoiceForever.Gui.Models;
-using VoiceForever.Logging;
-using VoiceForever.Speech;
+using SpeakForever.Configuration;
+using SpeakForever.Gui.Models;
+using SpeakForever.Logging;
+using SpeakForever.Speech;
 using Windows.Foundation;
 using Windows.Graphics;
 
-namespace VoiceForever.Gui.Views;
+namespace SpeakForever.Gui.Views;
 
 /// <summary>
 /// The app window: a status line and three tabs (Dictation, Speech model, Buttons &amp; shortcuts).
@@ -39,7 +39,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         double scale = GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(this)) / 96.0;
         AppWindow.Resize(new SizeInt32((int)(InitialWidth * scale), (int)(InitialHeight * scale)));
-        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "VoiceForever.ico"));
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "SpeakForever.ico"));
         StyleTitleBar(scale);
 
         LogList.ItemsSource = log;

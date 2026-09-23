@@ -1,4 +1,4 @@
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 /// <summary>Opening chat from WoW's radial menu, per GamepadRadial.lua.</summary>
 public sealed class RadialMenuTests : IAsyncLifetime

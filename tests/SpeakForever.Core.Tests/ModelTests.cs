@@ -1,9 +1,9 @@
 using System.ComponentModel;
-using VoiceForever.Configuration;
-using VoiceForever.Presentation;
-using VoiceForever.Speech;
+using SpeakForever.Configuration;
+using SpeakForever.Presentation;
+using SpeakForever.Speech;
 
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 /// <summary>The model list's rows, the models folder, and cleaning up transcripts.</summary>
 public sealed class ModelTests

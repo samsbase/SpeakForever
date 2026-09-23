@@ -1,6 +1,6 @@
-using VoiceForever.Logging;
+using SpeakForever.Logging;
 
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>
 /// Follows WoW's gamepad radial menu, per Blizzard_Gamepad/UI/Radials/GamepadRadial.lua (build

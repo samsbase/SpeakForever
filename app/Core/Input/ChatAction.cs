@@ -1,4 +1,4 @@
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>What a press in the chat panel asks the engine to do.</summary>
 enum ChatAction

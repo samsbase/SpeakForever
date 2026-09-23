@@ -1,7 +1,7 @@
 using System.Threading.Channels;
-using VoiceForever.Configuration;
+using SpeakForever.Configuration;
 
-namespace VoiceForever.Logging;
+namespace SpeakForever.Logging;
 
 /// <summary>
 /// The app's log: the <see cref="Written"/> event (the app's Activity list), optionally the console, and,

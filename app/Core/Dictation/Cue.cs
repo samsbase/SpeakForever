@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using VoiceForever.Configuration;
+using SpeakForever.Configuration;
 
-namespace VoiceForever.Dictation;
+namespace SpeakForever.Dictation;
 
 /// <summary>Audio cues, since you're looking at the game, not this window.</summary>
 public static class Cue

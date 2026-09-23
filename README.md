@@ -1,6 +1,6 @@
-<p align="center"><img src="assets/logo.svg" width="128" alt="Voice Forever logo: a glowing blue infinity sign on a dark medallion"></p>
+<p align="center"><img src="assets/logo.svg" width="128" alt="Speak Forever logo: a glowing blue infinity sign on a dark medallion"></p>
 
-# Voice Forever
+# Speak Forever
 
 Voice-to-chat for WoW: Forever in gamepad mode. Open chat, click the right stick, and say your message. It's typed into the chat box, and you press **A** to send it. Keyboard players can set a shortcut instead, which works like Windows+H.
 
@@ -31,10 +31,10 @@ Sound cues: a beep means it's listening. A rising two-tone means it heard you an
 
 ## Install
 
-1. Run **`VoiceForever-Setup-1.0.0.exe`**. It installs for your Windows account only, so it needs no admin rights. The one exception is Microsoft's Visual C++ runtime (14.44 or later): if your PC doesn't already have it, Windows asks once to install it. Windows 10 (2004) or later, 64-bit.
+1. Run **`SpeakForever-Setup-1.0.0.exe`**. It installs for your Windows account only, so it needs no admin rights. The one exception is Microsoft's Visual C++ runtime (14.44 or later): if your PC doesn't already have it, Windows asks once to install it. Windows 10 (2004) or later, 64-bit.
    - The installer isn't code-signed yet, so SmartScreen shows "Windows protected your PC". Click **More info**, then **Run anyway**.
    - Options: a desktop shortcut, and starting with Windows. Both are off by default.
-   - Afterwards, Voice Forever is in the Start menu: search for it, or right-click it to pin it to Start or the taskbar. Win+R `VoiceForever` also starts it.
+   - Afterwards, Speak Forever is in the Start menu: search for it, or right-click it to pin it to Start or the taskbar. Win+R `SpeakForever` also starts it.
 2. **Pick a speech model** in the app's **Speech model** tab and click **Download**. Each model shows its download size and how much memory it holds while running. Downloads are checked against a SHA-256 hash before use, and can be cancelled.
 
    | Model | Download | Memory while running | Notes |
@@ -45,7 +45,7 @@ Sound cues: a beep means it's listening. A rising two-tone means it heard you an
    | Small | 488 MB | about 1.0 GB | Less accurate, and slower |
    | Base | 148 MB | about 0.6 GB | For low-memory PCs; makes several times more mistakes |
 
-   Models are saved in `%LOCALAPPDATA%\VoiceForever\models\`. Any other `ggml-*.bin` from [huggingface.co/ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp) dropped in there also appears in the list.
+   Models are saved in `%LOCALAPPDATA%\SpeakForever\models\`. Any other `ggml-*.bin` from [huggingface.co/ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp) dropped in there also appears in the list.
 
    WoW fills most of a 16 GB card's video memory, so the model usually runs from system RAM instead. The app uses flash attention to stay fast when that happens; without it, the same message took 4.6 s.
 3. **Leave the app open** while you play.
@@ -68,7 +68,7 @@ The status line and the **Active / Paused** switch sit above three tabs: **Dicta
 - **Test microphone** runs one dictation without the game, handy for comparing models on your own voice.
 - **Buttons & shortcuts** shows the open-chat combo, the dictate button and the keyboard shortcut, with **Change** to rebind them. Changes apply immediately.
 - **Last heard** shows the latest transcript, how long the speech was, how long transcription took, and which model did it.
-- **Activity** is the live log. It's also written to `%LOCALAPPDATA%\VoiceForever\voiceforever.log`.
+- **Activity** is the live log. It's also written to `%LOCALAPPDATA%\SpeakForever\speakforever.log`.
 
 The first time a model runs on the GPU, the graphics driver compiles its shaders, which can take 20+ seconds. After that it loads in a few seconds.
 
@@ -76,12 +76,12 @@ The first time a model runs on the GPU, the graphics driver compiles its shaders
 
 | # | Question | How |
 |---|---|---|
-| 1 | Does typed text reach the chat box **in gamepad mode**? | `publish\VoiceForeverCli.exe --test-type`, then open chat (LB+RB+Down) within 5 s. |
+| 1 | Does typed text reach the chat box **in gamepad mode**? | `publish\SpeakForeverCli.exe --test-type`, then open chat (LB+RB+Down) within 5 s. |
 | 2 | Does the app follow the chat panel? | Watch the app's status line while you open chat, open the X menu, pick a channel, and send. |
 | 3 | End to end | LB+RB+Down, click RS, say something, wait for the text, press A. |
 | 4 | **Safety** | Click RS, start talking, press **B** mid-sentence. Nothing should be typed, and your character mustn't move. |
 
-## Config (`%LOCALAPPDATA%\VoiceForever\voiceforever.json`)
+## Config (`%LOCALAPPDATA%\SpeakForever\speakforever.json`)
 
 Plain JSON, checked at launch: a misspelt setting, a value out of range or a comment is reported (in the app's status line, or by the CLI) rather than silently ignored. Comments aren't allowed because the app rewrites the file whenever a setting changes, which would lose them.
 
@@ -107,7 +107,7 @@ Plain JSON, checked at launch: a misspelt setting, a value out of range or a com
 | `DelayMs` | `150` | Pause after RS before recording, so the beep isn't recorded. |
 | `Sounds` | `true` | The audio cues. |
 
-## CLI (`VoiceForeverCli.exe`)
+## CLI (`SpeakForeverCli.exe`)
 
 | Command | Does |
 |---|---|
@@ -123,7 +123,7 @@ Only one copy, app or CLI, can watch the controller at a time; otherwise both wo
 
 ## Benchmark
 
-`VoiceForeverCli.exe --benchmark` measures every model in the models folder at both decoding widths, each in its own process: RAM, GPU memory (in video memory and spilled to system RAM), peak during transcription, speed, and word error rate. The test set is `%LOCALAPPDATA%\VoiceForever\benchmark\`: `.wav` files each with a `.txt` of what was said. Every clip is also run with noise mixed in. `powershell.exe -File tools\make-benchmark-clips.ps1` generates 24 clips with the Windows voices; add your own recordings the same way for a truer test.
+`SpeakForeverCli.exe --benchmark` measures every model in the models folder at both decoding widths, each in its own process: RAM, GPU memory (in video memory and spilled to system RAM), peak during transcription, speed, and word error rate. The test set is `%LOCALAPPDATA%\SpeakForever\benchmark\`: `.wav` files each with a `.txt` of what was said. Every clip is also run with noise mixed in. `powershell.exe -File tools\make-benchmark-clips.ps1` generates 24 clips with the Windows voices; add your own recordings the same way for a truer test.
 
 Results with WoW running (8-second clips; memory in MB, held between dictations):
 
@@ -149,12 +149,12 @@ The test clips are synthetic voices. Adding a few recordings of your own voice t
 
 ```
 .\build.ps1              # self-contained app and CLI in publish\
-.\build.ps1 -Installer   # also dist\VoiceForever-Setup-<version>.exe
+.\build.ps1 -Installer   # also dist\SpeakForever-Setup-<version>.exe
 ```
 
-The installer needs [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later. The version number comes from `Directory.Build.props`. `VoiceForever.slnx` opens everything in Visual Studio or Rider.
+The installer needs [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later. The version number comes from `Directory.Build.props`. `SpeakForever.slnx` opens everything in Visual Studio or Rider.
 
-**Tests.** `dotnet test --project tests\VoiceForever.Core.Tests` runs the engine's tests (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings and shortcuts, the settings file and the model list. They use a temporary data folder (`VOICEFOREVER_DATA`), never your real settings. `build.ps1` runs them first and stops if any fail.
+**Tests.** `dotnet test --project tests\SpeakForever.Core.Tests` runs the engine's tests (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings and shortcuts, the settings file and the model list. They use a temporary data folder (`SPEAKFOREVER_DATA`), never your real settings. `build.ps1` runs them first and stops if any fail.
 
 **Linting.** Every build runs the .NET analyzers (`AnalysisLevel` latest-recommended) and the code style rules in `.editorconfig`, and warnings fail the build. Package versions live in `Directory.Packages.props`, `nuget.config` pins the feed to nuget.org, and `global.json` pins the .NET SDK. The Visual C++ redistributable isn't kept in git: `build.ps1 -Installer` downloads it from Microsoft the first time and checks its signature.
 
@@ -171,11 +171,11 @@ The installer needs [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later
 | `app\Core\Interop`, `app\Core\Logging` | Typing via SendInput; the log |
 | `app\Gui` | The WinUI 3 app: `Views\MainWindow` (one partial file per tab), `Controls\LogoView`, `Models` |
 | `app\Cli` | Headless mode; `Commands` has the benchmark and setup checks |
-| `tests\VoiceForever.Core.Tests` | The engine's tests |
+| `tests\SpeakForever.Core.Tests` | The engine's tests |
 | `installer` | Inno Setup script, branded wizard art, the Visual C++ redistributable |
 | `tools` | Benchmark clips; `IconGen` draws the app icon and installer art from the logo geometry (`IconGen icon <out.ico>`, `IconGen wizard installerrt app\Gui\Assets\Fonts\Cinzel.ttf`) |
 | `assets` | Logo SVGs |
 
 `THIRD-PARTY-NOTICES.txt` ships with the app.
 
-Data from before the rename to Voice Forever (`%LOCALAPPDATA%\ForeverVoice`) moves across automatically on first launch.
+Data from before the rename to Speak Forever (`%LOCALAPPDATA%\ForeverVoice`) moves across automatically on first launch.

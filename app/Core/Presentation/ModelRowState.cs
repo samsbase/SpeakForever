@@ -1,4 +1,4 @@
-namespace VoiceForever.Presentation;
+namespace SpeakForever.Presentation;
 
 /// <summary>Where a model in the list is up to; it decides which actions its row offers.</summary>
 public enum ModelRowState

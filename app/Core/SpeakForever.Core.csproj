@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
-    <RootNamespace>VoiceForever</RootNamespace>
-    <AssemblyName>VoiceForever.Core</AssemblyName>
+    <RootNamespace>SpeakForever</RootNamespace>
+    <AssemblyName>SpeakForever.Core</AssemblyName>
     <!-- Source-generated P/Invoke (LibraryImport) emits unsafe code. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

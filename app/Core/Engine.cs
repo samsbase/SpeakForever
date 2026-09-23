@@ -1,15 +1,15 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using VoiceForever.Configuration;
-using VoiceForever.Dictation;
-using VoiceForever.Input;
-using VoiceForever.Interop;
-using VoiceForever.Logging;
-using VoiceForever.Speech;
+using SpeakForever.Configuration;
+using SpeakForever.Dictation;
+using SpeakForever.Input;
+using SpeakForever.Interop;
+using SpeakForever.Logging;
+using SpeakForever.Speech;
 
-[assembly: InternalsVisibleTo("VoiceForever.Core.Tests")]
+[assembly: InternalsVisibleTo("SpeakForever.Core.Tests")]
 
-namespace VoiceForever;
+namespace SpeakForever;
 
 /// <summary>
 /// Owns the controller loop, the loaded speech model and the dictation session. The WinUI app
@@ -110,7 +110,7 @@ public sealed class Engine : IAsyncDisposable
     /// <exception cref="InvalidOperationException">The controller loop isn't running.</exception>
     public async Task<Chord?> CaptureChordAsync(TimeSpan timeout, CancellationToken ct = default)
     {
-        if (!IsRunning) throw new InvalidOperationException("Set Voice Forever to Active first.");
+        if (!IsRunning) throw new InvalidOperationException("Set Speak Forever to Active first.");
         session.ChatClosing("Rebinding");
         chat.Close();
         var done = recorded = new TaskCompletionSource<Chord>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -304,7 +304,7 @@ public sealed class Engine : IAsyncDisposable
     // ---- The controller loop ----------------------------------------------------------------
 
     /// <summary>
-    /// Starts watching the controller; false if another Voice Forever already is. In probe mode
+    /// Starts watching the controller; false if another Speak Forever already is. In probe mode
     /// it only logs presses, so it doesn't need the controller to itself.
     /// </summary>
     public bool Start(bool probe = false)
@@ -312,7 +312,7 @@ public sealed class Engine : IAsyncDisposable
         if (IsRunning) return true;
         if (!probe && !TryTakeControllerLock())
         {
-            StartError = "Another Voice Forever window or CLI is already watching the controller. Close it first, or both would type.";
+            StartError = "Another Speak Forever window or CLI is already watching the controller. Close it first, or both would type.";
             Log.Warn(StartError);
             Changed();
             return false;

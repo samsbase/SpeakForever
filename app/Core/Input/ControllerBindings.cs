@@ -1,6 +1,6 @@
-using VoiceForever.Configuration;
+using SpeakForever.Configuration;
 
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>The controller chords, parsed. Swapped as a whole on a rebind, so the controller thread never sees half a change.</summary>
 sealed record ControllerBindings(Chord OpenChat, Chord Dictate, Chord Send, Chord Back, IReadOnlyList<Chord> Menus, Chord Radial)

@@ -5,7 +5,7 @@
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Speech
 
-$out = Join-Path $env:LOCALAPPDATA 'VoiceForever\benchmark'
+$out = Join-Path $env:LOCALAPPDATA 'SpeakForever\benchmark'
 New-Item -ItemType Directory -Force $out | Out-Null
 
 $lines = @(

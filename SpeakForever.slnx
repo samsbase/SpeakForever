@@ -1,13 +1,13 @@
 <Solution>
   <Folder Name="/app/">
-    <Project Path="app/Core/VoiceForever.Core.csproj" />
-    <Project Path="app/Gui/VoiceForever.Gui.csproj">
+    <Project Path="app/Core/SpeakForever.Core.csproj" />
+    <Project Path="app/Gui/SpeakForever.Gui.csproj">
       <Platform Project="x64" />
     </Project>
-    <Project Path="app/Cli/VoiceForever.Cli.csproj" />
+    <Project Path="app/Cli/SpeakForever.Cli.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/VoiceForever.Core.Tests/VoiceForever.Core.Tests.csproj" />
+    <Project Path="tests/SpeakForever.Core.Tests/SpeakForever.Core.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/IconGen/IconGen.csproj" />

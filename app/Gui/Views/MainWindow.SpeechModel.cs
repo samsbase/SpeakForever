@@ -4,11 +4,11 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using VoiceForever.Logging;
-using VoiceForever.Presentation;
-using VoiceForever.Speech;
+using SpeakForever.Logging;
+using SpeakForever.Presentation;
+using SpeakForever.Speech;
 
-namespace VoiceForever.Gui.Views;
+namespace SpeakForever.Gui.Views;
 
 /// <summary>The Speech model tab: the model list and downloads, the pause slider and the microphone test.</summary>
 public sealed partial class MainWindow
@@ -87,7 +87,7 @@ public sealed partial class MainWindow
         ModelNoticeText.Text = downloading ? "Dictation starts working as soon as it finishes. Progress is on the Speech model tab."
             : installed ? $"{engine!.ModelStatus}. Pick another on the Speech model tab."
             : engine!.RemovedModel is { } removed ? $"{removed} is no longer on this PC. Download it again, or another model, before you can dictate."
-            : "Voice Forever needs a speech model before it can dictate. Turbo is recommended: a 574 MB download, about 1 GB of memory while running.";
+            : "Speak Forever needs a speech model before it can dictate. Turbo is recommended: a 574 MB download, about 1 GB of memory while running.";
         ModelNoticeButton.Content = downloading ? "Show progress" : "Choose a model";
     }
 

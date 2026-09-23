@@ -3,7 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 
-// Draws Voice Forever's brand art from the logo geometry in assets/logo-static.svg:
+// Draws Speak Forever's brand art from the logo geometry in assets/logo-static.svg:
 //   IconGen icon <out.ico> [preview.png]        multi-size app icon
 //   IconGen wizard <outdir> <Cinzel.ttf>         installer side panel and header images
 // Everything is drawn large and scaled down, so small sizes stay smooth.
@@ -95,7 +95,7 @@ static void DrawSidePanel(Graphics g, float w, float h, FontFamily cinzel)
     using var title = new Font(cinzel, w * 0.125f, FontStyle.Regular, GraphicsUnit.Pixel);
     g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
     float y = h * 0.17f + logo + h * 0.05f;
-    g.DrawString("VOICE", title, starlight, w / 2, y, format);
+    g.DrawString("SPEAK", title, starlight, w / 2, y, format);
     g.DrawString("FOREVER", title, starlight, w / 2, y + title.Height * 0.95f, format);
 
     float rule = y + title.Height * 2.15f;
@@ -117,7 +117,7 @@ static void DrawSidePanel(Graphics g, float w, float h, FontFamily cinzel)
 
     using var tagline = new Font(cinzel, w * 0.062f, FontStyle.Regular, GraphicsUnit.Pixel);
     using var silverText = new SolidBrush(Color.FromArgb(0x8A, 0x93, 0xB8));
-    g.DrawString("Speak, and it types", tagline, silverText, w / 2, rule + w * 0.07f, format);
+    g.DrawString("Your voice in WoW chat", tagline, silverText, w / 2, rule + w * 0.07f, format);
 }
 
 // The logo, fitted to area; simple drops the inner ring and thickens the loop for tiny sizes.

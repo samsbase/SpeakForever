@@ -1,10 +1,10 @@
 using System.Diagnostics;
-using VoiceForever.Configuration;
-using VoiceForever.Interop;
-using VoiceForever.Logging;
-using VoiceForever.Speech;
+using SpeakForever.Configuration;
+using SpeakForever.Interop;
+using SpeakForever.Logging;
+using SpeakForever.Speech;
 
-namespace VoiceForever.Dictation;
+namespace SpeakForever.Dictation;
 
 /// <summary>
 /// One dictation at a time: record until you pause (or press the trigger again) → transcribe →

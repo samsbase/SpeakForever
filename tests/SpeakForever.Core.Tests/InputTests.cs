@@ -1,6 +1,6 @@
-using VoiceForever.Input;
+using SpeakForever.Input;
 
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 /// <summary>Parsing chords and keyboard shortcuts, and recording a chord from presses.</summary>
 public sealed class InputTests

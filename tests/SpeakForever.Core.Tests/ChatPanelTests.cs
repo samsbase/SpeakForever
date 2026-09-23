@@ -1,6 +1,6 @@
-using VoiceForever.Input;
+using SpeakForever.Input;
 
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 /// <summary>Following WoW's gamepad chat panel from simulated presses (probe mode: nothing is typed).</summary>
 public sealed class ChatPanelTests : IAsyncLifetime

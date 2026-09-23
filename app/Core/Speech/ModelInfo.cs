@@ -1,6 +1,6 @@
-using VoiceForever.Configuration;
+using SpeakForever.Configuration;
 
-namespace VoiceForever.Speech;
+namespace SpeakForever.Speech;
 
 /// <summary>A model the app offers for download.</summary>
 /// <param name="File">File name in the whisper.cpp model repository and the models folder.</param>

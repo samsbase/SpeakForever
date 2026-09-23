@@ -1,7 +1,7 @@
-using VoiceForever.Configuration;
-using VoiceForever.Speech;
+using SpeakForever.Configuration;
+using SpeakForever.Speech;
 
-namespace VoiceForever.Core.Tests;
+namespace SpeakForever.Core.Tests;
 
 /// <summary>End-of-speech detection, fed synthetic audio 30 ms at a time.</summary>
 public sealed class EndpointerTests

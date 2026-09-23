@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>
 /// A system-wide keyboard shortcut. RegisterHotKey delivers WM_HOTKEY to the registering thread,

@@ -5,7 +5,7 @@
     <!-- xUnit v3 test projects are executables. -->
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
-    <RootNamespace>VoiceForever.Core.Tests</RootNamespace>
+    <RootNamespace>SpeakForever.Core.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\app\Core\VoiceForever.Core.csproj" />
+    <ProjectReference Include="..\..\app\Core\SpeakForever.Core.csproj" />
   </ItemGroup>
 
 </Project>

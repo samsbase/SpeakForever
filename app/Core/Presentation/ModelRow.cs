@@ -1,8 +1,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using VoiceForever.Speech;
+using SpeakForever.Speech;
 
-namespace VoiceForever.Presentation;
+namespace SpeakForever.Presentation;
 
 /// <summary>
 /// One row of the app's model list, for data binding. It holds no UI types, so the rules for

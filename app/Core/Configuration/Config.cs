@@ -2,7 +2,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace VoiceForever.Configuration;
+namespace SpeakForever.Configuration;
 
 /// <summary>
 /// The user's settings, kept as hand-editable JSON in <see cref="AppPaths.Config"/>. Immutable: a
@@ -144,8 +144,11 @@ public sealed record Config
             await using (stream.ConfigureAwait(false))
                 cfg = await JsonSerializer.DeserializeAsync<Config>(stream, Json, ct).ConfigureAwait(false) ?? cfg;
         }
-        if (cfg.ModelPath.StartsWith(AppPaths.OldRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            cfg = cfg with { ModelPath = AppPaths.Root + cfg.ModelPath[AppPaths.OldRoot.Length..] };
+        foreach (var oldRoot in AppPaths.OldRoots)
+        {
+            if (cfg.ModelPath.StartsWith(oldRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                cfg = cfg with { ModelPath = AppPaths.Root + cfg.ModelPath[oldRoot.Length..] };
+        }
         cfg.Validated();
         await cfg.SaveAsync(ct).ConfigureAwait(false); // writes out settings added since the file was created, with their defaults
         return cfg;

@@ -1,9 +1,9 @@
 using Microsoft.UI.Xaml.Controls;
 using Windows.UI.ViewManagement;
 
-namespace VoiceForever.Gui.Controls;
+namespace SpeakForever.Gui.Controls;
 
-/// <summary>The Voice Forever logo, which comes alive while a dictation is under way.</summary>
+/// <summary>The Speak Forever logo, which comes alive while a dictation is under way.</summary>
 public sealed partial class LogoView : UserControl
 {
     static readonly UISettings Settings = new();

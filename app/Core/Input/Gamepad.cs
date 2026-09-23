@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>
 /// XInput via xinput1_4.dll (ships with Windows). Covers Xbox-protocol pads; PlayStation pads

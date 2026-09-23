@@ -1,4 +1,4 @@
-# Builds Voice Forever: publishes the app and the CLI into .\publish, then (with -Installer) the
+# Builds Speak Forever: publishes the app and the CLI into .\publish, then (with -Installer) the
 # installer into .\dist. Both apps are self-contained: no .NET or Windows App SDK to install.
 param([switch]$Installer)
 $ErrorActionPreference = 'Stop'
@@ -6,7 +6,7 @@ $out = Join-Path $PSScriptRoot 'publish'
 $version = ([xml](Get-Content "$PSScriptRoot\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ }
 
 # Nothing is published unless the tests pass.
-dotnet test --project "$PSScriptRoot\tests\VoiceForever.Core.Tests" -c Release
+dotnet test --project "$PSScriptRoot\tests\SpeakForever.Core.Tests" -c Release
 if ($LASTEXITCODE) { exit $LASTEXITCODE }
 
 if (Test-Path $out) { Remove-Item $out -Recurse -Force }
@@ -21,9 +21,9 @@ foreach ($unused in 'runtimes\vulkan\linux-x64', 'runtimes\win-arm64', 'runtimes
     if (Test-Path $path) { Remove-Item $path -Recurse -Force }
 }
 
-Write-Host "`nPublished Voice Forever $version to $out"
-Write-Host "  VoiceForever.exe      the app"
-Write-Host "  VoiceForeverCli.exe   headless mode and setup checks"
+Write-Host "`nPublished Speak Forever $version to $out"
+Write-Host "  SpeakForever.exe      the app"
+Write-Host "  SpeakForeverCli.exe   headless mode and setup checks"
 
 if ($Installer) {
     $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe", "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe") |
@@ -41,7 +41,7 @@ if ($Installer) {
         Remove-Item $redist
         throw "vc_redist.x64.exe isn't validly signed by Microsoft ($($signature.Status)); deleted it."
     }
-    & $iscc "/DAppVersion=$version" "$PSScriptRoot\installer\VoiceForever.iss"
+    & $iscc "/DAppVersion=$version" "$PSScriptRoot\installer\SpeakForever.iss"
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
-    Write-Host "`nInstaller: $(Join-Path $PSScriptRoot "dist\VoiceForever-Setup-$version.exe")"
+    Write-Host "`nInstaller: $(Join-Path $PSScriptRoot "dist\SpeakForever-Setup-$version.exe")"
 }

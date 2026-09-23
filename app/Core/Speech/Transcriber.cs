@@ -1,13 +1,13 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using VoiceForever.Configuration;
-using VoiceForever.Logging;
+using SpeakForever.Configuration;
+using SpeakForever.Logging;
 using Whisper.net;
 using Whisper.net.LibraryLoader;
 using Whisper.net.Logger;
 
-namespace VoiceForever.Speech;
+namespace SpeakForever.Speech;
 
 /// <summary>
 /// Local Whisper via whisper.cpp, with OpenAI's reference fallback rules: temperature 0 with 0.2

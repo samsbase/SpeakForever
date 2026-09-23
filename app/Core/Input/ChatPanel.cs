@@ -1,4 +1,4 @@
-namespace VoiceForever.Input;
+namespace SpeakForever.Input;
 
 /// <summary>
 /// Follows WoW's gamepad chat panel from the same presses the game sees. Its menus reuse A and

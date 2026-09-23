@@ -1,16 +1,16 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.UI.Xaml;
-using VoiceForever.Configuration;
-using VoiceForever.Gui.Views;
-using VoiceForever.Logging;
+using SpeakForever.Configuration;
+using SpeakForever.Gui.Views;
+using SpeakForever.Logging;
 
-namespace VoiceForever.Gui;
+namespace SpeakForever.Gui;
 
 public partial class App : Application
 {
     /// <summary>Also set on the installer's Start menu shortcut, so a pinned app and its window are one taskbar item.</summary>
-    const string AppUserModelId = "VoiceForever.App";
+    const string AppUserModelId = "SpeakForever.App";
 
     Window? window;
 
@@ -26,7 +26,7 @@ public partial class App : Application
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         AppPaths.MigrateFromOldName();
-        Log.ToFile("voiceforever.log");
+        Log.ToFile("speakforever.log");
         Engine? engine = null;
         string? configError = null;
         try
