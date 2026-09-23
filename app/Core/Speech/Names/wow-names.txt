@@ -1,0 +1,784 @@
+# World of Warcraft: Forever names, one per line, spelled as the game does. Speak Forever corrects
+# a transcription that sounds like one of these but came out as something that isn't a real word
+# ("Stratham" becomes Stratholme). Names that are ordinary words, or sound like one ("Innervate"
+# and "innovate"), are never corrected: see NameCorrector. Lines starting with # are comments.
+
+# ---- Dungeons: new in Forever ----
+Hall of Thanes
+Ruins of Lordaeron
+Excavation Site
+City of Dalaran
+Dalaran
+The Drowned City
+Drowned City
+Krol'dok Stronghold
+Krol'dok
+Alcaz Prison
+Blackmaw Hold
+Shaper's Terrace
+
+# ---- Dungeons: Classic ----
+Ragefire Chasm
+Wailing Caverns
+Deadmines
+Shadowfang Keep
+Blackfathom Deeps
+Stormwind Stockade
+The Stockade
+Gnomeregan
+Razorfen Kraul
+Razorfen Downs
+Razorfen
+Scarlet Monastery
+Uldaman
+Zul'Farrak
+Maraudon
+Sunken Temple
+Temple of Atal'Hakkar
+Blackrock Depths
+Lower Blackrock Spire
+Upper Blackrock Spire
+Blackrock Spire
+Dire Maul
+Stratholme
+Scholomance
+
+# ---- Raids ----
+Barrow Deeps
+Hyjal Summit
+Onyxia's Lair
+Onyxia
+
+# ---- Zones: new in Forever ----
+Mount Hyjal
+Hyjal
+Shen'dralas
+Riverglades
+Zephras Isle
+Zephras
+Skywall
+Alcaz Island
+Alcaz
+
+# ---- Zones: Eastern Kingdoms ----
+Elwynn Forest
+Elwynn
+Westfall
+Redridge Mountains
+Redridge
+Duskwood
+Stranglethorn Vale
+Stranglethorn
+Dun Morogh
+Loch Modan
+Wetlands
+Arathi Highlands
+Arathi
+Hillsbrad Foothills
+Hillsbrad
+Alterac Mountains
+Alterac
+Silverpine Forest
+Silverpine
+Tirisfal Glades
+Tirisfal
+Western Plaguelands
+Eastern Plaguelands
+Plaguelands
+The Hinterlands
+Hinterlands
+Badlands
+Searing Gorge
+Burning Steppes
+Blasted Lands
+Swamp of Sorrows
+Deadwind Pass
+Blackrock Mountain
+Karazhan
+
+# ---- Zones: Kalimdor ----
+Durotar
+Mulgore
+The Barrens
+Barrens
+Teldrassil
+Darkshore
+Ashenvale
+Stonetalon Mountains
+Stonetalon
+Desolace
+Thousand Needles
+Feralas
+Dustwallow Marsh
+Dustwallow
+Tanaris
+Un'Goro Crater
+Un'Goro
+Felwood
+Winterspring
+Azshara
+Silithus
+Moonglade
+Caverns of Time
+
+# ---- Battlegrounds ----
+Warsong Gulch
+Arathi Basin
+Alterac Valley
+
+# ---- Cities and towns ----
+Stormwind
+Ironforge
+Darnassus
+Orgrimmar
+Undercity
+Thunder Bluff
+Goldshire
+Lakeshire
+Darkshire
+Sentinel Hill
+Booty Bay
+Gadgetzan
+Ratchet
+Everlook
+Menethil Harbor
+Menethil
+Southshore
+Tarren Mill
+Refuge Pointe
+Hammerfall
+Kargath
+Stonard
+Thelsamar
+Kharanos
+Brill
+The Sepulcher
+Crossroads
+Camp Taurajo
+Razor Hill
+Sen'jin Village
+Sen'jin
+Bloodhoof Village
+Freewind Post
+Astranaar
+Auberdine
+Dolanaar
+Theramore
+Nijel's Point
+Shadowprey Village
+Feathermoon Stronghold
+Camp Mojache
+Cenarion Hold
+Light's Hope Chapel
+Chillwind Camp
+Aerie Peak
+Revantusk Village
+Splintertree Post
+Sun Rock Retreat
+Talrendis Point
+Valormok
+Marshal's Refuge
+Bloodvenom Post
+Talonbranch Glade
+Nighthaven
+Steamwheedle Port
+Thorium Point
+Morgan's Vigil
+Flame Crest
+Grom'gol
+Nesingwary's Expedition
+Deeprun Tram
+
+# ---- Races and classes ----
+Human
+Dwarf
+Night Elf
+Gnome
+Orc
+Undead
+Forsaken
+Tauren
+Troll
+Skyborne
+Druid
+Hunter
+Mage
+Paladin
+Priest
+Rogue
+Shaman
+Warlock
+Warrior
+
+# ---- Warrior ----
+Battle Stance
+Defensive Stance
+Berserker Stance
+Heroic Strike
+Charge
+Rend
+Thunder Clap
+Hamstring
+Bloodrage
+Battle Shout
+Demoralizing Shout
+Overpower
+Execute
+Intercept
+Berserker Rage
+Whirlwind
+Pummel
+Cleave
+Intimidating Shout
+Challenging Shout
+Retaliation
+Recklessness
+Shield Wall
+Shield Bash
+Shield Block
+Shield Slam
+Taunt
+Mocking Blow
+Revenge
+Disarm
+Sunder Armor
+Slam
+Sweeping Strikes
+Mortal Strike
+Bloodthirst
+Concussion Blow
+Last Stand
+Death Wish
+Piercing Howl
+Deep Wounds
+Victory Rush
+Tactical Mastery
+Spearing Strike
+Weaponmaster
+Boundless Rage
+Raging Blows
+Master of Defense
+Focused Rage
+Vanguard
+
+# ---- Paladin ----
+Seal of Righteousness
+Seal of the Crusader
+Seal of Command
+Seal of Light
+Seal of Wisdom
+Seal of Justice
+Seal of Fury
+Judgement
+Swift Judgement
+Blessing of Might
+Blessing of Wisdom
+Blessing of Kings
+Blessing of Salvation
+Blessing of Light
+Blessing of Sanctuary
+Blessing of Protection
+Blessing of Freedom
+Blessing of Sacrifice
+Greater Blessing of Might
+Greater Blessing of Wisdom
+Greater Blessing of Kings
+Greater Blessing of Salvation
+Devotion Aura
+Retribution Aura
+Concentration Aura
+Sanctity Aura
+Holy Light
+Flash of Light
+Lay on Hands
+Divine Protection
+Divine Shield
+Divine Intervention
+Divine Favor
+Hammer of Justice
+Hammer of Wrath
+Holy Wrath
+Exorcism
+Consecration
+Purify
+Cleanse
+Redemption
+Righteous Fury
+Turn Undead
+Holy Shock
+Holy Strike
+Repentance
+Holy Shield
+Summon Warhorse
+Summon Charger
+Templar's Bulwark
+Light's Vigil
+Voice of Truth
+Twist of Light
+
+# ---- Hunter ----
+Aspect of the Hawk
+Aspect of the Monkey
+Aspect of the Cheetah
+Aspect of the Pack
+Aspect of the Wild
+Aspect of the Beast
+Arcane Shot
+Serpent Sting
+Scorpid Sting
+Viper Sting
+Wyvern Sting
+Concussive Shot
+Multi-Shot
+Aimed Shot
+Volley
+Tranquilizing Shot
+Distracting Shot
+Hunter's Mark
+Rapid Fire
+Raptor Strike
+Mongoose Bite
+Wing Clip
+Counterattack
+Deterrence
+Disengage
+Feign Death
+Freezing Trap
+Frost Trap
+Immolation Trap
+Explosive Trap
+Flare
+Eyes of the Beast
+Eagle Eye
+Beast Lore
+Tame Beast
+Mend Pet
+Revive Pet
+Scare Beast
+Intimidation
+Bestial Wrath
+Scatter Shot
+Trueshot Aura
+Deadly Aspects
+Bestial Discipline
+Lone Wolf
+Careful Aim
+Sniper Shot
+Strider Kick
+Expose Prey
+Lacerating Strikes
+Entrapment
+
+# ---- Rogue ----
+Sinister Strike
+Backstab
+Eviscerate
+Slice and Dice
+Kidney Shot
+Cheap Shot
+Garrote
+Rupture
+Ambush
+Gouge
+Sap
+Blind
+Kick
+Sprint
+Evasion
+Vanish
+Stealth
+Feint
+Distract
+Expose Armor
+Pick Pocket
+Crippling Poison
+Deadly Poison
+Instant Poison
+Mind-numbing Poison
+Wound Poison
+Blade Flurry
+Adrenaline Rush
+Cold Blood
+Preparation
+Premeditation
+Hemorrhage
+Ghostly Strike
+Riposte
+Seal Fate
+Relentless Strikes
+Mutilate
+Venom
+Restless Blades
+Thousand Cuts
+Cutthroat
+Hack and Slash
+
+# ---- Priest ----
+Power Word: Fortitude
+Prayer of Fortitude
+Power Word: Shield
+Divine Spirit
+Prayer of Spirit
+Shadow Protection
+Prayer of Shadow Protection
+Inner Fire
+Renew
+Lesser Heal
+Greater Heal
+Flash Heal
+Prayer of Healing
+Holy Nova
+Smite
+Holy Fire
+Mind Blast
+Shadow Word: Pain
+Mind Flay
+Mind Control
+Mind Soothe
+Psychic Scream
+Fade
+Dispel Magic
+Abolish Disease
+Cure Disease
+Resurrection
+Shackle Undead
+Levitate
+Fear Ward
+Desperate Prayer
+Starshards
+Hex of Weakness
+Touch of Weakness
+Shadowguard
+Elune's Grace
+Devouring Plague
+Inner Focus
+Power Infusion
+Lightwell
+Spirit of Redemption
+Vampiric Embrace
+Shadowform
+Mana Burn
+Penance
+Renewed Hope
+Prayer of Mending
+Binding Heal
+Litany of Light
+
+# ---- Mage ----
+Arcane Intellect
+Arcane Brilliance
+Frost Armor
+Ice Armor
+Mage Armor
+Dampen Magic
+Amplify Magic
+Frostbolt
+Fireball
+Fire Blast
+Arcane Missiles
+Arcane Explosion
+Blizzard
+Flamestrike
+Frost Nova
+Cone of Cold
+Scorch
+Pyroblast
+Blast Wave
+Combustion
+Polymorph
+Counterspell
+Blink
+Ice Block
+Ice Barrier
+Mana Shield
+Fire Ward
+Frost Ward
+Evocation
+Remove Lesser Curse
+Slow Fall
+Conjure Food
+Conjure Water
+Conjure Mana Ruby
+Presence of Mind
+Arcane Power
+Cold Snap
+Frostfire Bolt
+Arcane Blast
+Missile Barrage
+Hot Streak
+Wake of Fire
+Ice Lance
+Fingers of Frost
+
+# ---- Warlock ----
+Demon Skin
+Demon Armor
+Corruption
+Curse of Agony
+Curse of Weakness
+Curse of Recklessness
+Curse of Tongues
+Curse of the Elements
+Curse of Shadow
+Curse of Exhaustion
+Curse of Doom
+Immolate
+Shadow Bolt
+Searing Pain
+Soul Fire
+Rain of Fire
+Hellfire
+Conflagrate
+Shadowburn
+Siphon Life
+Drain Life
+Drain Mana
+Drain Soul
+Life Tap
+Dark Pact
+Health Funnel
+Fear
+Howl of Terror
+Death Coil
+Banish
+Enslave Demon
+Summon Imp
+Summon Voidwalker
+Summon Succubus
+Summon Felhunter
+Voidwalker
+Succubus
+Felhunter
+Inferno
+Ritual of Doom
+Ritual of Summoning
+Healthstone
+Soulstone
+Spellstone
+Firestone
+Unending Breath
+Eye of Kilrogg
+Shadow Ward
+Amplify Curse
+Fel Domination
+Soul Link
+Demonic Sacrifice
+Summon Felsteed
+Summon Dreadsteed
+Nightfall
+Shadow Trance
+Bane of Agony
+Bane of Doom
+Bane of Havoc
+Drain Hope
+Demonic Pact
+Demonic Brand
+Incinerate
+Shadow and Flame
+
+# ---- Shaman ----
+Lightning Bolt
+Chain Lightning
+Earth Shock
+Flame Shock
+Frost Shock
+Healing Wave
+Lesser Healing Wave
+Chain Heal
+Lightning Shield
+Rockbiter Weapon
+Flametongue Weapon
+Frostbrand Weapon
+Windfury Weapon
+Windfury
+Stormstrike
+Ghost Wolf
+Purge
+Cure Poison
+Ancestral Spirit
+Reincarnation
+Astral Recall
+Far Sight
+Water Breathing
+Water Walking
+Stoneskin Totem
+Stoneclaw Totem
+Strength of Earth Totem
+Earthbind Totem
+Tremor Totem
+Searing Totem
+Fire Nova Totem
+Magma Totem
+Flametongue Totem
+Frost Resistance Totem
+Fire Resistance Totem
+Nature Resistance Totem
+Healing Stream Totem
+Mana Spring Totem
+Mana Tide Totem
+Poison Cleansing Totem
+Disease Cleansing Totem
+Grounding Totem
+Windfury Totem
+Grace of Air Totem
+Windwall Totem
+Tranquil Air Totem
+Elemental Mastery
+Nature's Swiftness
+Totemic Recall
+Totemic Projection
+Fire Nova
+Lava Burst
+Lightning Overload
+Maelstrom Weapon
+Rage of the Farseer
+Riptide
+Water Shield
+Call of the Elements
+
+# ---- Druid ----
+Mark of the Wild
+Gift of the Wild
+Thorns
+Healing Touch
+Regrowth
+Rejuvenation
+Tranquility
+Rebirth
+Remove Curse
+Abolish Poison
+Wrath
+Moonfire
+Starfire
+Hurricane
+Entangling Roots
+Faerie Fire
+Hibernate
+Soothe Animal
+Barkskin
+Innervate
+Insect Swarm
+Moonkin Form
+Moonkin
+Bear Form
+Dire Bear Form
+Cat Form
+Travel Form
+Aquatic Form
+Maul
+Swipe
+Growl
+Bash
+Demoralizing Roar
+Challenging Roar
+Frenzied Regeneration
+Feral Charge
+Claw
+Rake
+Rip
+Shred
+Ferocious Bite
+Ravage
+Pounce
+Prowl
+Dash
+Cower
+Tiger's Fury
+Swiftmend
+Omen of Clarity
+Leader of the Pack
+Revive
+Eclipse
+Balance of Nature
+Mangle
+Berserk
+Wild Growth
+Gift of the Earthmother
+
+# ---- Racial abilities ----
+Stoneform
+Shadowmeld
+Escape Artist
+Will of the Forsaken
+Cannibalize
+War Stomp
+Blood Fury
+Berserking
+
+# ---- World buffs ----
+Rallying Cry of the Dragonslayer
+Songflower Serenade
+Songflower
+Spirit of Zandalar
+Warchief's Blessing
+Fengus' Ferocity
+Mol'dar's Moxie
+Slip'kik's Savvy
+Sayge's Dark Fortune
+Darkmoon Faire
+
+# ---- Consumables ----
+Elixir of the Mongoose
+Elixir of Giants
+Elixir of Fortitude
+Elixir of Superior Defense
+Greater Arcane Elixir
+Mageblood Potion
+Major Mana Potion
+Major Healing Potion
+Flask of the Titans
+Flask of Supreme Power
+Flask of Distilled Wisdom
+Flask of Chromatic Resistance
+Juju Power
+Juju Might
+Juju Flurry
+Winterfall Firewater
+Rumsey Rum Black Label
+Gordok Green Grog
+Dirge's Kickin' Chimaerok Chops
+Smoked Desert Dumplings
+Nightfin Soup
+Runn Tum Tuber Surprise
+Free Action Potion
+Limited Invulnerability Potion
+Greater Stoneshield Potion
+Dense Sharpening Stone
+Brilliant Wizard Oil
+Brilliant Mana Oil
+Demonic Rune
+Dark Rune
+Swiftness Potion
+Noggenfogger Elixir
+Savory Deviate Delight
+
+# ---- People ----
+Hogger
+VanCleef
+Thrall
+Jaina Proudmoore
+Jaina
+Sylvanas
+Cairne Bloodhoof
+Magni Bronzebeard
+Bolvar Fordragon
+Tyrande
+Onyxia
+Ragnaros
+Nefarian
+Rend Blackhand
+Drakkisath
+Baron Rivendare
+Rivendare
+Kel'Thuzad
+Mankrik
+Rexxar
+Mograine
+Arugal
+Mutanus
+Kazzak
+Azuregos
+Emeriss
+Lethon
+Taerar
+Ysondre

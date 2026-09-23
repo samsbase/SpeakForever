@@ -22,7 +22,7 @@ WoW: Forever is in beta; Speak Forever works with the beta client.
    - Options: a desktop shortcut, and starting Speak Forever when you sign in. Both are off by default.
 3. Speak Forever is now in the Start menu: search for it, or right-click it to pin it to Start or the taskbar.
 
-**You need:** Windows 10 (version 2004) or Windows 11, 64-bit; WoW: Forever; a microphone (a headset works best). A controller for gamepad mode, or just a keyboard. A graphics card with Vulkan makes recognition fast, but it also works on the processor.
+**You need:** Windows 10 (version 2004) or Windows 11, 64-bit; WoW: Forever; a microphone (a headset works best). A controller for gamepad mode (Xbox, PlayStation, Nintendo Switch and most others, with no extra software), or just a keyboard. A graphics card with Vulkan makes recognition fast, but it also works on the processor.
 
 **Updates:** Speak Forever checks for a new version when it starts and every few hours, and says so on its Dictation tab. **Settings › Check for updates** checks now. Download the new installer and run it: it updates in place, keeping your settings and speech models.
 
@@ -109,14 +109,16 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 |---|---|---|
 | `GameFolder` | found on first run | The WoW: Forever folder. Speak Forever only types into a program running from here. Set on the Settings tab. |
 | `ProcessNames` | `["WowB"]` | Used only while `GameFolder` isn't set: game process names without `.exe`. |
-| `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Buttons & shortcuts tab. |
+| `ControllerSlot` | `-1` | With several controllers connected, which to use: `0` for the first, up to `3`. `-1` uses whichever is found first. |
+| `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Buttons & shortcuts tab. Buttons are named by position, Xbox-style: `A` is the bottom face button on every controller (Cross on PlayStation, B on Switch), and the app shows your controller's own icons. |
 | `DictateChord` | `RS` | Starts a dictation while chat is open. Also set in the app. |
 | `RadialMenuChord` | `START` | WoW's radial menu button, so chat opened from the radial is seen too |
 | `KeyboardShortcut` | `null` (off) | e.g. `Ctrl+Shift+Space`. Set in the app. |
 | `SendChord`, `BackChord` | `A`, `B` | The chat panel's Send and Back |
 | `MenuChords` | `X`, `Y` | The chat panel's Chat Channels and Tab Settings menus |
 | `CheckForUpdates` | `true` | Check GitHub for new versions at launch and every 6 hours. Set on the Settings tab. |
-| `Prompt` | WoW place names | Words Whisper should expect. Without it, it hears "Iron Fudge" and "Dead Minds". Add your guild's and friends' names. |
+| `Prompt` | WoW: Forever names | Words Whisper should expect: dungeons and raids (the new ones too), zones, and abilities and slang it would otherwise mishear. Without it, it hears "Iron Fudge" and "Dead Minds". Whisper reads only about the last 224 tokens (roughly 150 words), so to add your guild's or friends' names, remove something first, and put what matters most at the end. |
+| `CorrectNames` | `true` | Puts WoW: Forever names back where Whisper wrote something that sounds like one but isn't a real word ("Stratham" becomes Stratholme, "Chandra Lass" becomes Shen'dralas). Real words and chat slang are never changed, and neither are names that sound like a real word, such as Innervate. The names are in `app/Core/Speech/Names/wow-names.txt`. |
 | `ModelPath` | set by **Use** | The speech model in use |
 | `Language` | `en` | Whisper language code, or `auto` |
 | `UseGpu` | `true` | Vulkan graphics card; `false` for the processor only. Takes effect after a restart. |
@@ -187,7 +189,7 @@ Namespaces follow folders.
 | `app\Core` | The engine library; `Engine.cs` ties it together |
 | `app\Core\Configuration` | The settings file (`Config`) and data folder (`AppPaths`) |
 | `app\Core\Game` | Finding WoW: Forever in a Battle.net install |
-| `app\Core\Input` | XInput, chords, the chat panel and radial menu trackers, the keyboard shortcut |
+| `app\Core\Input` | Reading controllers (SDL3, with SDL_GameControllerDB), chords, the chat panel and radial menu trackers, the keyboard shortcut |
 | `app\Core\Speech` | Recording, end-of-speech detection, Whisper, the model catalog and downloads |
 | `app\Core\Dictation` | One dictation from button to typed text, and the sound cues |
 | `app\Core\Updates` | Checking GitHub for a newer release |

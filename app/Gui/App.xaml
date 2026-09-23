@@ -133,6 +133,14 @@
                 <Setter Property="TextWrapping" Value="Wrap" />
             </Style>
 
+            <!-- Caption, for text with controller button icons in it. -->
+            <Style x:Key="RichCaption" TargetType="RichTextBlock">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Foreground" Value="{StaticResource SilverBrush}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="IsTextSelectionEnabled" Value="False" />
+            </Style>
+
             <LinearGradientBrush x:Key="PanelButtonFill" StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="#3A50B0" Offset="0" />
                 <GradientStop Color="#1B2560" Offset="1" />
@@ -197,6 +205,7 @@
                 <Setter Property="CornerRadius" Value="3" />
                 <Setter Property="Padding" Value="10,5" />
                 <Setter Property="MinWidth" Value="130" />
+                <Setter Property="MinHeight" Value="38" />
                 <Setter Property="VerticalAlignment" Value="Center" />
             </Style>
 

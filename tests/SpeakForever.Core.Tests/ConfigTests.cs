@@ -26,6 +26,18 @@ public sealed class ConfigTests
     }
 
     [Fact]
+    public async Task AnOldDefaultPromptMovesToTheNewOneButYourOwnIsKept()
+    {
+        const string Old = "World of Warcraft chat. Ironforge, Stormwind, Orgrimmar, Undercity, Darnassus, Thunder Bluff, " +
+                           "Deadmines, Westfall, Elwynn Forest, Stranglethorn, Molten Core, Onyxia, Blackrock, Hyjal, Skyborne.";
+        Write($$"""{ "Prompt": "{{Old}}" }""");
+        Assert.Equal(Config.DefaultPrompt, (await Load()).Prompt);
+
+        Write("""{ "Prompt": "Our guild is Wrathbringers." }""");
+        Assert.Equal("Our guild is Wrathbringers.", (await Load()).Prompt);
+    }
+
+    [Fact]
     public async Task SettingsSurviveASaveAndReload()
     {
         await (new Config() with { SilenceMs = 2200, KeyboardShortcut = "Ctrl+Shift+Space", ProcessNames = ["WowB", "Wow"] })

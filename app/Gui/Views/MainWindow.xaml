@@ -51,7 +51,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="StatusText" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                <RichTextBlock x:Name="StatusText" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
                 <ToggleSwitch x:Name="ActiveSwitch" Grid.Column="1" MinWidth="0"
                               OnContent="Active" OffContent="Paused" Toggled="ActiveSwitch_Toggled" />
             </Grid>
@@ -79,8 +79,9 @@
                 <ContentControl Grid.Row="1" Style="{StaticResource Frame}">
                     <StackPanel Spacing="6">
                         <TextBlock Text="Last heard" Style="{StaticResource FrameHeader}" />
+                        <RichTextBlock x:Name="LastHeardHint" FontSize="15" Foreground="{StaticResource StarlightBrush}" IsTextSelectionEnabled="False" />
                         <TextBlock x:Name="LastHeardText" FontSize="15" Foreground="{StaticResource StarlightBrush}"
-                                   TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                   TextWrapping="Wrap" IsTextSelectionEnabled="True" Visibility="Collapsed" />
                         <TextBlock x:Name="LastHeardMeta" Style="{StaticResource Caption}" />
                     </StackPanel>
                 </ContentControl>
@@ -184,7 +185,7 @@
                                     VerticalAlignment="Center" AutomationProperties.Name="Pause before it stops listening" />
                             <TextBlock x:Name="PauseText" Grid.Column="2" MinWidth="36" VerticalAlignment="Center" Foreground="{StaticResource ArcaneBrush}" />
                         </Grid>
-                        <TextBlock x:Name="PauseHint" Style="{StaticResource Caption}" />
+                        <RichTextBlock x:Name="PauseHint" Style="{StaticResource RichCaption}" />
                     </StackPanel>
                 </ContentControl>
                 </StackPanel>
@@ -213,18 +214,15 @@
                                 <TextBlock Style="{StaticResource Caption}"
                                            Text="The buttons WoW: Forever uses to open chat. If you change them in the game, change them here too. Picking Chat from the radial menu also works." />
                             </StackPanel>
-                            <Border Grid.Column="1" Style="{StaticResource Keycap}">
-                                <TextBlock x:Name="OpenChatText" Style="{StaticResource KeycapText}" />
-                            </Border>
+                            <!-- The binding as the controller's own button icons, or "Press…" while recording. -->
+                            <Border x:Name="OpenChatCap" Grid.Column="1" Style="{StaticResource Keycap}" />
                             <Button x:Name="OpenChatButton" Grid.Column="2" Content="Change" Style="{StaticResource PanelButton}" Click="OpenChatButton_Click" />
 
                             <StackPanel Grid.Row="1" VerticalAlignment="Center">
                                 <TextBlock Text="Dictate (controller)" />
                                 <TextBlock Style="{StaticResource Caption}" Text="With chat open, press this and speak." />
                             </StackPanel>
-                            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Keycap}">
-                                <TextBlock x:Name="DictateText" Style="{StaticResource KeycapText}" />
-                            </Border>
+                            <Border x:Name="DictateCap" Grid.Row="1" Grid.Column="1" Style="{StaticResource Keycap}" />
                             <Button x:Name="DictateButton" Grid.Row="1" Grid.Column="2" Content="Change" Style="{StaticResource PanelButton}" Click="DictateButton_Click" />
 
                             <StackPanel Grid.Row="2" VerticalAlignment="Center">
@@ -240,7 +238,7 @@
                                 <Button x:Name="KeyboardOffButton" Content="Turn off" Style="{StaticResource PanelButton}" Click="KeyboardOffButton_Click" />
                             </StackPanel>
                         </Grid>
-                        <TextBlock x:Name="BindingMessage" Style="{StaticResource Caption}" Visibility="Collapsed" />
+                        <RichTextBlock x:Name="BindingMessage" Style="{StaticResource RichCaption}" Visibility="Collapsed" />
                     </StackPanel>
                 </ContentControl>
                 </StackPanel>

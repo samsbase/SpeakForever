@@ -7,7 +7,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using SpeakForever.Configuration;
+using SpeakForever.Gui.Controls;
 using SpeakForever.Gui.Models;
+using SpeakForever.Input;
 using SpeakForever.Logging;
 using SpeakForever.Speech;
 using Windows.Foundation;
@@ -30,7 +32,8 @@ public sealed partial class MainWindow : Window
     readonly ObservableCollection<LogLine> log = [];
     readonly Brush normalBrush = Brush("PaleArcaneBrush");
     readonly Brush warningBrush = Brush("WarningBrush");
-    bool updating, heardAnything, shutDown;
+    bool updating, shutDown;
+    ButtonStyle? shownStyle; // the controller whose icons are showing
 
     /// <param name="engine">Null when the settings couldn't be loaded; the window then only shows why.</param>
     /// <param name="configError">Why the settings couldn't be loaded.</param>
@@ -47,11 +50,12 @@ public sealed partial class MainWindow : Window
         Log.Written += OnLogWritten;
         Closed += OnClosed;
         Root.PreviewKeyDown += OnPreviewKeyDown;
+        Root.PreviewKeyUp += OnPreviewKeyUp;
 
         this.engine = engine;
         if (engine is null)
         {
-            StatusText.Text = configError;
+            ButtonPrompt.Fill(StatusText, configError ?? "");
             ActiveSwitch.IsEnabled = TestMicButton.IsEnabled = false;
             return;
         }
@@ -118,11 +122,13 @@ public sealed partial class MainWindow : Window
         updating = false;
 
         var cfg = engine.Config;
-        StatusText.Text = engine.StartError is { } error ? error
-            : !engine.IsRunning ? "Paused: ignoring the controller and keyboard shortcut"
-            : engine.ControllerSlot < 0 ? (cfg.KeyboardShortcut is { } key ? $"No controller connected · keyboard shortcut {key} is ready" : "Waiting for a controller…")
-            : engine.ChatOpen ? $"Chat open · press {cfg.DictateChord} to dictate"
-            : $"Controller connected · open chat with {cfg.OpenChatChord}";
+        if (engine.StartError is { } error) ButtonPrompt.Fill(StatusText, error);
+        else if (!engine.IsRunning) ButtonPrompt.Fill(StatusText, "Paused: ignoring the controller and keyboard shortcut");
+        else if (engine.ControllerSlot < 0)
+            ButtonPrompt.Fill(StatusText, cfg.KeyboardShortcut is { } key ? $"No controller connected · keyboard shortcut {key} is ready" : "Waiting for a controller…");
+        else if (engine.ChatOpen) ButtonPrompt.Fill(StatusText, "Chat open · press {0} to dictate", engine.ButtonStyle, Chord.Parse(cfg.DictateChord));
+        else ButtonPrompt.Fill(StatusText, "Controller connected · open chat with {0}", engine.ButtonStyle, Chord.Parse(cfg.OpenChatChord));
+        if (engine.ButtonStyle != shownStyle) ShowBindings(); // a different kind of controller: its own icons
         ActiveSwitch.IsEnabled = recording == Recording.None;
 
         UpdateButtonsTab();
@@ -152,7 +158,8 @@ public sealed partial class MainWindow : Window
 
     void ShowHeard(string text, TimeSpan took, double seconds)
     {
-        heardAnything = true;
+        LastHeardHint.Visibility = Visibility.Collapsed;
+        LastHeardText.Visibility = Visibility.Visible;
         LastHeardText.Text = text.Length > 0 ? text : "(nothing recognisable)";
         var model = engine?.LoadedModel is { } path ? ModelCatalog.DisplayName(path) : "?";
         LastHeardMeta.Text = $"{seconds:F1} s of speech · transcribed in {took.TotalMilliseconds:F0} ms by {model}";

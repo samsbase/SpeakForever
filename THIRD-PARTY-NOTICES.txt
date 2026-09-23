@@ -17,6 +17,28 @@ NAudio
   Mark Heath and contributors, https://github.com/naudio/NAudio
   MIT License
 
+SDL3 (reads the controllers)
+  Sam Lantinga and contributors, https://github.com/libsdl-org/SDL
+  zlib License
+
+SDL3-CS (SDL3 for .NET)
+  ppy Pty Ltd and contributors, https://github.com/ppy/SDL3-CS
+  MIT License
+
+SDL_GameControllerDB (gamecontrollerdb.txt: mappings for less common controllers)
+  Sam Lantinga and contributors, https://github.com/mdqinc/SDL_GameControllerDB
+  zlib License
+
+Input Prompts (the controller button icons, in Assets\Buttons)
+  Kenney, https://kenney.nl/assets/input-prompts
+  Creative Commons Zero (CC0): public domain. Recoloured to match the app.
+
+English word list (app/Core/Speech/Names/english-words.txt, built into the app)
+  From the English Speller Database (SCOWL), https://wordlist.aspell.net
+  Copyright 2000-2026 by Kevin Atkinson. Permission to use, copy, modify, distribute, and sell
+  it is granted without fee, provided the copyright notice and this notice appear in all copies
+  and in supporting documentation. The full notice is at the top of the file.
+
 .NET runtime
   .NET Foundation and contributors, https://github.com/dotnet/runtime
   MIT License

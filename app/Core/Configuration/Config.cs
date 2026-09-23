@@ -23,7 +23,7 @@ public sealed record Config
     /// </summary>
     public IReadOnlyList<string> ProcessNames { get; init; } = ["WowB"];
 
-    /// <summary>XInput slot 0-3, or -1 for the first controller found.</summary>
+    /// <summary>Which controller to use when several are connected: 0 for the first, up to 3, or -1 for whichever is found first.</summary>
     public int ControllerSlot { get; init; } = -1;
 
     // The app follows WoW's gamepad chat panel from these buttons, so it only ever types into an
@@ -61,11 +61,34 @@ public sealed record Config
 
     /// <summary>
     /// Words Whisper should expect. Game names are its weak spot: without this it hears
-    /// "Iron Fudge" and "Dead Minds". Add your guild, friends' names or anything it mishears.
+    /// "Iron Fudge" and "Dead Minds". Only names it would otherwise get wrong are worth their
+    /// place: Whisper reads just the last 224 tokens (this default is 211) and silently drops
+    /// the start of anything longer, so the most important names come last.
     /// </summary>
-    public string Prompt { get; init; } =
+    public string Prompt { get; init; } = DefaultPrompt;
+
+    internal const string DefaultPrompt =
+        "World of Warcraft: Forever chat. LFG, LFM, WTS, DPS, OOM, AoE, rez. " +
+        "Innervate, Soulstone, Arcane Intellect, Rage of the Farseer, Maelstrom Weapon, Templar's Bulwark, " +
+        "Litany of Light, Frostfire Bolt, Mutilate. " +
+        "Ironforge, Orgrimmar, Darnassus, Shen'dralas, Zephras Isle, Skyborne. " +
+        "Deadmines, Shadowfang Keep, Blackfathom Deeps, Gnomeregan, Razorfen, Uldaman, Zul'Farrak, Maraudon, " +
+        "Stratholme, Scholomance. " +
+        "Hall of Thanes, Ruins of Lordaeron, Dalaran, Drowned City, Krol'dok Stronghold, Alcaz Prison, " +
+        "Blackmaw Hold, Shaper's Terrace, Barrow Deeps, Hyjal Summit, Onyxia's Lair.";
+
+    /// <summary>
+    /// Puts WoW: Forever names back where Whisper wrote something that sounds like one but isn't a
+    /// real word ("Stratham" becomes Stratholme). Real words are never changed.
+    /// </summary>
+    public bool CorrectNames { get; init; } = true;
+
+    /// <summary>Earlier versions' default prompts: still unchanged in a settings file, they move to the current one.</summary>
+    static readonly string[] OldDefaultPrompts =
+    [
         "World of Warcraft chat. Ironforge, Stormwind, Orgrimmar, Undercity, Darnassus, Thunder Bluff, " +
-        "Deadmines, Westfall, Elwynn Forest, Stranglethorn, Molten Core, Onyxia, Blackrock, Hyjal, Skyborne.";
+        "Deadmines, Westfall, Elwynn Forest, Stranglethorn, Molten Core, Onyxia, Blackrock, Hyjal, Skyborne.",
+    ];
 
     /// <summary>
     /// Vulkan GPU, or false for CPU only. Takes effect after a restart: whisper.cpp's native library
@@ -165,6 +188,7 @@ public sealed record Config
             if (cfg.ModelPath.StartsWith(oldRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                 cfg = cfg with { ModelPath = AppPaths.Root + cfg.ModelPath[oldRoot.Length..] };
         }
+        if (OldDefaultPrompts.Contains(cfg.Prompt, StringComparer.Ordinal)) cfg = cfg with { Prompt = DefaultPrompt };
         cfg.Validated();
         await cfg.SaveAsync(ct).ConfigureAwait(false); // writes out settings added since the file was created, with their defaults
         return cfg;

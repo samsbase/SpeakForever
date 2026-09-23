@@ -28,6 +28,7 @@ public sealed partial class Transcriber : IAsyncDisposable
     readonly WhisperFactory factory;
     readonly WhisperProcessor processor;
     readonly SemaphoreSlim gate = new(1, 1);
+    readonly NameCorrector? names;
     bool disposed;
 
     Transcriber(Config cfg, string modelPath)
@@ -53,6 +54,7 @@ public sealed partial class Transcriber : IAsyncDisposable
             .WithNoContext();
         if (!string.IsNullOrWhiteSpace(cfg.Prompt)) builder = builder.WithPrompt(cfg.Prompt);
         processor = (cfg.Language == "auto" ? builder.WithLanguageDetection() : builder.WithLanguage(cfg.Language)).Build();
+        names = cfg.CorrectNames ? NameCorrector.Shared : null; // built here, off the UI thread, not on the first message
     }
 
     /// <summary>
@@ -94,7 +96,7 @@ public sealed partial class Transcriber : IAsyncDisposable
             var text = new StringBuilder();
             await foreach (var segment in processor.ProcessAsync(audio, ct).ConfigureAwait(false))
                 text.Append(segment.Text);
-            return Clean(text.ToString());
+            return Clean(text.ToString(), names);
         }
         finally
         {
@@ -110,13 +112,18 @@ public sealed partial class Transcriber : IAsyncDisposable
         return (text, Stopwatch.GetElapsedTime(started));
     }
 
-    internal static string Clean(string raw)
+    internal static string Clean(string raw, NameCorrector? names = null)
     {
         // Whisper marks non-speech as [BLANK_AUDIO], (music), *laughs* and the like.
         var text = NonSpeech().Replace(raw, " ");
         text = Whitespace().Replace(text, " ").Trim();
         // "|" starts an escape sequence in WoW chat.
         text = text.Replace('|', '/');
+        if (names is not null)
+        {
+            (text, var changes) = names.Correct(text);
+            foreach (var (heard, name) in changes) Log.Info($"Heard \"{heard}\" as {name}.");
+        }
         if (text.Length <= MaxChatLength) return text;
 
         int cut = text.LastIndexOf(' ', MaxChatLength);

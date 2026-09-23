@@ -12,6 +12,20 @@ public sealed class InputTests
     [InlineData("Shift+Ctrl+A", "Ctrl+Shift+A")]
     public void ShortcutsRoundTrip(string text, string expected) => Assert.Equal(expected, Shortcut.Parse(text).ToString());
 
+    [Fact]
+    public void EveryNamedKeyOnThisKeyboardLayoutRoundTrips()
+    {
+        int named = 0;
+        for (uint key = 0x08; key <= 0xFE; key++)
+        {
+            if (Shortcut.NameOf(key) is null) continue;
+            named++;
+            var shortcut = new Shortcut(Shortcut.Ctrl | Shortcut.Shift, key);
+            Assert.Equal(shortcut, Shortcut.Parse(shortcut.ToString()));
+        }
+        Assert.True(named > 90, $"only {named} keys have names"); // letters, digits, F keys, numpad, punctuation
+    }
+
     [Theory]
     [InlineData("Ctrl+Banana")]
     [InlineData("Ctrl+Shift")]

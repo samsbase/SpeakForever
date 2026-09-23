@@ -19,7 +19,7 @@ namespace SpeakForever;
 public sealed class Engine : IAsyncDisposable
 {
     const int PollMs = 8;      // Windows' timer tick makes this ~15 ms in practice: still under a frame
-    const int RescanMs = 1000; // polling empty XInput slots is slow, so look for a new pad once a second
+    const int RescanMs = 1000; // look for a new controller once a second
 
     readonly HotkeyListener hotkey = new();
     readonly RadialMenu radialMenu = new();
@@ -62,7 +62,14 @@ public sealed class Engine : IAsyncDisposable
     public Config Config => config;
 
     public bool IsRunning => thread is not null;
+    /// <summary>Which connected controller is in use (0 for the first), or -1 when there's none.</summary>
     public int ControllerSlot => controllerSlot;
+
+    /// <summary>The controller in use, such as "Xbox Series X Controller"; the last one, once it's gone.</summary>
+    public string? ControllerName { get; private set; }
+
+    /// <summary>Whose button icons to show: the controller in use, or the last one there was.</summary>
+    public ButtonStyle ButtonStyle { get; private set; }
     public bool IsLoadingModel => LoadingModel is not null;
     public string? LoadingModel { get; private set; }
     public string? LoadedModel { get; private set; }
@@ -412,11 +419,22 @@ public sealed class Engine : IAsyncDisposable
 
     void Poll(bool probe, CancellationToken ct)
     {
+        GamepadReader reader;
+        try
+        {
+            reader = new GamepadReader(Path.Combine(AppContext.BaseDirectory, "gamecontrollerdb.txt"));
+        }
+        catch (Exception e) when (e is InvalidOperationException or DllNotFoundException)
+        {
+            Log.Warn($"Couldn't read controllers: {e.Message} The keyboard shortcut still works.");
+            return;
+        }
+        using var _ = reader;
         uint prev = 0;
         long nextScan = 0;
         while (!ct.IsCancellationRequested)
         {
-            PadState? read = controllerSlot >= 0 ? Gamepad.Read(controllerSlot) : null;
+            PadState? read = reader.Read();
             if (controllerSlot >= 0 && read is null)
             {
                 Log.Warn("Controller disconnected.");
@@ -426,11 +444,13 @@ public sealed class Engine : IAsyncDisposable
             if (controllerSlot < 0 && Environment.TickCount64 >= nextScan)
             {
                 nextScan = Environment.TickCount64 + RescanMs;
-                controllerSlot = Gamepad.FindSlot(config.ControllerSlot);
-                if (controllerSlot >= 0)
+                if (reader.TryOpen(config.ControllerSlot))
                 {
-                    Log.Info("Controller connected.");
-                    read = Gamepad.Read(controllerSlot);
+                    controllerSlot = Math.Max(0, config.ControllerSlot);
+                    ControllerName = reader.Name;
+                    ButtonStyle = reader.Style;
+                    Log.Info($"Controller connected: {reader.Name}.");
+                    read = reader.Read();
                     Changed();
                 }
             }

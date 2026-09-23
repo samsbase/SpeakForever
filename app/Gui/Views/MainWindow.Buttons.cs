@@ -2,6 +2,7 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using SpeakForever.Gui.Controls;
 using SpeakForever.Input;
 using Windows.System;
 using Windows.UI.Core;
@@ -39,20 +40,26 @@ public sealed partial class MainWindow
             ?? "Optional. Types into whichever text box you're in, in any program, like Windows+H. Press it again to finish early.";
     }
 
+    /// <summary>The bindings, drawn as the connected controller's own button icons.</summary>
     void ShowBindings()
     {
         var cfg = engine!.Config;
-        OpenChatText.Text = cfg.OpenChatChord;
-        DictateText.Text = cfg.DictateChord;
+        var style = engine.ButtonStyle;
+        shownStyle = style;
+        Chord openChat = Chord.Parse(cfg.OpenChatChord), dictate = Chord.Parse(cfg.DictateChord);
+        if (recording != Recording.OpenChat) OpenChatCap.Child = ButtonPrompt.Icons(openChat, style);
+        if (recording != Recording.Dictate) DictateCap.Child = ButtonPrompt.Icons(dictate, style);
         KeyboardText.Text = cfg.KeyboardShortcut ?? "Off";
-        PauseHint.Text = $"Or press {cfg.DictateChord} again to finish straight away.";
-        if (!heardAnything)
-            LastHeardText.Text = $"Nothing yet. In the game, open chat with {cfg.OpenChatChord} and press {cfg.DictateChord}. Or try Test microphone on the Speech model tab.";
+        ButtonPrompt.Fill(PauseHint, "Or press {0} again to finish straight away.", style, dictate);
+        ButtonPrompt.Fill(LastHeardHint, "Nothing yet. In the game, open chat with {0} and press {1}. Or try Test microphone on the Speech model tab.",
+                          style, openChat, dictate);
     }
 
-    void ShowBindingMessage(string text, bool warning)
+    /// <summary>A message under the bindings; "{0}" in it is drawn as the chord's button icons.</summary>
+    void ShowBindingMessage(string text, bool warning, Chord? chord = null)
     {
-        BindingMessage.Text = text;
+        if (chord is { } c) ButtonPrompt.Fill(BindingMessage, text, engine!.ButtonStyle, c);
+        else ButtonPrompt.Fill(BindingMessage, text);
         BindingMessage.Foreground = warning ? warningBrush : normalBrush;
         BindingMessage.Visibility = Visibility.Visible;
     }
@@ -60,12 +67,12 @@ public sealed partial class MainWindow
     // ---- Controller bindings --------------------------------------------------------------
 
     async void OpenChatButton_Click(object sender, RoutedEventArgs e) =>
-        await RebindControllerAsync(Recording.OpenChat, BindingKind.OpenChat, OpenChatButton, OpenChatText);
+        await RebindControllerAsync(Recording.OpenChat, BindingKind.OpenChat, OpenChatButton, OpenChatCap);
 
     async void DictateButton_Click(object sender, RoutedEventArgs e) =>
-        await RebindControllerAsync(Recording.Dictate, BindingKind.Dictate, DictateButton, DictateText);
+        await RebindControllerAsync(Recording.Dictate, BindingKind.Dictate, DictateButton, DictateCap);
 
-    async Task RebindControllerAsync(Recording which, BindingKind kind, Button button, TextBlock value)
+    async Task RebindControllerAsync(Recording which, BindingKind kind, Button button, Border cap)
     {
         if (engine is null) return;
         if (recording != Recording.None)
@@ -76,7 +83,7 @@ public sealed partial class MainWindow
         recording = which;
         rebindCancel = new CancellationTokenSource();
         button.Content = "Cancel";
-        value.Text = "Press…";
+        cap.Child = new TextBlock { Text = "Press…", Style = (Style)Application.Current.Resources["KeycapText"], VerticalAlignment = VerticalAlignment.Center };
         ShowBindingMessage("Hold any extra buttons, press the main one, then let go of them all.", warning: false);
         UpdateState();
         try
@@ -88,8 +95,8 @@ public sealed partial class MainWindow
                 ShowBindingMessage(error + " No change.", warning: true);
             else
                 ShowBindingMessage(kind == BindingKind.OpenChat
-                    ? $"Open chat is now {chord.Value.Text}. Make sure it matches the game's binding."
-                    : $"Dictate is now {chord.Value.Text}.", warning: false);
+                    ? "Open chat is now {0}. Make sure it matches the game's binding."
+                    : "Dictate is now {0}.", warning: false, chord.Value);
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
         {
@@ -134,8 +141,26 @@ public sealed partial class MainWindow
         UpdateState();
     }
 
+    /// <summary>
+    /// Controller buttons reach the window as keys too: A clicks the focused button (by then the
+    /// Cancel button) and the D-pad moves focus. While a binding is being recorded, they're the
+    /// recording's, not the window's.
+    /// </summary>
+    static bool FromController(KeyRoutedEventArgs e) =>
+        e.OriginalKey is >= VirtualKey.GamepadA and <= VirtualKey.GamepadRightThumbstickLeft;
+
+    void OnPreviewKeyUp(object sender, KeyRoutedEventArgs e)
+    {
+        if (recording != Recording.None && FromController(e)) e.Handled = true; // buttons click on release
+    }
+
     async void OnPreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
+        if (recording != Recording.None && FromController(e))
+        {
+            e.Handled = true;
+            return;
+        }
         if (recording != Recording.Keyboard || engine is null) return;
         e.Handled = true; // before any await: the key mustn't reach the focused control
         var key = e.Key;
@@ -156,7 +181,7 @@ public sealed partial class MainWindow
         var shortcut = new Shortcut(modifiers, (uint)key);
         if (Shortcut.NameOf(shortcut.Key) is null)
         {
-            ShowBindingMessage("That key can't be used. Try another.", warning: true);
+            ShowBindingMessage("That key can't be used for a shortcut. Try another.", warning: true);
             return;
         }
         if (await SetShortcutAsync(shortcut) is { } error)

@@ -10,9 +10,21 @@
 
   <ItemGroup>
     <PackageReference Include="NAudio.WinMM" />
+    <PackageReference Include="ppy.SDL3-CS" />
     <PackageReference Include="Whisper.net" />
     <PackageReference Include="Whisper.net.Runtime" />
     <PackageReference Include="Whisper.net.Runtime.Vulkan" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- For NameCorrector: WoW: Forever's names, and the English words it must never "correct". -->
+    <EmbeddedResource Include="Speech/Names/wow-names.txt" LogicalName="SpeakForever.Speech.Names.wow-names.txt" />
+    <EmbeddedResource Include="Speech/Names/english-words.txt" LogicalName="SpeakForever.Speech.Names.english-words.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SDL_GameControllerDB (zlib licence): mappings for controllers SDL doesn't know itself. -->
+    <None Include="Input/gamecontrollerdb.txt" Link="gamecontrollerdb.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
