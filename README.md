@@ -5,6 +5,8 @@
 [![Build](https://github.com/samsbase/SpeakForever/actions/workflows/build.yml/badge.svg)](https://github.com/samsbase/SpeakForever/actions/workflows/build.yml)
 [![Latest release](https://img.shields.io/github/v/release/samsbase/SpeakForever)](https://github.com/samsbase/SpeakForever/releases/latest)
 
+**[Website and download](https://samsbase.github.io/SpeakForever/)**
+
 Chat in **World of Warcraft: Forever** with your voice. Open chat with your controller, click the right stick, and say your message: it's typed into the chat box, and you press **A** to send it. Keyboard players can use a shortcut instead, which works like Windows+H.
 
 Speech recognition is [Whisper](https://github.com/openai/whisper), running on your own PC through [whisper.cpp](https://github.com/ggml-org/whisper.cpp). What you say never leaves your computer. There's no addon: Speak Forever works alongside WoW's own gamepad chat panel.
@@ -197,6 +199,7 @@ Namespaces follow folders.
 | `installer` | Inno Setup script and wizard art |
 | `tools` | Benchmark clips; `IconGen` draws the app icon and installer art (`IconGen icon <out.ico>`, `IconGen wizard installer\art app\Gui\Assets\Fonts\Cinzel.ttf`) |
 | `assets` | Logo SVGs |
+| `docs` | The website on GitHub Pages: one static page. Its screenshots are of the real app. |
 
 Speak Forever was called Voice Forever (and before that ForeverVoice); data in those folders under `%LOCALAPPDATA%` moves across on first launch, and the installer upgrades a Voice Forever install in place.
 
