@@ -5,7 +5,7 @@
 [![Build](https://github.com/samsbase/SpeakForever/actions/workflows/build.yml/badge.svg)](https://github.com/samsbase/SpeakForever/actions/workflows/build.yml)
 [![Latest release](https://img.shields.io/github/v/release/samsbase/SpeakForever)](https://github.com/samsbase/SpeakForever/releases/latest)
 
-**[Website and download](https://samsbase.github.io/SpeakForever/)**
+**[Website and download](https://speakforever.app/)**
 
 Chat in **World of Warcraft: Forever** with your voice. Open chat with your controller, click the right stick, and say your message: it's typed into the chat box, and you press **A** to send it. Keyboard players can use a shortcut instead, which works like Windows+H.
 
