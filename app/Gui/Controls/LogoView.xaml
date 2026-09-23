@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="VoiceForever.Gui.Controls.LogoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <!-- Only opacity and scale are animated: both run on the compositor, not the UI thread.
+             Played while listening, and at a higher SpeedRatio while transcribing; stopped otherwise. -->
+        <Storyboard x:Name="Pulse">
+            <DoubleAnimation Storyboard.TargetName="Wave1Scale" Storyboard.TargetProperty="ScaleX" From="0.28" To="1" Duration="0:0:3" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave1Scale" Storyboard.TargetProperty="ScaleY" From="0.28" To="1" Duration="0:0:3" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave1" Storyboard.TargetProperty="Opacity" From="0.8" To="0" Duration="0:0:3" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave2Scale" Storyboard.TargetProperty="ScaleX" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:1" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave2Scale" Storyboard.TargetProperty="ScaleY" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:1" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave2" Storyboard.TargetProperty="Opacity" From="0.8" To="0" Duration="0:0:3" BeginTime="0:0:1" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave3Scale" Storyboard.TargetProperty="ScaleX" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:2" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave3Scale" Storyboard.TargetProperty="ScaleY" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:2" RepeatBehavior="Forever" />
+            <DoubleAnimation Storyboard.TargetName="Wave3" Storyboard.TargetProperty="Opacity" From="0.8" To="0" Duration="0:0:3" BeginTime="0:0:2" RepeatBehavior="Forever" />
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Highlight" Storyboard.TargetProperty="Opacity" RepeatBehavior="Forever">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0.3" />
+                <LinearDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+                <LinearDoubleKeyFrame KeyTime="0:0:2" Value="0.3" />
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <!-- Same drawing as assets/logo.svg, on a 256 x 256 canvas. -->
+    <Viewbox>
+        <Canvas Width="256" Height="256">
+            <Ellipse Canvas.Left="8" Canvas.Top="8" Width="240" Height="240" Fill="#12162A" />
+            <Ellipse Canvas.Left="8" Canvas.Top="8" Width="240" Height="240" Stroke="#8A93B8" StrokeThickness="8" />
+            <Ellipse Canvas.Left="22.5" Canvas.Top="22.5" Width="211" Height="211" Stroke="#3A4270" StrokeThickness="3" />
+
+            <Ellipse x:Name="Wave1" Canvas.Left="28" Canvas.Top="28" Width="200" Height="200" Stroke="#7AA7FF" StrokeThickness="3" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform><ScaleTransform x:Name="Wave1Scale" ScaleX="0.28" ScaleY="0.28" /></Ellipse.RenderTransform>
+            </Ellipse>
+            <Ellipse x:Name="Wave2" Canvas.Left="28" Canvas.Top="28" Width="200" Height="200" Stroke="#7AA7FF" StrokeThickness="3" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform><ScaleTransform x:Name="Wave2Scale" ScaleX="0.28" ScaleY="0.28" /></Ellipse.RenderTransform>
+            </Ellipse>
+            <Ellipse x:Name="Wave3" Canvas.Left="28" Canvas.Top="28" Width="200" Height="200" Stroke="#7AA7FF" StrokeThickness="3" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform><ScaleTransform x:Name="Wave3Scale" ScaleX="0.28" ScaleY="0.28" /></Ellipse.RenderTransform>
+            </Ellipse>
+
+            <Path Stroke="#2E3F8F" StrokeThickness="24" StrokeLineJoin="Round"
+                  Data="M128,128 C152,80 212,80 212,128 C212,176 152,176 128,128 C104,80 44,80 44,128 C44,176 104,176 128,128 Z" />
+            <Path Stroke="#7AA7FF" StrokeThickness="15" StrokeLineJoin="Round"
+                  Data="M128,128 C152,80 212,80 212,128 C212,176 152,176 128,128 C104,80 44,80 44,128 C44,176 104,176 128,128 Z" />
+            <Path x:Name="Highlight" Stroke="#E0ECFF" StrokeThickness="5" StrokeLineJoin="Round" Opacity="0.7"
+                  Data="M128,128 C152,80 212,80 212,128 C212,176 152,176 128,128 C104,80 44,80 44,128 C44,176 104,176 128,128 Z" />
+        </Canvas>
+    </Viewbox>
+</UserControl>

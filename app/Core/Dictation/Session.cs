@@ -1,0 +1,172 @@
+using System.Diagnostics;
+using VoiceForever.Configuration;
+using VoiceForever.Interop;
+using VoiceForever.Logging;
+using VoiceForever.Speech;
+
+namespace VoiceForever.Dictation;
+
+/// <summary>
+/// One dictation at a time: record until you pause (or press the trigger again) → transcribe →
+/// type. From the controller it types only into the game's open chat box, and a chat box that
+/// closes first discards it. From the keyboard shortcut it types into whatever has focus, like Win+H.
+/// </summary>
+/// <param name="currentModel">The loaded model at the moment it's needed; it can change between dictations.</param>
+/// <param name="transcribed">Each result: text, transcription time, seconds of audio.</param>
+/// <param name="phase">Listening, then transcribing, then idle.</param>
+sealed class Session(Config cfg, Func<Transcriber?> currentModel, Action<string, TimeSpan, double> transcribed, Action<DictationPhase> phase)
+{
+    readonly Lock gate = new();
+    CancellationTokenSource? active;
+    CancellationTokenSource? finishing; // set while recording; triggering it ends the recording now
+    bool chatHasOurText; // a second dictation into the same chat box gets a separating space
+
+    /// <param name="trigger">The button or shortcut, for the log.</param>
+    /// <param name="anyWindow">Keyboard shortcut: type into whatever has focus, not only the game.</param>
+    public void Start(string trigger, bool anyWindow = false)
+    {
+        lock (gate)
+        {
+            if (active is not null)
+            {
+                if (finishing is { } f)
+                {
+                    Log.Info($"{trigger}: finished speaking.");
+                    f.Cancel();
+                }
+                else Log.Info($"{trigger}: still transcribing.");
+                return;
+            }
+        }
+        var fg = Native.Foreground();
+        if (!anyWindow && !cfg.IsGame(fg.Process))
+        {
+            Log.Warn($"{trigger}: ignored, foreground is '{fg.Process}', not the game.");
+            Cue.Error(cfg);
+            return;
+        }
+        if (currentModel() is null)
+        {
+            Log.Warn($"{trigger}: ignored, no speech model is loaded yet.");
+            Cue.Error(cfg);
+            return;
+        }
+        CancellationTokenSource cts, finish;
+        lock (gate)
+        {
+            if (active is not null) return;
+            active = cts = new CancellationTokenSource();
+            finishing = finish = new CancellationTokenSource();
+        }
+        // Off the caller's thread (the controller loop, or the hotkey listener): recording and
+        // transcribing take seconds. RunAsync handles all of its own errors.
+        _ = Task.Run(() => RunAsync(trigger, anyWindow, cts, finish));
+    }
+
+    /// <summary>The chat box is closing or losing focus, so drop anything still in flight.</summary>
+    public void ChatClosing(string why, bool keepsText = false)
+    {
+        lock (gate)
+        {
+            if (!keepsText) chatHasOurText = false;
+            if (active is null) return;
+            active.Cancel();
+        }
+        Log.Info($"{why}, dictation discarded.");
+        Cue.Cancel(cfg);
+    }
+
+    /// <summary>Drops any dictation in flight, for when the controller loop stops.</summary>
+    public void CancelAll() => ChatClosing("Stopped");
+
+    async Task RunAsync(string trigger, bool anyWindow, CancellationTokenSource cts, CancellationTokenSource finish)
+    {
+        var ct = cts.Token;
+        try
+        {
+            Cue.Start(cfg);
+            phase(DictationPhase.Listening);
+            await Task.Delay(cfg.DelayMs, ct).ConfigureAwait(false);
+            Log.Info($"{trigger}: listening...");
+
+            float[]? audio;
+            try
+            {
+                audio = await Recorder.RecordUtteranceAsync(cfg, finish.Token, ct).ConfigureAwait(false);
+            }
+            finally
+            {
+                lock (gate)
+                {
+                    finishing = null;
+                    finish.Dispose();
+                }
+            }
+            if (audio is null)
+            {
+                Log.Info("Heard no speech.");
+                Cue.Error(cfg);
+                return;
+            }
+            Cue.Heard(cfg);
+            phase(DictationPhase.Transcribing);
+
+            var transcriber = currentModel() ?? throw new InvalidOperationException("the speech model was unloaded");
+            var started = Stopwatch.GetTimestamp();
+            var text = await transcriber.TranscribeAsync(audio, ct).ConfigureAwait(false);
+            var took = Stopwatch.GetElapsedTime(started);
+            double seconds = audio.Length / (double)Recorder.SampleRate;
+            Log.Info($"Transcribed {seconds:F1}s in {took.TotalMilliseconds:F0} ms: \"{text}\"");
+            transcribed(text, took, seconds);
+            if (text.Length == 0) return;
+
+            // Under the lock, so a chat box closing can't slip in between the check and the typing.
+            lock (gate)
+            {
+                ct.ThrowIfCancellationRequested();
+                Type(text, anyWindow);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // ChatClosing already reported it.
+        }
+        catch (Exception e)
+        {
+            Log.Warn($"Dictation failed: {e.Message}");
+            Cue.Error(cfg);
+        }
+        finally
+        {
+            lock (gate)
+            {
+                if (active == cts) active = null;
+            }
+            cts.Dispose();
+            phase(DictationPhase.Idle);
+        }
+    }
+
+    /// <summary>Types the result, re-checking the game is still in front. Called under the lock.</summary>
+    void Type(string text, bool anyWindow)
+    {
+        if (!anyWindow)
+        {
+            var fg = Native.Foreground();
+            if (!cfg.IsGame(fg.Process))
+            {
+                Log.Warn($"Not typing, foreground is '{fg.Process}', not the game.");
+                Cue.Error(cfg);
+                return;
+            }
+            if (chatHasOurText) text = " " + text;
+        }
+        if (Native.TypeText(text) is { } error)
+        {
+            Log.Warn(error);
+            Cue.Error(cfg);
+            return;
+        }
+        if (!anyWindow) chatHasOurText = true;
+    }
+}

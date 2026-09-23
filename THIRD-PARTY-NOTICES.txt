@@ -1,0 +1,37 @@
+Voice Forever includes or downloads the following third-party components.
+
+Whisper speech recognition models (downloaded by the app on request)
+  OpenAI, https://github.com/openai/whisper
+  MIT License. Converted to the ggml format by the whisper.cpp project:
+  https://huggingface.co/ggerganov/whisper.cpp
+
+whisper.cpp and ggml
+  Georgi Gerganov and contributors, https://github.com/ggml-org/whisper.cpp
+  MIT License
+
+Whisper.net
+  Sandro Hanea and contributors, https://github.com/sandrohanea/whisper.net
+  MIT License
+
+NAudio
+  Mark Heath and contributors, https://github.com/naudio/NAudio
+  MIT License
+
+.NET runtime
+  .NET Foundation and contributors, https://github.com/dotnet/runtime
+  MIT License
+
+Windows App SDK (WinUI 3)
+  Microsoft Corporation, https://github.com/microsoft/WindowsAppSDK
+  MIT License
+
+Cinzel typeface
+  The Cinzel Project Authors, https://github.com/NDISCOVER/Cinzel
+  SIL Open Font License 1.1; the full text is in Assets\Fonts\Cinzel-OFL.txt
+
+Microsoft Visual C++ Redistributable
+  Microsoft Corporation. Installed by Microsoft's own installer when it isn't
+  already present, under Microsoft's license terms for that package.
+
+World of Warcraft is a trademark of Blizzard Entertainment, Inc. Voice Forever is
+not affiliated with or endorsed by Blizzard Entertainment.

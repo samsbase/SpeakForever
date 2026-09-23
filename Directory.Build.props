@@ -1,0 +1,21 @@
+<Project>
+  <!-- One version for the app, the CLI and the installer (build.ps1 reads it from here). -->
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Product>Voice Forever</Product>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Linting: the .NET analyzers at their recommended set, plus the code style rules in
+         .editorconfig, all checked on every build. Warnings fail the build, so none creep in. -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Needed for the unused-usings rule (IDE0005) to run in the build; CS1591 is off in .editorconfig. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>

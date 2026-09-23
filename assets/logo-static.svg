@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img">
+  <title>Voice Forever</title>
+  <circle cx="128" cy="128" r="120" fill="#12162A"/>
+  <circle cx="128" cy="128" r="116" fill="none" stroke="#8A93B8" stroke-width="8"/>
+  <circle cx="128" cy="128" r="104" fill="none" stroke="#3A4270" stroke-width="3"/>
+  <g fill="none" stroke-linejoin="round">
+    <path d="M128 128 C152 80 212 80 212 128 C212 176 152 176 128 128 C104 80 44 80 44 128 C44 176 104 176 128 128 Z" stroke="#2E3F8F" stroke-width="24"/>
+    <path d="M128 128 C152 80 212 80 212 128 C212 176 152 176 128 128 C104 80 44 80 44 128 C44 176 104 176 128 128 Z" stroke="#7AA7FF" stroke-width="15"/>
+    <path d="M128 128 C152 80 212 80 212 128 C212 176 152 176 128 128 C104 80 44 80 44 128 C44 176 104 176 128 128 Z" stroke="#E0ECFF" stroke-width="5" opacity="0.7"/>
+  </g>
+</svg>

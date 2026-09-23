@@ -1,0 +1,11 @@
+# Build output
+bin/
+obj/
+publish/
+dist/
+*.user
+.vs/
+.idea/
+
+# Microsoft's Visual C++ runtime installer: build.ps1 -Installer downloads it (24 MB, signed by Microsoft).
+installer/redist/

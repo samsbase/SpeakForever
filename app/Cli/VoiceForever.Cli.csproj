@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <RootNamespace>VoiceForever.Cli</RootNamespace>
+    <AssemblyName>VoiceForeverCli</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\VoiceForever.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- GPU memory per process, for the benchmark command -->
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" />
+  </ItemGroup>
+
+</Project>
