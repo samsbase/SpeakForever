@@ -24,7 +24,7 @@ WoW: Forever is in beta; Speak Forever works with the beta client.
 
 **You need:** Windows 10 (version 2004) or Windows 11, 64-bit; WoW: Forever; a microphone (a headset works best). A controller for gamepad mode (Xbox, PlayStation, Nintendo Switch and most others, with no extra software), or just a keyboard. A graphics card with Vulkan makes recognition fast, but it also works on the processor.
 
-**Updates:** Speak Forever checks for a new version when it starts and every few hours, and says so on its Dictation tab. **Settings › Check for updates** checks now. Download the new installer and run it: it updates in place, keeping your settings and speech models.
+**Updates:** Speak Forever checks for a new version when it starts and every few hours, and says so on its Dictation tab. **Settings › Check for updates** checks now. **Update now** downloads the new version, closes Speak Forever, installs it and opens it again, keeping your settings and speech models.
 
 **Uninstalling:** Windows Settings › Apps › Speak Forever. It asks whether to delete your downloaded speech models and settings too; the default is to keep them.
 
@@ -61,13 +61,13 @@ Speak Forever follows the chat panel by watching the same buttons WoW does. RS o
 
 ### With a keyboard
 
-On the **Buttons & shortcuts** tab, click **Change** next to *Dictate (keyboard)* and press a combination such as Ctrl+Shift+Space. It must include Ctrl, Alt, Shift or Windows, or be an F key, so it doesn't take a key you type with.
+On the **Buttons & shortcuts** tab, click **Change** next to *Dictate (keyboard)* and press any key or combination, such as Ctrl+Shift+Space or F8. While Speak Forever is active, Windows sends that key to Speak Forever instead of the program you're in, so pick one you don't need elsewhere, or pause Speak Forever when you do.
 
 Like Windows+H, the shortcut types into **whatever has focus**: in WoW, open chat with Enter first, then press the shortcut and speak. Press it again to finish early.
 
 ### Sound cues
 
-A beep means it's listening. A rising two-tone means it heard you and is transcribing. A short blip means the dictation was discarded. A low buzz means it couldn't (chat not open, nothing heard, or an error).
+A beep means it's listening. A rising two-tone means it heard you and is transcribing. Nothing else makes a sound: the dictate button is often bound to something else in the game too, so a press that doesn't start a dictation stays quiet, and the Activity log says why.
 
 ### The window
 

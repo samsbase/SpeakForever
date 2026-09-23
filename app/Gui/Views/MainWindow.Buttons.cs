@@ -127,7 +127,7 @@ public sealed partial class MainWindow
         engine.SuspendKeyboardShortcut(); // the old shortcut mustn't fire while recording a new one
         KeyboardButton.Content = "Cancel";
         KeyboardText.Text = "Press keys…";
-        ShowBindingMessage("Hold Ctrl, Alt or Shift and press a key, or press an F key on its own. Esc cancels.", warning: false);
+        ShowBindingMessage("Press a key, or hold Ctrl, Alt or Shift and press one. Esc cancels.", warning: false);
         ButtonsPage.Focus(FocusState.Programmatic); // so Space doesn't also press the button
         UpdateState();
     }
@@ -187,7 +187,8 @@ public sealed partial class MainWindow
         if (await SetShortcutAsync(shortcut) is { } error)
             EndKeyboardRecording(error + " No change.", warning: true, changed: false);
         else
-            EndKeyboardRecording($"Keyboard shortcut is now {shortcut}.", warning: false, changed: true);
+            EndKeyboardRecording($"Keyboard shortcut is now {shortcut}. While Speak Forever is active, Windows sends {shortcut} to it instead of the program you're in.",
+                                 warning: false, changed: true);
 
         static bool Down(VirtualKey k) => InputKeyboardSource.GetKeyStateForCurrentThread(k).HasFlag(CoreVirtualKeyStates.Down);
     }

@@ -44,13 +44,11 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
         if (!anyWindow && !cfg.IsGame(fg.Process, fg.Path))
         {
             Log.Warn($"{trigger}: ignored, because WoW: Forever isn't the active window ({fg.Process} is).");
-            Cue.Error(cfg);
             return;
         }
         if (currentModel() is null)
         {
             Log.Warn($"{trigger}: ignored, no speech model is loaded yet.");
-            Cue.Error(cfg);
             return;
         }
         CancellationTokenSource cts, finish;
@@ -75,7 +73,6 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             active.Cancel();
         }
         Log.Info($"{why}, so the dictation was cancelled.");
-        Cue.Cancel(settings());
     }
 
     /// <summary>Drops any dictation in flight, for when the controller loop stops.</summary>
@@ -107,8 +104,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             if (audio is null)
             {
                 Log.Info("Didn't hear any speech.");
-                Cue.Error(cfg);
-                return;
+                    return;
             }
             Cue.Heard(cfg);
             phase(DictationPhase.Transcribing);
@@ -136,7 +132,6 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
         catch (Exception e)
         {
             Log.Warn($"Dictation failed: {e.Message}");
-            Cue.Error(cfg);
         }
         finally
         {
@@ -158,15 +153,13 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
             if (!cfg.IsGame(fg.Process, fg.Path))
             {
                 Log.Warn($"Didn't type it: WoW: Forever is no longer the active window ({fg.Process} is).");
-                Cue.Error(cfg);
-                return;
+                    return;
             }
             if (chatHasOurText) text = " " + text;
         }
         if (Native.TypeText(text) is { } error)
         {
             Log.Warn(error);
-            Cue.Error(cfg);
             return;
         }
         if (!anyWindow) chatHasOurText = true;

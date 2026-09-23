@@ -60,8 +60,6 @@ public readonly partial record struct Shortcut(uint Modifiers, uint Key)
         _ => KeyNames.GetValueOrDefault(key) ?? PunctuationNames.GetValueOrDefault(key),
     };
 
-    public bool IsFunctionKey => Key is >= 0x70 and <= 0x87;
-
     public override string ToString()
     {
         var parts = new List<string>(5);

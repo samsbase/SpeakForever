@@ -206,8 +206,6 @@ public sealed class Engine : IAsyncDisposable
     /// <summary>Sets (or with null, turns off) the keyboard shortcut. Returns why it was refused, or null.</summary>
     public async Task<string?> SetKeyboardShortcutAsync(Shortcut? shortcut, CancellationToken ct = default)
     {
-        if (shortcut is { } s && s.Modifiers == 0 && !s.IsFunctionKey)
-            return $"{s} on its own would stop that key working in every program. Add Ctrl, Alt or Shift, or use an F key.";
         var text = shortcut?.ToString();
         hotkey.Unregister();
         if (IsRunning)
@@ -505,13 +503,12 @@ public sealed class Engine : IAsyncDisposable
             case ChatAction.Dictate:
                 session.Start(b.Dictate.Text);
                 break;
+            // Often a binding of its own in the game, so these are noted, not complained about.
             case ChatAction.DictateWhileClosed:
-                Log.Warn($"{b.Dictate.Text}: chat isn't open. Open it with {b.OpenChat.Text} first.");
-                Cue.Error(config);
+                Log.Info($"{b.Dictate.Text} with chat closed: nothing to dictate into.");
                 break;
             case ChatAction.DictateInMenu:
-                Log.Warn($"{b.Dictate.Text}: close the chat menu first.");
-                Cue.Error(config);
+                Log.Info($"{b.Dictate.Text} in a chat menu: nothing to dictate into.");
                 break;
             case ChatAction.MenuOpened:
                 session.ChatClosing("Chat menu opened", keepsText: true);

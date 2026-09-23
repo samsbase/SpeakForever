@@ -56,13 +56,14 @@ public sealed class InputTests
     public void UnknownButtonsAreRejected() => Assert.Throws<FormatException>(() => Chord.Parse("LB+Z"));
 
     [Fact]
-    public async Task ABareLetterShortcutIsRefusedButAnFKeyIsAllowed()
+    public async Task AnyKeyCanBeTheShortcutWithOrWithoutModifiers()
     {
         var ct = TestContext.Current.CancellationToken;
         TestSetup.ResetSettingsFile();
         await using var engine = TestSetup.NewEngine();
-        Assert.Contains("every program", await engine.SetKeyboardShortcutAsync(Shortcut.Parse("V"), ct), StringComparison.Ordinal);
-        Assert.Null(await engine.SetKeyboardShortcutAsync(Shortcut.Parse("F9"), ct));
-        Assert.Equal("F9", engine.Config.KeyboardShortcut);
+        Assert.Null(await engine.SetKeyboardShortcutAsync(Shortcut.Parse("V"), ct));
+        Assert.Equal("V", engine.Config.KeyboardShortcut);
+        Assert.Null(await engine.SetKeyboardShortcutAsync(Shortcut.Parse("Ctrl+F9"), ct));
+        Assert.Equal("Ctrl+F9", engine.Config.KeyboardShortcut);
     }
 }
