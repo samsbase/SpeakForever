@@ -184,6 +184,7 @@ public sealed class Engine : IAsyncDisposable
         else KeyboardError = null; // registered for real when the app is next set to Active
         await UpdateConfigAsync(c => c with { KeyboardShortcut = text }, ct).ConfigureAwait(false);
         if (shortcut is null) Log.Info("Keyboard shortcut is off.");
+        session.ChatClosing("Keyboard shortcut changed"); // text it dictated can't be cancelled with it any more
         Changed();
         return null;
     }
@@ -468,6 +469,10 @@ public sealed class Engine : IAsyncDisposable
                 Log.Info($"  would dictate ({b.Dictate.Text})");
                 break;
             case ChatAction.Dictate:
+                session.Start(b.Dictate.Text);
+                break;
+            // Text waiting to be pasted: the dictate button cancels it wherever you are, as the overlay says.
+            case ChatAction.DictateWhileClosed or ChatAction.DictateInMenu when session.IsReady:
                 session.Start(b.Dictate.Text);
                 break;
             // Often a binding of its own in the game, so these are noted, not complained about.

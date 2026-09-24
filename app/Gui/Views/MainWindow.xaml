@@ -378,7 +378,7 @@
                             </Border>
                             <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Spacing="8">
                                 <Button x:Name="KeyboardButton" Content="Change" Style="{StaticResource PanelButton}" Click="KeyboardButton_Click" />
-                                <Button x:Name="KeyboardOffButton" Content="Turn off" Style="{StaticResource QuietButton}" Click="KeyboardOffButton_Click" />
+                                <Button x:Name="KeyboardOffButton" Content="Unbind" Style="{StaticResource QuietButton}" Click="KeyboardOffButton_Click" />
                             </StackPanel>
                         </Grid>
                         <!-- Why the controller buttons can't be changed right now. -->
