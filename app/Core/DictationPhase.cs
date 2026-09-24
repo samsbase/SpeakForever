@@ -6,4 +6,7 @@ public enum DictationPhase
     Idle,
     Listening,
     Transcribing,
+
+    /// <summary>The text is on the clipboard, waiting to be pasted into chat.</summary>
+    Ready,
 }

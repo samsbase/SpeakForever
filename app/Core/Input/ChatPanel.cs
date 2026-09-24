@@ -17,7 +17,7 @@ sealed class ChatPanel
     /// <summary>The panel is up, possibly with one of its menus open.</summary>
     public bool IsOpen => open;
 
-    /// <summary>The panel is up with its text box focused: the only place dictation may type.</summary>
+    /// <summary>The panel is up with its text box focused: the only place the dictate button dictates.</summary>
     public bool InTextBox => open && depth == TextBox;
 
     public void Open()
@@ -41,7 +41,6 @@ sealed class ChatPanel
         }
         if (!open) return b.Dictate.FiredBy(prev, cur) ? ChatAction.DictateWhileClosed : ChatAction.None;
         if (b.Dictate.FiredBy(prev, cur)) return depth == TextBox ? ChatAction.Dictate : ChatAction.DictateInMenu;
-        if (depth == TextBox && b.Redo.FiredBy(prev, cur)) return ChatAction.Redo; // in a menu, it moves through the menu
         if (depth == TextBox && b.Menus.Any(m => m.FiredBy(prev, cur)))
         {
             depth = Menu;

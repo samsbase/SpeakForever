@@ -3,59 +3,91 @@ using System.Runtime.InteropServices;
 
 namespace SpeakForever.Interop;
 
-/// <summary>Typing into other windows, and finding out which one is in front.</summary>
+/// <summary>
+/// The clipboard, and finding out which window is in front. Speak Forever never sends key presses
+/// to another program: you paste what it copies.
+/// </summary>
 public static partial class Native
 {
-    const uint INPUT_KEYBOARD = 1, KEYEVENTF_KEYUP = 0x2, KEYEVENTF_UNICODE = 0x4;
-    const ushort VK_BACK = 0x08;
     const int MaxTitleLength = 256, MaxPathLength = 32767;
     const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+    const uint CF_UNICODETEXT = 13, GMEM_MOVEABLE = 0x2;
+    const int OpenAttempts = 10, OpenRetryMs = 20;
+    static readonly IntPtr HWND_MESSAGE = -3;
+
+    // Clipboard formats Windows reads to keep an item out of clipboard history (Win+V) and cloud sync.
+    static readonly uint NoHistory = RegisterClipboardFormat("CanIncludeInClipboardHistory");
+    static readonly uint NoCloud = RegisterClipboardFormat("CanUploadToCloudClipboard");
 
     /// <summary>
-    /// Types text into the focused window as Unicode characters, independent of keyboard layout.
-    /// Returns null on success or an error description. Note that UIPI blocking (target window
-    /// elevated, us not) is silent — SendInput reports success anyway.
+    /// Puts text on the clipboard, kept out of clipboard history and cloud sync: it's a chat message
+    /// waiting to be pasted, not something to keep. Returns null on success or an error description;
+    /// <paramref name="version"/> is the clipboard's sequence number after, to tell later whether it's still ours.
     /// </summary>
-    public static string? TypeText(string text)
+    public static string? CopyText(string text, out uint version)
     {
-        var seq = new Input[text.Length * 2];
-        for (int i = 0; i < text.Length; i++)
+        version = 0;
+        // SetClipboardData needs an owner window; a message-only one is enough, and the text outlives it.
+        var owner = CreateWindowEx(0, "STATIC", "", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
+        try
         {
-            seq[i * 2] = Char(text[i], up: false);
-            seq[i * 2 + 1] = Char(text[i], up: true);
+            if (!OpenClipboardPatiently(owner)) return "Couldn't copy it: another program is using the clipboard. Try again.";
+            try
+            {
+                EmptyClipboard();
+                Span<byte> no = stackalloc byte[sizeof(int)]; // a DWORD 0
+                no.Clear();
+                if (!SetData(CF_UNICODETEXT, MemoryMarshal.AsBytes((text + "\0").AsSpan())))
+                    return $"Couldn't copy it: Windows refused the clipboard (error {Marshal.GetLastPInvokeError()}).";
+                SetData(NoHistory, no);
+                SetData(NoCloud, no);
+            }
+            finally
+            {
+                CloseClipboard();
+            }
+            version = GetClipboardSequenceNumber();
+            return null;
         }
-        return Send(seq, "type the text");
-    }
-
-    /// <summary>Presses Backspace this many times in the focused window. Returns null on success or an error description.</summary>
-    public static string? Backspace(int count)
-    {
-        var seq = new Input[count * 2];
-        for (int i = 0; i < count; i++)
+        finally
         {
-            seq[i * 2] = Key(VK_BACK, up: false);
-            seq[i * 2 + 1] = Key(VK_BACK, up: true);
+            if (owner != 0) DestroyWindow(owner);
         }
-        return Send(seq, "delete the text");
     }
 
-    static string? Send(Input[] seq, string what)
+    /// <summary>Empties the clipboard if it still holds what was copied at <paramref name="version"/>, and not something copied since.</summary>
+    public static void ClearClipboard(uint version)
     {
-        uint sent = SendInput((uint)seq.Length, seq, Marshal.SizeOf<Input>());
-        return sent == seq.Length ? null : $"Couldn't {what}: Windows accepted {sent} of {seq.Length} key presses (error {Marshal.GetLastPInvokeError()}). If the game runs as administrator, run Speak Forever as administrator too.";
+        if (GetClipboardSequenceNumber() != version || !OpenClipboardPatiently(0)) return;
+        EmptyClipboard();
+        CloseClipboard();
     }
 
-    static Input Char(char c, bool up) => new()
-    {
-        Type = INPUT_KEYBOARD,
-        Union = new InputUnion { Keyboard = new KeybdInput { Scan = c, Flags = KEYEVENTF_UNICODE | (up ? KEYEVENTF_KEYUP : 0) } },
-    };
+    /// <summary>The key is held down right now, in whichever program has focus.</summary>
+    public static bool IsKeyDown(int virtualKey) => (GetAsyncKeyState(virtualKey) & 0x8000) != 0;
 
-    static Input Key(ushort vk, bool up) => new()
+    /// <summary>Another program may have the clipboard open for a moment; it's only ever briefly.</summary>
+    static bool OpenClipboardPatiently(IntPtr owner)
     {
-        Type = INPUT_KEYBOARD,
-        Union = new InputUnion { Keyboard = new KeybdInput { Vk = vk, Flags = up ? KEYEVENTF_KEYUP : 0 } },
-    };
+        for (int i = 0; i < OpenAttempts; i++)
+        {
+            if (OpenClipboard(owner)) return true;
+            Thread.Sleep(OpenRetryMs);
+        }
+        return false;
+    }
+
+    static unsafe bool SetData(uint format, ReadOnlySpan<byte> data)
+    {
+        var memory = GlobalAlloc(GMEM_MOVEABLE, (nuint)data.Length);
+        if (memory == 0) return false;
+        var at = GlobalLock(memory);
+        data.CopyTo(new Span<byte>((void*)at, data.Length));
+        GlobalUnlock(memory);
+        if (SetClipboardData(format, memory) != 0) return true; // the clipboard owns the memory now
+        GlobalFree(memory);
+        return false;
+    }
 
     /// <summary>The foreground window's process name (without .exe), the .exe's full path ("" if it can't be read), and its title.</summary>
     public static unsafe (string Process, string Path, string Title) Foreground()
@@ -100,40 +132,6 @@ public static partial class Native
         }
     }
 
-    // The union must be sized for MOUSEINPUT, the largest member, or SendInput rejects cbSize.
-    [StructLayout(LayoutKind.Sequential)]
-    struct Input
-    {
-        public uint Type;
-        public InputUnion Union;
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    struct InputUnion
-    {
-        [FieldOffset(0)] public MouseInput Mouse;
-        [FieldOffset(0)] public KeybdInput Keyboard;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    struct MouseInput
-    {
-        public int Dx, Dy;
-        public uint MouseData, Flags, Time;
-        public IntPtr ExtraInfo;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    struct KeybdInput
-    {
-        public ushort Vk, Scan;
-        public uint Flags, Time;
-        public IntPtr ExtraInfo;
-    }
-
-    [LibraryImport("user32.dll", SetLastError = true)]
-    private static partial uint SendInput(uint count, [In] Input[] inputs, int size);
-
     [LibraryImport("user32.dll")]
     private static partial IntPtr GetForegroundWindow();
 
@@ -153,4 +151,49 @@ public static partial class Native
     [LibraryImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool CloseHandle(IntPtr handle);
+
+    [LibraryImport("user32.dll", EntryPoint = "CreateWindowExW", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
+    private static partial IntPtr CreateWindowEx(uint exStyle, string className, string windowName, uint style, int x, int y,
+        int width, int height, IntPtr parent, IntPtr menu, IntPtr instance, IntPtr param);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool DestroyWindow(IntPtr hWnd);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool OpenClipboard(IntPtr owner);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool EmptyClipboard();
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool CloseClipboard();
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    private static partial IntPtr SetClipboardData(uint format, IntPtr memory);
+
+    [LibraryImport("user32.dll", EntryPoint = "RegisterClipboardFormatW", StringMarshalling = StringMarshalling.Utf16)]
+    private static partial uint RegisterClipboardFormat(string name);
+
+    [LibraryImport("user32.dll")]
+    private static partial uint GetClipboardSequenceNumber();
+
+    [LibraryImport("user32.dll")]
+    private static partial short GetAsyncKeyState(int virtualKey);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    private static partial IntPtr GlobalAlloc(uint flags, nuint bytes);
+
+    [LibraryImport("kernel32.dll")]
+    private static partial IntPtr GlobalLock(IntPtr memory);
+
+    [LibraryImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool GlobalUnlock(IntPtr memory);
+
+    [LibraryImport("kernel32.dll")]
+    private static partial IntPtr GlobalFree(IntPtr memory);
 }

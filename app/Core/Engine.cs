@@ -20,6 +20,7 @@ public sealed class Engine : IAsyncDisposable
 {
     const int PollMs = 8;      // Windows' timer tick makes this ~15 ms in practice: still under a frame
     const int RescanMs = 1000; // look for a new controller once a second
+    const int VK_RETURN = 0x0D, VK_ESCAPE = 0x1B;
 
     readonly HotkeyListener hotkey = new();
     readonly RadialMenu radialMenu = new();
@@ -188,27 +189,18 @@ public sealed class Engine : IAsyncDisposable
         [
             ("opening chat", b.OpenChat), ("dictating", b.Dictate), ("the chat panel's Send", b.Send),
             ("the chat panel's Back", b.Back), .. b.Menus.Select(m => ("the chat panel's menus", m)),
-            ("the radial menu", b.Radial), ("starting over", b.Redo),
+            ("the radial menu", b.Radial),
         ];
-        var mine = which switch
-        {
-            BindingKind.OpenChat => b.OpenChat,
-            BindingKind.Dictate => b.Dictate,
-            _ => b.Redo,
-        };
+        var mine = which == BindingKind.OpenChat ? b.OpenChat : b.Dictate;
         foreach (var (name, other) in others)
             if (!other.SameButtons(mine) && other.SameButtons(chord))
                 return $"{chord.Text} is already used for {name}.";
 
-        await UpdateConfigAsync(c => which switch
-        {
-            BindingKind.OpenChat => c with { OpenChatChord = chord.Text },
-            BindingKind.Dictate => c with { DictateChord = chord.Text },
-            _ => c with { RedoChord = chord.Text },
-        }, ct).ConfigureAwait(false);
+        await UpdateConfigAsync(c => which == BindingKind.OpenChat ? c with { OpenChatChord = chord.Text } : c with { DictateChord = chord.Text },
+                                ct).ConfigureAwait(false);
         bindings = ControllerBindings.From(config);
         chat.Close();
-        var label = which switch { BindingKind.OpenChat => "Open chat", BindingKind.Dictate => "Dictate", _ => "Start over" };
+        var label = which == BindingKind.OpenChat ? "Open chat" : "Dictate";
         Log.Info($"{label} is now {chord.Text}.");
         Changed();
         return null;
@@ -371,7 +363,7 @@ public sealed class Engine : IAsyncDisposable
         if (IsRunning) return true;
         if (!probe && !TryTakeControllerLock())
         {
-            StartError = "Another copy of Speak Forever is already running. Close it first, or both would type into the game.";
+            StartError = "Another copy of Speak Forever is already running. Close it first, or both would answer every press.";
             Log.Warn(StartError);
             Changed();
             return false;
@@ -390,7 +382,7 @@ public sealed class Engine : IAsyncDisposable
     }
 
     /// <summary>
-    /// One controller watcher at a time, or both would type every message. An exclusively opened
+    /// One controller watcher at a time, or both would dictate every message. An exclusively opened
     /// file rather than a named semaphore or mutex: Windows closes it if the process dies, and any
     /// thread can release it.
     /// </summary>
@@ -484,6 +476,9 @@ public sealed class Engine : IAsyncDisposable
                 prev = cur;
             }
             if (radialMenu.IsOpen && read is { } pad) OnRightStick(pad.RightX, pad.RightY);
+            // Enter sends a chat message and Esc closes chat: either way, the copied text is done with.
+            // Only watched while there is some, and only these two keys.
+            if (session.IsReady && (Native.IsKeyDown(VK_RETURN) || Native.IsKeyDown(VK_ESCAPE))) session.ChatClosing("Chat closed from the keyboard");
             Thread.Sleep(PollMs);
         }
     }
@@ -516,12 +511,6 @@ public sealed class Engine : IAsyncDisposable
             case ChatAction.Dictate:
                 session.Start(b.Dictate.Text);
                 break;
-            case ChatAction.Redo when probe:
-                Log.Info($"  would start over ({b.Redo.Text})");
-                break;
-            case ChatAction.Redo:
-                session.StartOver(b.Redo.Text);
-                break;
             // Often a binding of its own in the game, so these are noted, not complained about.
             case ChatAction.DictateWhileClosed:
                 Log.Info($"{b.Dictate.Text} with chat closed: nothing to dictate into.");
@@ -530,7 +519,7 @@ public sealed class Engine : IAsyncDisposable
                 Log.Info($"{b.Dictate.Text} in a chat menu: nothing to dictate into.");
                 break;
             case ChatAction.MenuOpened:
-                session.ChatClosing("Chat menu opened", keepsText: true);
+                session.ChatClosing("Chat menu opened", keepReady: true);
                 break;
         }
 

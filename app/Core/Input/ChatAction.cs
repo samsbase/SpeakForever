@@ -14,9 +14,6 @@ enum ChatAction
     /// <summary>The dictate button, but one of the panel's menus is open.</summary>
     DictateInMenu,
 
-    /// <summary>A menu opened over the text box: anything being dictated is dropped, the typed text stays.</summary>
+    /// <summary>A menu opened over the text box: anything being dictated is dropped, text ready to paste stays ready.</summary>
     MenuOpened,
-
-    /// <summary>The start-over button, with the text box open: delete what was dictated and listen again.</summary>
-    Redo,
 }

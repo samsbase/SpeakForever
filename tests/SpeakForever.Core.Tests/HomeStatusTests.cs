@@ -31,7 +31,17 @@ public sealed class HomeStatusTests
     public void ADictationShowsWhileItRuns()
     {
         Assert.Equal(StatusTone.Busy, Of(phase: DictationPhase.Listening).Tone);
-        Assert.Equal("Typing it into chat", Of(phase: DictationPhase.Transcribing, chatOpen: true).Headline);
+        Assert.Equal("Transcribing", Of(phase: DictationPhase.Transcribing, chatOpen: true).Headline);
+    }
+
+    [Fact]
+    public void ReadyToPasteSaysHowToPasteAndCancel()
+    {
+        var ready = Of(phase: DictationPhase.Ready, chatOpen: true);
+        Assert.Equal("Ready to paste", ready.Headline);
+        Assert.Contains("Ctrl+V", ready.Detail, StringComparison.Ordinal);
+        Assert.Contains("{1}", ready.Detail, StringComparison.Ordinal); // the dictate button cancels
+        Assert.Contains("F8", Of(controller: false, key: "F8", phase: DictationPhase.Ready).Detail, StringComparison.Ordinal);
     }
 
     [Fact]

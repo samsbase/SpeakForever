@@ -1,4 +1,3 @@
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SpeakForever.Gui.Controls;
@@ -9,14 +8,13 @@ namespace SpeakForever.Gui.Views;
 /// <summary>The in-game overlay: when it shows and what it says. The window itself is <see cref="OverlayWindow"/>.</summary>
 public sealed partial class MainWindow
 {
-    static readonly TimeSpan TooLongShowsFor = TimeSpan.FromSeconds(6);
+    const string PasteGlyph = "", WarningGlyph = "";
 
     OverlayWindow? overlay;
-    DispatcherQueueTimer? tooLongTimer;
-    bool tooLong; // the overlay is saying a message didn't fit
+    bool tooLong; // what's ready to paste is only the start of what was said
     bool overlayClosed; // the app is closing: a late dictation event mustn't open a new overlay window
 
-    /// <summary>Follows the dictation: listening, then typing, then gone, unless it's saying a message didn't fit.</summary>
+    /// <summary>Follows the dictation: listening, then transcribing, then ready to paste until it's sent, then gone.</summary>
     void UpdateOverlay()
     {
         if (engine is null || overlayClosed) return;
@@ -25,58 +23,47 @@ public sealed partial class MainWindow
             overlay?.Hide();
             return;
         }
+        bool controller = engine.ControllerSlot >= 0;
         if (phase == DictationPhase.Listening)
         {
             tooLong = false; // a new dictation: the warning has done its job
-            Overlay().Show("Listening", FinishButton(), followVoice: true);
+            Overlay().Show("Listening", FinishButton(controller), followVoice: true);
         }
-        else if (phase == DictationPhase.Transcribing) Overlay().Show("Typing…", barSpeed: 2.5);
-        else if (tooLong) ShowTooLongOverlay();
+        else if (phase == DictationPhase.Transcribing) Overlay().Show("Transcribing…", barSpeed: 2.5);
+        else if (phase == DictationPhase.Ready)
+            Overlay().Show(ReadyHeadline(tooLong), detail: ReadyDetail(controller, tooLong), glyph: tooLong ? WarningGlyph : PasteGlyph, warning: tooLong);
         else overlay?.Hide();
     }
 
-    /// <summary>The words that didn't fit in the chat box, on the Home tab and, for a few seconds, in the overlay.</summary>
+    /// <summary>The words that didn't fit in the chat box, on the Home tab; the overlay says so while the rest waits to be pasted.</summary>
     void ShowTooLong(string leftOut)
     {
-        LastHeardTooLong.Text = $"Too long for WoW's chat box, so this was left out: \"{leftOut}\"";
+        LastHeardTooLong.Text = $"Too long for WoW's chat box, so only the start was copied. Left out: \"{leftOut}\"";
         LastHeardTooLong.Visibility = Visibility.Visible;
-        if (engine?.Config.ShowOverlay != true || overlayClosed) return;
         tooLong = true;
-        ShowTooLongOverlay();
-        if (tooLongTimer is null)
-        {
-            tooLongTimer = DispatcherQueue.CreateTimer();
-            tooLongTimer.IsRepeating = false;
-            tooLongTimer.Tick += (_, _) =>
-            {
-                tooLong = false;
-                UpdateOverlay();
-            };
-        }
-        tooLongTimer.Interval = TooLongShowsFor;
-        tooLongTimer.Start(); // restarts it if a warning is already showing
     }
 
-    void ShowTooLongOverlay() =>
-        Overlay().Show("Too long for chat", warning: true, detail: TooLongDetail(engine!.ControllerSlot >= 0));
+    static string ReadyHeadline(bool cutShort) => cutShort ? "Too long for chat" : "Ready to paste";
 
-    /// <summary>Short, so the pill stays small: what was left out is on the Home tab, not quoted here.</summary>
-    Action<RichTextBlock> TooLongDetail(bool controller)
+    /// <summary>How to paste it, and how to cancel: the dictate button with a controller, otherwise the keyboard shortcut.</summary>
+    Action<RichTextBlock> ReadyDetail(bool controller, bool cutShort)
     {
         var style = engine!.ButtonStyle;
-        var redo = Chord.Parse(engine.Config.RedoChord);
+        var dictate = Chord.Parse(engine.Config.DictateChord);
+        var key = engine.Config.KeyboardShortcut ?? "the shortcut";
+        var start = cutShort ? "Only the start fits. " : "";
         return target =>
         {
-            if (controller) ButtonPrompt.Fill(target, "Press {0} to start over.", style, redo);
-            else ButtonPrompt.Fill(target, "The rest is in the app.");
+            if (controller) ButtonPrompt.Fill(target, start + "Press Ctrl+V to paste it, or {0} to cancel.", style, dictate);
+            else ButtonPrompt.Fill(target, $"{start}Press Ctrl+V to paste it, or {key} to cancel.");
         };
     }
 
     /// <summary>What finishes the dictation early: the dictate button with a controller, otherwise the keyboard shortcut.</summary>
-    FrameworkElement? FinishButton()
+    FrameworkElement? FinishButton(bool controller)
     {
         var cfg = engine!.Config;
-        if (engine.ControllerSlot >= 0) return ButtonPrompt.Icons(Chord.Parse(cfg.DictateChord), engine.ButtonStyle, size: 32);
+        if (controller) return ButtonPrompt.Icons(Chord.Parse(cfg.DictateChord), engine.ButtonStyle, size: 32);
         if (cfg.KeyboardShortcut is not { } key) return null;
         return new Border
         {
@@ -91,15 +78,28 @@ public sealed partial class MainWindow
     {
         if (overlay is not null) return overlay;
         overlay = new OverlayWindow();
-        // Its biggest message, the warning with the controller prompt: every state then fits the one pill.
-        overlay.FitTo("Too long for chat", warning: true, detail: TooLongDetail(controller: true));
+        FitOverlay();
         return overlay;
+    }
+
+    /// <summary>Sizes the pill for its biggest messages with today's buttons, so every state fits the one pill.</summary>
+    void FitOverlay() =>
+        overlay!.FitTo(("Listening", FinishButton(controller: true), null, null),
+                       ("Listening", FinishButton(controller: false), null, null),
+                       (ReadyHeadline(true), null, ReadyDetail(controller: true, cutShort: true), WarningGlyph),
+                       (ReadyHeadline(true), null, ReadyDetail(controller: false, cutShort: true), WarningGlyph));
+
+    /// <summary>After a rebind or a different controller: the new icons may be wider than the pill.</summary>
+    void RefitOverlay()
+    {
+        if (overlay is null) return;
+        FitOverlay();
+        UpdateOverlay(); // fitting filled the pill: back to what it should be saying
     }
 
     void CloseOverlay()
     {
         overlayClosed = true;
-        tooLongTimer?.Stop();
         overlay?.Close();
         overlay = null;
     }

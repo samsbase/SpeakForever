@@ -5,5 +5,4 @@ public enum BindingKind
 {
     OpenChat,
     Dictate,
-    Redo,
 }

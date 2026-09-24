@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace SpeakForever.Configuration;
@@ -13,7 +14,7 @@ public sealed record Config
 {
     /// <summary>
     /// The WoW: Forever folder, the one with the game's .exe in it: found on first run, or chosen
-    /// on the Settings tab. The app only types into a program running from here.
+    /// on the Settings tab. The dictate button only works while a program running from here is in front.
     /// </summary>
     public string GameFolder { get; init; } = "";
 
@@ -26,8 +27,8 @@ public sealed record Config
     /// <summary>Which controller to use when several are connected: 0 for the first, up to 3, or -1 for whichever is found first.</summary>
     public int ControllerSlot { get; init; } = -1;
 
-    // The app follows WoW's gamepad chat panel from these buttons, so it only ever types into an
-    // open chat box. They mirror the game's defaults; change them if you rebind the game.
+    // The app follows WoW's gamepad chat panel from these buttons, so the dictate button only
+    // dictates with the chat box open. They mirror the game's defaults; change them if you rebind the game.
 
     /// <summary>WoW's chord that opens the chat panel.</summary>
     public string OpenChatChord { get; init; } = "LB+RB+DOWN";
@@ -45,14 +46,8 @@ public sealed record Config
     public string RadialMenuChord { get; init; } = "START";
 
     /// <summary>
-    /// Starts the message over while chat is open: deletes what was dictated into the chat box and
-    /// listens again. WoW's gamepad chat box has no way to delete text, so this is how to fix a mistake.
-    /// </summary>
-    public string RedoChord { get; init; } = "DOWN";
-
-    /// <summary>
-    /// Optional system-wide shortcut, e.g. "Ctrl+Shift+Space": dictates into whatever text box has
-    /// focus, in any program, like Win+H. Off (null) by default.
+    /// Optional system-wide shortcut, e.g. "Ctrl+Shift+Space": dictates to the clipboard from any
+    /// program, like Win+H. Off (null) by default.
     /// </summary>
     public string? KeyboardShortcut { get; init; }
 
@@ -88,6 +83,9 @@ public sealed record Config
     /// real word ("Stratham" becomes Stratholme). Real words are never changed.
     /// </summary>
     public bool CorrectNames { get; init; } = true;
+
+    /// <summary>Settings earlier versions had: dropped from an old file rather than refused as misspelt.</summary>
+    static readonly string[] RemovedSettings = ["RedoChord"];
 
     /// <summary>Earlier versions' default prompts: still unchanged in a settings file, they move to the current one.</summary>
     static readonly string[] OldDefaultPrompts =
@@ -126,8 +124,8 @@ public sealed record Config
     public bool Sounds { get; init; } = true;
 
     /// <summary>
-    /// Shows "Listening" at the top of the screen, over the game, while you speak, and says when a
-    /// message is too long for the chat box.
+    /// Shows "Listening" at the top of the screen, over the game, while you speak, then "Ready to
+    /// paste" until the message is sent, and says when a message is too long for the chat box.
     /// </summary>
     public bool ShowOverlay { get; init; } = true;
 
@@ -192,8 +190,13 @@ public sealed record Config
         if (File.Exists(AppPaths.Config))
         {
             var stream = new FileStream(AppPaths.Config, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+            JsonNode? json;
             await using (stream.ConfigureAwait(false))
-                cfg = await JsonSerializer.DeserializeAsync<Config>(stream, Json, ct).ConfigureAwait(false) ?? cfg;
+                json = await JsonNode.ParseAsync(stream, documentOptions: new() { AllowTrailingCommas = true }, cancellationToken: ct).ConfigureAwait(false);
+            if (json is JsonObject settings)
+                foreach (var removed in settings.Select(p => p.Key).Where(k => RemovedSettings.Contains(k, StringComparer.OrdinalIgnoreCase)).ToList())
+                    settings.Remove(removed);
+            cfg = json.Deserialize<Config>(Json) ?? cfg;
         }
         foreach (var oldRoot in AppPaths.OldRoots)
         {

@@ -2,7 +2,7 @@ using SpeakForever.Input;
 
 namespace SpeakForever.Core.Tests;
 
-/// <summary>Following WoW's gamepad chat panel from simulated presses (probe mode: nothing is typed).</summary>
+/// <summary>Following WoW's gamepad chat panel from simulated presses (probe mode: nothing is recorded).</summary>
 public sealed class ChatPanelTests : IAsyncLifetime
 {
     readonly Engine engine = TestSetup.NewEngine();
@@ -49,29 +49,22 @@ public sealed class ChatPanelTests : IAsyncLifetime
     }
 
     [Fact]
-    public void StartingOverIsOnlyForTheTextBox()
+    public void DPadDownIsLeftToTheGame()
     {
         var b = ControllerBindings.From(new Configuration.Config());
         var panel = new ChatPanel();
-        var down = Chord.Parse("DOWN");
-        Assert.Equal(ChatAction.None, panel.OnButtons(0, down.Key, b)); // chat closed: D-pad down is the game's
         panel.Open();
-        Assert.Equal(ChatAction.Redo, panel.OnButtons(0, down.Key, b));
-        Assert.True(panel.InTextBox);
-        Assert.Equal(ChatAction.MenuOpened, panel.OnButtons(0, Gamepad.X, b));
-        Assert.Equal(ChatAction.None, panel.OnButtons(0, down.Key, b)); // moves through the channel menu
-        Assert.Equal(ChatAction.None, panel.OnButtons(Gamepad.LB | Gamepad.RB, Gamepad.LB | Gamepad.RB | Gamepad.Down, b)); // reopens chat
+        Assert.Equal(ChatAction.None, panel.OnButtons(0, Gamepad.Down, b)); // no start over any more
         Assert.True(panel.InTextBox);
     }
 
     [Fact]
-    public async Task StartingOverCanBeReboundButNotOntoAnotherButton()
+    public async Task DictateCanBeReboundButNotOntoAnotherButton()
     {
         var ct = TestContext.Current.CancellationToken;
-        Assert.Contains("already used", await engine.SetBindingAsync(BindingKind.Redo, Chord.Parse("RS"), ct), StringComparison.Ordinal);
-        Assert.Null(await engine.SetBindingAsync(BindingKind.Redo, Chord.Parse("LT+DOWN"), ct));
-        Assert.Equal("LT+DOWN", (await Configuration.Config.LoadOrCreateAsync(ct)).RedoChord);
-        Assert.Contains("starting over", await engine.SetBindingAsync(BindingKind.Dictate, Chord.Parse("LT+DOWN"), ct), StringComparison.Ordinal);
+        Assert.Contains("opening chat", await engine.SetBindingAsync(BindingKind.Dictate, Chord.Parse("LB+RB+DOWN"), ct), StringComparison.Ordinal);
+        Assert.Null(await engine.SetBindingAsync(BindingKind.Dictate, Chord.Parse("LT+DOWN"), ct));
+        Assert.Equal("LT+DOWN", (await Configuration.Config.LoadOrCreateAsync(ct)).DictateChord);
     }
 
     [Fact]

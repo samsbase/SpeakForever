@@ -13,8 +13,8 @@ namespace SpeakForever.Gui.Views;
 
 /// <summary>
 /// The in-game overlay: a pill near the top of the game's screen saying it's listening, like the
-/// picture on the website. It floats over the game without ever taking focus from it, because a
-/// dictation types into whichever window has focus, and only if that's the game. Nothing can draw
+/// picture on the website, then that the text is ready to paste. It floats over the game without
+/// ever taking focus from it, so the game's chat box keeps focus for the paste. Nothing can draw
 /// over exclusive fullscreen, so it needs WoW in Windowed (Fullscreen) or windowed mode.
 /// </summary>
 public sealed partial class OverlayWindow : Window
@@ -64,19 +64,20 @@ public sealed partial class OverlayWindow : Window
     /// <param name="headline">"Listening", say.</param>
     /// <param name="button">Icons for the button that finishes it, shown first; null for none.</param>
     /// <param name="detail">Fills a smaller line under the headline; null for none.</param>
-    /// <param name="warning">In the warning colour, with a warning sign instead of the moving bars.</param>
+    /// <param name="glyph">A Segoe Fluent icon shown still, instead of the moving bars; null for the bars.</param>
+    /// <param name="warning">In the warning colour.</param>
     /// <param name="barSpeed">How fast the bars move: 1 while listening, faster while transcribing.</param>
     /// <param name="followVoice">The bars rise and fall with the mic (<see cref="ShowLevel"/>) instead of on their own.</param>
-    public void Show(string headline, FrameworkElement? button = null, Action<RichTextBlock>? detail = null, bool warning = false,
-        double barSpeed = 1, bool followVoice = false)
+    public void Show(string headline, FrameworkElement? button = null, Action<RichTextBlock>? detail = null, string? glyph = null,
+        bool warning = false, double barSpeed = 1, bool followVoice = false)
     {
-        Fill(headline, button, detail, warning);
+        Fill(headline, button, detail, glyph, warning);
 
         // Still while nothing's happening, and with Windows' animation effects off; the bars still show it's listening.
         Wave.Stop();
-        this.followVoice = followVoice && !warning && Settings.AnimationsEnabled;
+        this.followVoice = followVoice && glyph is null && Settings.AnimationsEnabled;
         if (this.followVoice) ShowLevel(0);
-        else if (!warning && Settings.AnimationsEnabled)
+        else if (glyph is null && Settings.AnimationsEnabled)
         {
             Wave.SpeedRatio = barSpeed;
             Wave.Begin();
@@ -90,19 +91,27 @@ public sealed partial class OverlayWindow : Window
     }
 
     /// <summary>
-    /// Fixes the pill at the size of this content, the longest it'll show, so changing state only
-    /// changes what's inside it. It stays a pill however tall that makes it.
+    /// Fixes the pill at the size of the largest of these contents, so changing state only changes
+    /// what's inside it. It stays a pill however tall that makes it. Called again when the buttons change.
     /// </summary>
-    public void FitTo(string headline, FrameworkElement? button = null, Action<RichTextBlock>? detail = null, bool warning = false)
+    public void FitTo(params (string Headline, FrameworkElement? Button, Action<RichTextBlock>? Detail, string? Glyph)[] states)
     {
-        Fill(headline, button, detail, warning);
-        Pill.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        Pill.Width = Pill.DesiredSize.Width - Pill.Margin.Left - Pill.Margin.Right;
-        Pill.Height = Pill.DesiredSize.Height - Pill.Margin.Top - Pill.Margin.Bottom;
-        Pill.CornerRadius = new CornerRadius(Pill.Height / 2);
+        Pill.Width = Pill.Height = double.NaN; // measured at their own size, not the last fit's
+        double width = 0, height = 0;
+        foreach (var (headline, button, detail, glyph) in states)
+        {
+            Fill(headline, button, detail, glyph, warning: false);
+            Pill.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            width = Math.Max(width, Pill.DesiredSize.Width - Pill.Margin.Left - Pill.Margin.Right);
+            height = Math.Max(height, Pill.DesiredSize.Height - Pill.Margin.Top - Pill.Margin.Bottom);
+        }
+        Pill.Width = width;
+        Pill.Height = height;
+        Pill.CornerRadius = new CornerRadius(height / 2);
+        if (shown) Place(); // refitted while up: the window follows the pill
     }
 
-    void Fill(string headline, FrameworkElement? button, Action<RichTextBlock>? detail, bool warning)
+    void Fill(string headline, FrameworkElement? button, Action<RichTextBlock>? detail, string? glyph, bool warning)
     {
         ButtonSlot.Child = button;
         ButtonSlot.Visibility = button is null ? Visibility.Collapsed : Visibility.Visible;
@@ -110,9 +119,11 @@ public sealed partial class OverlayWindow : Window
         Detail.Blocks.Clear();
         detail?.Invoke(Detail);
         Detail.Visibility = detail is null ? Visibility.Collapsed : Visibility.Visible;
-        WarningIcon.Visibility = warning ? Visibility.Visible : Visibility.Collapsed;
-        Bars.Visibility = warning ? Visibility.Collapsed : Visibility.Visible;
-        Pill.BorderBrush = (Brush)Application.Current.Resources[warning ? "WarningBrush" : "ArcaneBrush"];
+        Icon.Glyph = glyph ?? "";
+        Icon.Visibility = glyph is null ? Visibility.Collapsed : Visibility.Visible;
+        Bars.Visibility = glyph is null ? Visibility.Visible : Visibility.Collapsed;
+        var colour = (Brush)Application.Current.Resources[warning ? "WarningBrush" : "ArcaneBrush"];
+        Pill.BorderBrush = Icon.Foreground = colour;
     }
 
     /// <summary>

@@ -48,7 +48,7 @@ WizardSmallImageFile=art\wizard-small-100.png,art\wizard-small-125.png,art\wizar
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-WelcomeLabel2=This will install [name/ver] on your computer.%n%nChat in World of Warcraft: Forever with your voice. Open chat, press a button on your controller or a keyboard shortcut, and speak: your words appear in the chat box.%n%nSpeech is recognised on your own PC, and nothing you say is sent anywhere. When it first opens, Speak Forever helps you download a voice model: Turbo (574 MB) is recommended.
+WelcomeLabel2=This will install [name/ver] on your computer.%n%nChat in World of Warcraft: Forever with your voice. Open chat, press a button on your controller or a keyboard shortcut, and speak: your words are copied, ready to paste into the chat box with Ctrl+V.%n%nSpeech is recognised on your own PC, and nothing you say is sent anywhere. When it first opens, Speak Forever helps you download a voice model: Turbo (574 MB) is recommended.
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; Flags: unchecked

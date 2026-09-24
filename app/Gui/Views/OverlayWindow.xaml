@@ -23,8 +23,8 @@
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <!-- The button that finishes the dictation, as the controller's own icon, or the keyboard shortcut. -->
                 <Border x:Name="ButtonSlot" VerticalAlignment="Center" />
-                <FontIcon x:Name="WarningIcon" Glyph="&#xE7BA;" FontSize="22" Margin="8,0,0,0" VerticalAlignment="Center"
-                          Foreground="{StaticResource WarningBrush}" Visibility="Collapsed" />
+                <!-- In place of the bars once it's done listening: ready to paste, or a warning. -->
+                <FontIcon x:Name="Icon" FontSize="22" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" />
                 <StackPanel VerticalAlignment="Center" Spacing="1">
                     <TextBlock x:Name="Headline" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource BrightBrush}" />
                     <RichTextBlock x:Name="Detail" FontSize="13" MaxWidth="440" Foreground="{StaticResource BodyBrush}" TextWrapping="Wrap"

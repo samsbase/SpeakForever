@@ -1,7 +1,5 @@
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using SpeakForever.Configuration;
-using SpeakForever.Interop;
 using SpeakForever.Logging;
 using SpeakForever.Speech;
 
@@ -26,31 +24,6 @@ static class Diagnostics
         }
         Log.Info($"Heard {seconds:F1}s, transcribed in {took.TotalMilliseconds:F0} ms:");
         Log.Info($"  \"{text}\"");
-        return 0;
-    }
-
-    /// <summary>Does typed text reach WoW's chat box? Open chat in game within the countdown.</summary>
-    public static async Task<int> TestTypeAsync(Config cfg, string text, CancellationToken ct)
-    {
-        const int Seconds = 5;
-        Log.Info($"Typing \"{text}\" in {Seconds}s. Switch to WoW and open the chat box now.");
-        for (int i = Seconds; i > 0; i--)
-        {
-            Log.Info($"{i}...");
-            await Task.Delay(TimeSpan.FromSeconds(1), ct);
-        }
-        var fg = Native.Foreground();
-        if (!cfg.IsGame(fg.Process, fg.Path))
-        {
-            Log.Warn($"Not typing: foreground is '{fg.Process}', not the game.");
-            return 1;
-        }
-        if (Native.TypeText(text) is { } error)
-        {
-            Log.Warn(error);
-            return 1;
-        }
-        Log.Info("Typed. Check the chat box, then press B to discard it.");
         return 0;
     }
 

@@ -60,7 +60,7 @@ public sealed partial class MainWindow
         if (engine is null) return;
         GameFolderText.Text = engine.GameFound ? engine.Config.GameFolder : gameChecked ? "Not found" : "Looking…";
         if (gameChecked && !engine.GameFound)
-            GameNotice.Show("Where's WoW: Forever?", "Speak Forever couldn't find the game. Show it where WoW: Forever is installed so it can type into it.", "Open Settings");
+            GameNotice.Show("Where's WoW: Forever?", "Speak Forever couldn't find the game. Show it where WoW: Forever is installed, so the dictate button works while the game is in front.", "Open Settings");
         else
             GameNotice.Show(null);
     }
@@ -147,7 +147,7 @@ public sealed partial class MainWindow
         {
             XamlRoot = Content.XamlRoot,
             Title = "Where's WoW: Forever?",
-            Content = "Speak Forever only types into WoW: Forever, so it needs to know where the game is. "
+            Content = "The controller's dictate button only works while WoW: Forever is in front, so Speak Forever needs to know where the game is. "
                       + "It isn't where Battle.net usually installs it.\n\n"
                       + "Choose the game's folder. For the beta, that's World of Warcraft\\_classic_beta_, "
                       + "though the World of Warcraft folder works too.",
@@ -183,7 +183,7 @@ public sealed partial class MainWindow
         {
             error = $"Couldn't save the folder: {e.Message}";
         }
-        ShowGameMessage(error ?? "Got it. Speak Forever will type into the game in this folder.", error is not null);
+        ShowGameMessage(error ?? "Got it. The dictate button works while the game in this folder is in front.", error is not null);
         UpdateState();
     }
 

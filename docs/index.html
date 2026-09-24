@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Speak Forever: voice chat for WoW: Forever</title>
-  <meta name="description" content="Chat in World of Warcraft: Forever with your voice. Click the right stick, say your message and press A to send. Free for Windows, and speech never leaves your PC.">
+  <meta name="description" content="Chat in World of Warcraft: Forever with your voice. Click the right stick, say your message, paste it with Ctrl+V and press A to send. Free for Windows, and speech never leaves your PC.">
   <meta property="og:title" content="Speak Forever">
   <meta property="og:description" content="Your adventure doesn't stop for chat. Talk in WoW: Forever with your voice.">
   <meta property="og:image" content="https://speakforever.app/images/home.png">
@@ -134,7 +134,7 @@
     .card svg { width: 28px; height: 28px; }
 
     /* Steps */
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; list-style: none; margin: 0; padding: 0; text-align: center; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; list-style: none; margin: 0; padding: 0; text-align: center; }
     .steps li { display: flex; flex-direction: column; align-items: center; gap: 14px; }
     .steps .buttons { display: flex; gap: 6px; }
     .steps p { max-width: 300px; }
@@ -197,7 +197,7 @@
         <div class="copy">
           <span class="eyebrow">Free · for World of Warcraft: Forever</span>
           <h1>Your adventure doesn't stop for chat.</h1>
-          <p class="lead">Click the right stick, say your message, and it's typed into WoW's chat box. Press <span class="pad a">A</span> to send. No addon, no keyboard, and your voice never leaves your PC.</p>
+          <p class="lead">Click the right stick and say your message. Speak Forever copies it, you paste it into WoW's chat box with Ctrl+V and press <span class="pad a">A</span> to send. No addon, nothing pressed in the game for you, and your voice never leaves your PC.</p>
           <div class="actions">
             <a class="button" data-download href="https://github.com/samsbase/SpeakForever/releases/latest">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg>
@@ -215,7 +215,7 @@
           </div>
         </div>
 
-        <div class="scene" role="img" aria-label="Speak Forever listening, and the words you said appearing in WoW's chat box, ready to send with A.">
+        <div class="scene" role="img" aria-label="Speak Forever listening, and the words you said pasted into WoW's chat box, ready to send with A.">
           <div class="listening"><span class="pad big">RS</span>Listening<span class="wave"><i></i><i></i><i></i><i></i><i></i></span></div>
           <div class="chat" aria-hidden="true">
             <span class="guild">[Guild] [Thalwen]: anyone up for Deadmines tonight?</span>
@@ -238,7 +238,7 @@
         <div class="card">
           <svg viewBox="0 0 24 24" fill="none" stroke="#7AA7FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z"/></svg>
           <h3>Fast enough to feel instant</h3>
-          <p>Eight seconds of speech typed in about a third of a second, and it knows WoW's place names.</p>
+          <p>Eight seconds of speech transcribed in about a third of a second, and it knows WoW's place names.</p>
         </div>
         <div class="card">
           <svg viewBox="0 0 24 24" fill="none" stroke="#7AA7FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10a5 5 0 0 1 4.6 6.9l-1.3 3.2a2 2 0 0 1-3.4.5L15 15H9l-1.9 2.6a2 2 0 0 1-3.4-.5l-1.3-3.2A5 5 0 0 1 7 7Z"/><path d="M8 10v3M6.5 11.5h3"/></svg>
@@ -250,11 +250,12 @@
 
     <section id="how">
       <div class="wrap">
-        <h2>Three presses, no typing</h2>
+        <h2>Say it, paste it, send it</h2>
         <ol class="steps">
           <li><span class="buttons"><span class="pad big">LB</span><span class="pad big">RB</span><span class="pad big">Down</span></span><h3>Open chat</h3><p>The way you always do, or pick Chat from the radial menu.</p></li>
-          <li><span class="buttons"><span class="pad big">RS</span></span><h3>Say it</h3><p>Click the right stick, wait for the beep and talk. Pause, and it's typed for you.</p></li>
-          <li><span class="buttons"><span class="pad big a">A</span></span><h3>Send</h3><p>Said it wrong? <span class="pad">Down</span> deletes it and listens again. <span class="pad">B</span> backs out, as it always does.</p></li>
+          <li><span class="buttons"><span class="pad big">RS</span></span><h3>Say it</h3><p>Click the right stick, wait for the beep and talk. Pause, and it's ready to paste.</p></li>
+          <li><span class="buttons"><span class="pad big">Ctrl</span><span class="pad big">V</span></span><h3>Paste it</h3><p>Paste it into the chat box. Changed your mind? <span class="pad">RS</span> again cancels it.</p></li>
+          <li><span class="buttons"><span class="pad big a">A</span></span><h3>Send</h3><p>Check it and send it. <span class="pad">B</span> backs out, as it always does.</p></li>
         </ol>
       </div>
     </section>
@@ -265,8 +266,8 @@
         <div class="faq">
           <details open>
             <summary>What does it actually do in the game?</summary>
-            <p>Only what you'd do yourself. There's no addon, and it doesn't touch the game's files. It watches your controller for the buttons that open chat, and when you speak, it types your words into the chat box you opened. Nothing is sent until you press <span class="pad a">A</span>, and it never presses anything else for you.</p>
-            <p>Blizzard's rules on input tools are aimed at controlling several game clients at once; Speak Forever types your own words into one, as dictation software does. Blizzard hasn't explicitly approved it, though.</p>
+            <p>Nothing. It never presses a key in the game, there's no addon, and it doesn't touch the game's files. It watches your controller for the buttons that open chat, and when you speak, it puts your words on the clipboard. You paste them with Ctrl+V and send them yourself.</p>
+            <p>Blizzard hasn't approved Speak Forever, though, and its terms forbid third-party software it hasn't authorised, so use it at your own risk.</p>
           </details>
           <details open id="smartscreen">
             <summary>Why does Windows warn me when I install it?</summary>
@@ -281,8 +282,12 @@
             <p>The recommended voice model uses about 1 GB of memory, and only works while it's turning your speech into text: about a third of a second a message on a graphics card. PCs without a capable graphics card can use a smaller model that runs on the processor.</p>
           </details>
           <details>
+            <summary>Can I paste with my controller?</summary>
+            <p>Yes, with a button mapped to Ctrl+V. Speak Forever deliberately doesn't press it for you, but your controller's own software, Steam Input, or a controller that can send keyboard keys can map a spare button to it.</p>
+          </details>
+          <details>
             <summary>I play with a keyboard. Does it work for me?</summary>
-            <p>Yes. Pick any key or combination as a shortcut, open chat with Enter, press your shortcut and speak. It works like Windows+H.</p>
+            <p>Yes. Pick any key or combination as a shortcut, press it and speak, then open chat with Enter and paste with Ctrl+V. It works like Windows+H.</p>
           </details>
           <details>
             <summary>What do I need?</summary>

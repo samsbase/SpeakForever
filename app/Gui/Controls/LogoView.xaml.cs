@@ -3,7 +3,7 @@ using Windows.UI.ViewManagement;
 
 namespace SpeakForever.Gui.Controls;
 
-/// <summary>The Speak Forever logo, which comes alive while a dictation is under way.</summary>
+/// <summary>The Speak Forever logo, which comes alive while it listens and transcribes.</summary>
 public sealed partial class LogoView : UserControl
 {
     static readonly UISettings Settings = new();
@@ -17,7 +17,7 @@ public sealed partial class LogoView : UserControl
     public void Show(DictationPhase phase)
     {
         Pulse.Stop();
-        bool active = phase != DictationPhase.Idle;
+        bool active = phase is DictationPhase.Listening or DictationPhase.Transcribing;
         bool animate = Settings.AnimationsEnabled;
         ShowStill(active && !animate);
         if (!active || !animate) return;

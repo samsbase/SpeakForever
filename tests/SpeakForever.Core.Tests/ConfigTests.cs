@@ -57,10 +57,18 @@ public sealed class ConfigTests
     }
 
     [Fact]
+    public async Task ASettingEarlierVersionsHadIsDroppedNotRefused()
+    {
+        Write("""{ "redoChord": "DOWN", "SilenceMs": 2000 }""");
+        Assert.Equal(2000, (await Load()).SilenceMs);
+        Assert.DoesNotContain("RedoChord", File.ReadAllText(AppPaths.Config), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task CommentsAreRefusedRatherThanLostOnTheNextSave()
     {
         Write("{ // my notes\n  \"SilenceMs\": 2000 }");
-        await Assert.ThrowsAsync<JsonException>(Load);
+        await Assert.ThrowsAnyAsync<JsonException>(Load);
     }
 
     [Fact]

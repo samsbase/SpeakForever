@@ -7,7 +7,9 @@
 
 **[Website and download](https://speakforever.app/)**
 
-Chat in **World of Warcraft: Forever** with your voice. Open chat with your controller, click the right stick, and say your message: it's typed into the chat box, and you press **A** to send it. Keyboard players can use a shortcut instead, which works like Windows+H.
+Chat in **World of Warcraft: Forever** with your voice. Open chat with your controller, click the right stick, and say your message: Speak Forever copies it, you paste it into the chat box with **Ctrl+V**, and press **A** to send it. Keyboard players can use a shortcut instead, which works like Windows+H.
+
+Speak Forever never presses a key in the game. It only puts your words on the clipboard; pasting and sending is up to you.
 
 Speech recognition is [Whisper](https://github.com/openai/whisper), running on your own PC through [whisper.cpp](https://github.com/ggml-org/whisper.cpp). What you say never leaves your computer. There's no addon: Speak Forever works alongside WoW's own gamepad chat panel.
 
@@ -32,7 +34,7 @@ WoW: Forever is in beta; Speak Forever works with the beta client.
 
 The first time it opens, Speak Forever walks you through three steps:
 
-1. **It finds WoW: Forever** where Battle.net installed it. If it can't, choose the folder with the game in it (in the beta, `World of Warcraft\_classic_beta_`; choosing the `World of Warcraft` folder works too). You can change it any time on the **Settings** tab. Speak Forever only ever types into the game it finds there.
+1. **It finds WoW: Forever** where Battle.net installed it. If it can't, choose the folder with the game in it (in the beta, `World of Warcraft\_classic_beta_`; choosing the `World of Warcraft` folder works too). You can change it any time on the **Settings** tab. The controller's dictate button only works while that game is in front.
 2. **It downloads a voice model**: Turbo, unless you choose a different one on the **Voice model** tab, where each model shows its download size and how much memory it uses while running. Downloads come from the whisper.cpp project on Hugging Face and are checked against a SHA-256 hash.
 
    | Model | Download | Memory while running | Notes |
@@ -54,14 +56,14 @@ Then **leave Speak Forever running** while you play. Play WoW in **Windowed (Ful
 
 1. **LB+RB+Down** opens the chat panel, as normal. Opening Chat from the radial menu (the **Menu** button) works too.
 2. **Click the right stick** (RS). You hear a beep: speak for as long as you like.
-3. Stop talking and it finishes after a 1.5 second pause, or **click RS again** to finish straight away. A rising two-tone beep means it heard you, and your words appear in the chat box a second or two later.
-4. **A** sends it. **B** backs out. **X** changes channel, as normal.
+3. Stop talking and it finishes after a 1.5 second pause, or **click RS again** to finish straight away. A rising two-tone beep means it heard you, and a second or two later the overlay says **Ready to paste**.
+4. **Ctrl+V** pastes it into the chat box. Check it, then **A** sends it. **B** backs out. **X** changes channel, as normal.
 
-Click RS again to add more to the same message. Pressing A or B while you're speaking discards it.
+Changed your mind? **Click RS again** while it says *Ready to paste*: that cancels it and takes it off the clipboard. Click RS once more to dictate again. Sending or closing chat (A, B, Enter or Esc) finishes with it; the text stays on the clipboard until the next dictation replaces it. Pressing A or B while you're speaking discards it.
 
-**Starting over:** WoW's chat box has no delete, so with chat open, **D-pad down** deletes everything you dictated into it and listens again. It works while you're still speaking or it's still transcribing too: that attempt is dropped and it starts listening afresh. Change the button on the **Controls** tab.
+**Pasting from the controller:** Speak Forever deliberately doesn't press Ctrl+V for you. To paste without reaching for the keyboard, map a spare button to Ctrl+V in your controller's own software or in Steam Input, or use a controller that can send keyboard keys itself.
 
-Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open, and it never types into anything but the game, so stray words can't turn into key presses in game.
+Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open and the game is in front.
 
 **Changing the buttons:** on the **Controls** tab (with a controller connected), click **Change**, hold any modifier buttons, press the last button, then let go. Speak Forever can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here.
 
@@ -69,11 +71,11 @@ Speak Forever follows the chat panel by watching the same buttons WoW does. RS o
 
 On the **Controls** tab, click **Change** next to *Dictate (keyboard)* and press any key or combination, such as Ctrl+Shift+Space or F8. While Speak Forever is active, Windows sends that key to Speak Forever instead of the program you're in, so pick one you don't need elsewhere, or pause Speak Forever when you do.
 
-Like Windows+H, the shortcut types into **whatever has focus**: in WoW, open chat with Enter first, then press the shortcut and speak. Press it again to finish early.
+Like Windows+H, the shortcut works in **any program**: press it and speak, then paste with Ctrl+V wherever you like. In WoW, open chat with Enter, paste, and press Enter to send. Press the shortcut again to finish early, or, while it says *Ready to paste*, to cancel.
 
 ### The overlay
 
-While you speak, a small **Listening** pill shows at the top of the screen, over the game, with the button that finishes early. It says **Typing…** while it transcribes, then disappears. If a message is too long for the chat box, it says so for a few seconds instead, with the words that were left out and the button to start over.
+While you speak, a small **Listening** pill shows at the top of the screen, over the game, with the button that finishes early. It says **Transcribing…**, then **Ready to paste** with the button that cancels, and stays until you send the message or close chat. If a message is too long for the chat box, it says **Too long for chat** instead: only the start was copied.
 
 It never takes focus from the game. It shows over WoW in **Windowed (Fullscreen)** or windowed mode (nothing can draw over exclusive fullscreen). Turn it off on the **Settings** tab.
 
@@ -83,13 +85,13 @@ A beep means it's listening. A rising two-tone means it heard you and is transcr
 
 ### The window
 
-The Home tab's status says what Speak Forever is doing and what to press next: **Ready**, **Listening…**, **Typing it into chat**, or what it needs from you. **Active / Paused** beside it turns Speak Forever on and off. The logo in the title bar ripples while it's listening and quickens while transcribing.
+The Home tab's status says what Speak Forever is doing and what to press next: **Ready**, **Listening…**, **Transcribing**, **Ready to paste**, or what it needs from you. **Active / Paused** beside it turns Speak Forever on and off. The logo in the title bar ripples while it's listening and quickens while transcribing.
 
 | Tab | What's there |
 |---|---|
 | **Home** | The status, anything that needs your attention, the last message (with timings and **Copy**), the model, microphone (**Test**) and shortcut at a glance, and **Show activity** for the log |
 | **Voice model** | The model in use and **Test microphone**; download, switch (**Use**) or delete others (**Show advanced models** for the two larger Turbos); how long a pause ends a dictation |
-| **Controls** | The controller buttons (open chat, dictate, start over) and the keyboard shortcut |
+| **Controls** | The controller buttons (open chat, dictate) and the keyboard shortcut |
 | **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); the in-game overlay; version, **Check for updates**, and whether to check automatically; starting when you sign in to Windows |
 
 The window opens tall enough that no tab needs scrolling, as far as the screen allows.
@@ -101,14 +103,15 @@ Your voice is recognised on your PC and never sent anywhere. Speak Forever conne
 ## Limitations
 
 - **Chat opened with the keyboard** (Enter) isn't seen by the controller tracking, so RS won't dictate into it. Open chat with the controller, or use the keyboard shortcut.
-- **The keyboard shortcut types into whatever has focus.** In WoW, open chat first, or the words become key presses.
-- **WoW's chat box holds 255 characters**, about 40–50 words, however many dictations go into it. What doesn't fit is cut at the last whole word; the overlay and the Home tab say what was left out, and D-pad down starts the message over.
+- **Pasting needs Ctrl+V**: a keyboard, or a button mapped to it (see *Pasting from the controller*).
+- **Your clipboard is used.** Each dictation replaces what was on it. It's kept out of Windows clipboard history (Win+V) and cloud clipboard sync.
+- **WoW's chat box holds 255 characters**, about 40–50 words. Only what fits is copied, cut at the last whole word; the overlay and the Home tab say what was left out.
 - **Dictation ends on a pause**, detected by volume. Loud game audio through speakers can keep it listening; a headset avoids that.
-- **Terms of service:** Speak Forever types only your own dictated words into one game client, as dictation software does. Blizzard's enforced policy targets input broadcasting across several clients, but Blizzard hasn't explicitly approved this.
+- **Terms of service:** Speak Forever doesn't read the game or send it any input: it puts your own dictated words on the clipboard, and you paste and send them. Blizzard hasn't approved it, though, and its terms forbid third-party software it hasn't authorised, so use it at your own risk.
 
 ## Troubleshooting
 
-- **Nothing is typed:** check the Home tab's status and notices. Speak Forever needs a voice model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
+- **Nothing to paste:** check the Home tab's status and notices. Speak Forever needs a voice model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
 - **"Chat isn't open":** open chat with LB+RB+Down (or the radial menu), not Enter, or use the keyboard shortcut.
 - **It keeps listening:** raise the pause on the Voice model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
 - **No overlay:** it's on the Settings tab, and it can't show over exclusive fullscreen: set WoW's display mode to Windowed (Fullscreen).
@@ -122,13 +125,12 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 
 | Key | Default | Meaning |
 |---|---|---|
-| `GameFolder` | found on first run | The WoW: Forever folder. Speak Forever only types into a program running from here. Set on the Settings tab. |
+| `GameFolder` | found on first run | The WoW: Forever folder. The controller's dictate button only works while a program from here is in front. Set on the Settings tab. |
 | `ProcessNames` | `["WowB"]` | Used only while `GameFolder` isn't set: game process names without `.exe`. |
 | `ControllerSlot` | `-1` | With several controllers connected, which to use: `0` for the first, up to `3`. `-1` uses whichever is found first. |
 | `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Controls tab. Buttons are named by position, Xbox-style: `A` is the bottom face button on every controller (Cross on PlayStation, B on Switch), and the app shows your controller's own icons. |
-| `DictateChord` | `RS` | Starts a dictation while chat is open. Also set in the app. |
+| `DictateChord` | `RS` | Starts a dictation while chat is open, and cancels one that's ready to paste. Also set in the app. |
 | `RadialMenuChord` | `START` | WoW's radial menu button, so chat opened from the radial is seen too |
-| `RedoChord` | `DOWN` | With chat open, deletes what was dictated into the chat box and listens again. Set on the Controls tab. |
 | `KeyboardShortcut` | `null` (off) | e.g. `Ctrl+Shift+Space`. Set in the app. |
 | `SendChord`, `BackChord` | `A`, `B` | The chat panel's Send and Back |
 | `MenuChords` | `X`, `Y` | The chat panel's Chat Channels and Tab Settings menus |
@@ -148,19 +150,20 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `Sounds` | `true` | The sound cues |
 | `ShowOverlay` | `true` | The in-game overlay. Set on the Settings tab. |
 
+`RedoChord`, from versions that had *Start over*, is dropped from an older file when it loads.
+
 ### Command line (`SpeakForeverCli.exe`, installed beside the app)
 
 | Command | Does |
 |---|---|
 | *(none)* | Headless mode: the app without a window |
-| `--probe` | Logs controller presses and chat tracking; records and types nothing |
+| `--probe` | Logs controller presses and chat tracking; records and copies nothing |
 | `--test-mic` | One dictation from the microphone, printed with timings |
-| `--test-type [text]` | Types text into WoW's chat box after a 5 second countdown |
 | `--transcribe file.wav` | Transcribes a file |
 | `--benchmark [filter]` | Memory, speed and accuracy for every installed model (below) |
 | `--model path …` | Uses a different model for any of the above |
 
-Only one copy, app or command line, watches the controller at a time; otherwise both would type every message.
+Only one copy, app or command line, watches the controller at a time; otherwise both would dictate every message.
 
 ### Benchmark
 
@@ -208,10 +211,10 @@ Namespaces follow folders.
 | `app\Core\Game` | Finding WoW: Forever in a Battle.net install |
 | `app\Core\Input` | Reading controllers (SDL3, with SDL_GameControllerDB), chords, the chat panel and radial menu trackers, the keyboard shortcut |
 | `app\Core\Speech` | Recording, end-of-speech detection, Whisper, the model catalog and downloads |
-| `app\Core\Dictation` | One dictation from button to typed text, and the sound cues |
+| `app\Core\Dictation` | One dictation from button to copied text, and the sound cues |
 | `app\Core\Updates` | Checking GitHub for a newer release |
 | `app\Core\Presentation` | The model list's row view model (no UI types, so it's tested without WinUI) |
-| `app\Core\Interop`, `app\Core\Logging` | Typing via SendInput; the log |
+| `app\Core\Interop`, `app\Core\Logging` | The clipboard and the foreground window; the log |
 | `app\Gui` | The WinUI 3 app: `Views\MainWindow` (one partial file per tab), `Controls`, `Models` |
 | `app\Cli` | The command line; `Commands` has the benchmark and setup checks |
 | `tests\SpeakForever.Core.Tests` | The engine's tests |

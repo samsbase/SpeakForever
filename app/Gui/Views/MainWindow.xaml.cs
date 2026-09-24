@@ -170,8 +170,7 @@ public sealed partial class MainWindow : Window
     {
         StatusHeadline.Text = headline;
         if (engine is null) ButtonPrompt.Fill(StatusText, detail);
-        else ButtonPrompt.Fill(StatusText, detail, engine.ButtonStyle, Chord.Parse(engine.Config.OpenChatChord), Chord.Parse(engine.Config.DictateChord),
-                               Chord.Parse(engine.Config.RedoChord));
+        else ButtonPrompt.Fill(StatusText, detail, engine.ButtonStyle, Chord.Parse(engine.Config.OpenChatChord), Chord.Parse(engine.Config.DictateChord));
         StatusDot.Fill = StatusRing.Stroke = StatusIcon.Foreground = Brush($"Tone{tone}Brush");
         StatusRing.Fill = Brush($"Tone{tone}FillBrush");
         StatusIcon.Glyph = tone == StatusTone.Problem ? "\uE7BA" : "\uE720"; // warning, or the microphone
@@ -211,7 +210,7 @@ public sealed partial class MainWindow : Window
         LastHeardMeta.Visibility = Visibility.Visible;
         var model = engine?.LoadedModel is { } path ? ModelCatalog.DisplayName(path) : "?";
         LastHeardMeta.Text = $"{seconds:F1} s of speech · transcribed in {took.TotalMilliseconds:F0} ms by {model}";
-        LastHeardTooLong.Visibility = Visibility.Collapsed; // until it's typed, and turns out not to fit
+        LastHeardTooLong.Visibility = Visibility.Collapsed; // until it's copied, and turns out not to fit
     }
 
     void CopyHeardButton_Click(object sender, RoutedEventArgs e)
