@@ -113,7 +113,7 @@ public sealed record Config
 
     /// <summary>
     /// Shows "Listening" at the top of the screen, over the game, while you speak, then "Ready to
-    /// paste" until the message is sent, and says when a message is too long for the chat box.
+    /// paste" until you paste it, and says when a message is too long for the chat box.
     /// </summary>
     public bool ShowOverlay { get; init; } = true;
 

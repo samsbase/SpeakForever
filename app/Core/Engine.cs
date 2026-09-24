@@ -19,7 +19,7 @@ public sealed class Engine : IAsyncDisposable
 {
     const int PollMs = 8;      // Windows' timer tick makes this ~15 ms in practice: still under a frame
     const int RescanMs = 1000; // look for a new controller once a second
-    const int VK_RETURN = 0x0D, VK_ESCAPE = 0x1B;
+    const int VK_RETURN = 0x0D, VK_ESCAPE = 0x1B, VK_CONTROL = 0x11, VK_V = 0x56;
 
     readonly HotkeyListener hotkey = new();
     readonly RadialMenu radialMenu = new();
@@ -431,9 +431,13 @@ public sealed class Engine : IAsyncDisposable
                 prev = cur;
             }
             if (radialMenu.IsOpen && read is { } pad) OnRightStick(pad.RightX, pad.RightY);
-            // Enter sends a chat message and Esc closes chat: either way, the copied text is done with.
-            // Only watched while there is some, and only these two keys.
-            if (session.IsReady && (Native.IsKeyDown(VK_RETURN) || Native.IsKeyDown(VK_ESCAPE))) session.ChatClosing("Chat closed from the keyboard");
+            // Ctrl+V pastes it, Enter sends a chat message and Esc closes chat: any of them, and the
+            // copied text is done with. Only watched while there is some, and only these keys.
+            if (session.IsReady)
+            {
+                if (Native.IsKeyDown(VK_CONTROL) && Native.IsKeyDown(VK_V)) session.ChatClosing("Pasted");
+                else if (Native.IsKeyDown(VK_RETURN) || Native.IsKeyDown(VK_ESCAPE)) session.ChatClosing("Chat closed from the keyboard");
+            }
             Thread.Sleep(PollMs);
         }
     }

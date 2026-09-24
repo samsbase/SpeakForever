@@ -58,7 +58,7 @@ Then **leave Speak Forever running** while you play. Play WoW in **Windowed (Ful
 3. Stop talking and it finishes after a 1.5 second pause, or **click RS again** to finish straight away. A rising two-tone beep means it heard you, and a second or two later the overlay says **Ready to paste**.
 4. **Ctrl+V** pastes it into the chat box. Check it, then **A** sends it. **B** backs out. **X** changes channel, as normal.
 
-Changed your mind? **Click RS again** while it says *Ready to paste*: that cancels it and takes it off the clipboard. Click RS once more to dictate again. Sending or closing chat (A, B, Enter or Esc) finishes with it; the text stays on the clipboard until the next dictation replaces it. Pressing A or B while you're speaking discards it.
+Changed your mind? **Click RS again** while it says *Ready to paste*: that cancels it and takes it off the clipboard. Click RS once more to dictate again. Pasting it (Ctrl+V), or sending or closing chat (A, B, Enter or Esc), finishes with it, and RS dictates again straight away; the text stays on the clipboard until the next dictation replaces it. Pressing A or B while you're speaking discards it.
 
 **Pasting from the controller:** Speak Forever deliberately doesn't press Ctrl+V for you. To paste without reaching for the keyboard, map a spare button to Ctrl+V in your controller's own software or in Steam Input, or use a controller that can send keyboard keys itself.
 
@@ -74,7 +74,7 @@ Like Windows+H, the shortcut works in **any program**: press it and speak, then 
 
 ### The overlay
 
-While you speak, a small **Listening** pill shows at the top of the screen, over the game, with the button that finishes early. It says **Transcribing…**, then **Ready to paste** with the button that cancels, and stays until you send the message or close chat. If a message is too long for the chat box, it says **Too long for chat** instead: only the start was copied.
+While you speak, a small **Listening** pill shows at the top of the screen, over the game, with the button that finishes early. It says **Transcribing…**, then **Ready to paste** with the button that cancels, and stays until you paste it (or send or close chat). If a message is too long for the chat box, it says **Too long for chat** instead: only the start was copied.
 
 It never takes focus from the game. It shows over WoW in **Windowed (Fullscreen)** or windowed mode (nothing can draw over exclusive fullscreen). Turn it off on the **Settings** tab.
 

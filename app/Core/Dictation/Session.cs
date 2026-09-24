@@ -9,8 +9,8 @@ namespace SpeakForever.Dictation;
 /// <summary>
 /// One dictation at a time: record until you pause (or press the trigger again) → transcribe →
 /// copy to the clipboard, for you to paste into chat with Ctrl+V. Speak Forever never presses a
-/// key in the game. The text is then ready to paste until chat closes (or you press Enter or Esc),
-/// and pressing the trigger again cancels it. From the controller it only starts with the game's
+/// key in the game. The text is then ready to paste until you paste it (Ctrl+V) or chat closes,
+/// and pressing the trigger again first cancels it. From the controller it only starts with the game's
 /// chat box open; the keyboard shortcut works any time, like Win+H.
 /// </summary>
 /// <param name="settings">The current settings; each dictation reads them once, at its start.</param>

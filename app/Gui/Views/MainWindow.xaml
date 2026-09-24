@@ -413,7 +413,7 @@
                         <StackPanel Spacing="8">
                             <TextBlock Text="In-game overlay" Style="{StaticResource FrameHeader}" />
                             <TextBlock Style="{StaticResource Caption}"
-                                       Text="Shows &#x201C;Listening&#x201D; at the top of the screen while you speak, then &#x201C;Ready to paste&#x201D; until you send the message, and warns you when a message is too long for the chat box. It shows over WoW in Windowed (Fullscreen) or windowed mode." />
+                                       Text="Shows &#x201C;Listening&#x201D; at the top of the screen while you speak, then &#x201C;Ready to paste&#x201D; until you paste it, and warns you when a message is too long for the chat box. It shows over WoW in Windowed (Fullscreen) or windowed mode." />
                             <ToggleSwitch x:Name="OverlaySwitch" OnContent="Show the overlay over the game" OffContent="Show the overlay over the game"
                                           Toggled="OverlaySwitch_Toggled" />
                         </StackPanel>

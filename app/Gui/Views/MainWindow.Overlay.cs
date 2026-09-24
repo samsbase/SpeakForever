@@ -8,13 +8,13 @@ namespace SpeakForever.Gui.Views;
 /// <summary>The in-game overlay: when it shows and what it says. The window itself is <see cref="OverlayWindow"/>.</summary>
 public sealed partial class MainWindow
 {
-    const string PasteGlyph = "", WarningGlyph = "";
+    const string PasteGlyph = "\uE77F", WarningGlyph = "\uE7BA";
 
     OverlayWindow? overlay;
     bool tooLong; // what's ready to paste is only the start of what was said
     bool overlayClosed; // the app is closing: a late dictation event mustn't open a new overlay window
 
-    /// <summary>Follows the dictation: listening, then transcribing, then ready to paste until it's sent, then gone.</summary>
+    /// <summary>Follows the dictation: listening, then transcribing, then ready to paste until it's pasted, then gone.</summary>
     void UpdateOverlay()
     {
         if (engine is null || overlayClosed) return;
