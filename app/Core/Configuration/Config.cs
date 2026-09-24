@@ -12,18 +12,6 @@ namespace SpeakForever.Configuration;
 /// </summary>
 public sealed record Config
 {
-    /// <summary>
-    /// The WoW: Forever folder, the one with the game's .exe in it: found on first run, or chosen
-    /// on the Settings tab. The dictate button only works while a program running from here is in front.
-    /// </summary>
-    public string GameFolder { get; init; } = "";
-
-    /// <summary>
-    /// Game process names, without ".exe": what counts as the game while <see cref="GameFolder"/>
-    /// isn't set. The WoW: Forever beta runs as WowB.
-    /// </summary>
-    public IReadOnlyList<string> ProcessNames { get; init; } = ["WowB"];
-
     /// <summary>Which controller to use when several are connected: 0 for the first, up to 3, or -1 for whichever is found first.</summary>
     public int ControllerSlot { get; init; } = -1;
 
@@ -85,7 +73,7 @@ public sealed record Config
     public bool CorrectNames { get; init; } = true;
 
     /// <summary>Settings earlier versions had: dropped from an old file rather than refused as misspelt.</summary>
-    static readonly string[] RemovedSettings = ["RedoChord"];
+    static readonly string[] RemovedSettings = ["RedoChord", "GameFolder", "ProcessNames"];
 
     /// <summary>Earlier versions' default prompts: still unchanged in a settings file, they move to the current one.</summary>
     static readonly string[] OldDefaultPrompts =
@@ -132,15 +120,6 @@ public sealed record Config
     /// <summary>Checks for updates on GitHub at launch and every few hours.</summary>
     public bool CheckForUpdates { get; init; } = true;
 
-    /// <summary>
-    /// The foreground program is the game: its .exe is in <see cref="GameFolder"/>. Without a
-    /// folder, or when the .exe's path can't be read, its process name is one of <see cref="ProcessNames"/>.
-    /// </summary>
-    public bool IsGame(string process, string exePath) =>
-        GameFolder.Length > 0 && exePath.Length > 0
-            ? string.Equals(Path.GetDirectoryName(exePath), Path.TrimEndingDirectorySeparator(GameFolder), StringComparison.OrdinalIgnoreCase)
-            : ProcessNames.Contains(process, StringComparer.OrdinalIgnoreCase);
-
     static readonly JsonSerializerOptions Json = new()
     {
         WriteIndented = true,
@@ -162,8 +141,6 @@ public sealed record Config
     /// <exception cref="FormatException">A value is missing or out of range; the message names it.</exception>
     public Config Validated()
     {
-        if (ProcessNames.Count == 0 || ProcessNames.Any(string.IsNullOrWhiteSpace))
-            throw new FormatException($"{nameof(ProcessNames)} needs at least one game process name.");
         Range(ControllerSlot, -1, 3, nameof(ControllerSlot));
         Range(MicDevice, -1, 31, nameof(MicDevice));
         Range(DelayMs, 0, 2000, nameof(DelayMs));

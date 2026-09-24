@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using SpeakForever.Configuration;
 using SpeakForever.Dictation;
-using SpeakForever.Game;
 using SpeakForever.Input;
 using SpeakForever.Interop;
 using SpeakForever.Logging;
@@ -46,7 +45,7 @@ public sealed class Engine : IAsyncDisposable
             phase => PhaseChanged?.Invoke(phase), leftOut => TooLong?.Invoke(leftOut));
         hotkey.Pressed += () =>
         {
-            if (IsRunning) session.Start(this.config.KeyboardShortcut ?? "Shortcut", anyWindow: true);
+            if (IsRunning) session.Start(this.config.KeyboardShortcut ?? "Shortcut");
         };
     }
 
@@ -91,9 +90,6 @@ public sealed class Engine : IAsyncDisposable
     /// <summary>Why the keyboard shortcut couldn't be registered, or null.</summary>
     public string? KeyboardError { get; private set; }
 
-    /// <summary>The settings point at a folder with WoW: Forever in it. Set by <see cref="FindGameAsync"/>.</summary>
-    public bool GameFound { get; private set; }
-
     // ---- Settings ---------------------------------------------------------------------------
 
     /// <summary>
@@ -114,43 +110,6 @@ public sealed class Engine : IAsyncDisposable
         {
             configGate.Release();
         }
-    }
-
-    // ---- The game ---------------------------------------------------------------------------
-
-    /// <summary>
-    /// Checks the settings still point at WoW: Forever, and if not (the first run, or it has moved)
-    /// looks for it and saves what it finds. Returns the folder, or null if it isn't on this PC.
-    /// </summary>
-    public async Task<string?> FindGameAsync(bool searchAgain = false, CancellationToken ct = default)
-    {
-        var saved = config.GameFolder;
-        // Reads the registry and lists folders: off the caller's thread.
-        var found = !searchAgain && await Task.Run(() => GameInstall.HasGame(saved), ct).ConfigureAwait(false)
-            ? saved
-            : await Task.Run(GameInstall.Detect, ct).ConfigureAwait(false);
-        GameFound = found is not null;
-        if (found is null)
-            Log.Warn(saved.Length > 0 ? $"WoW: Forever is no longer in {saved}. Show Speak Forever where it is on the Settings tab." : "Couldn't find WoW: Forever. Show Speak Forever where it's installed on the Settings tab.");
-        else if (!string.Equals(found, saved, StringComparison.OrdinalIgnoreCase))
-        {
-            await UpdateConfigAsync(c => c with { GameFolder = found }, ct).ConfigureAwait(false);
-            Log.Info($"Found WoW: Forever in {found}.");
-        }
-        Changed();
-        return found;
-    }
-
-    /// <summary>Points the app at WoW: Forever: its folder, its .exe, or the World of Warcraft folder. Returns why not, or null.</summary>
-    public async Task<string?> SetGameFolderAsync(string path, CancellationToken ct = default)
-    {
-        var folder = await Task.Run(() => GameInstall.Resolve(path), ct).ConfigureAwait(false);
-        if (folder is null) return $"WoW: Forever isn't in {path}. Choose the folder with WowB.exe in it; for the beta, that's World of Warcraft\\_classic_beta_.";
-        await UpdateConfigAsync(c => c with { GameFolder = folder }, ct).ConfigureAwait(false);
-        GameFound = true;
-        Log.Info($"WoW: Forever is in {folder}.");
-        Changed();
-        return null;
     }
 
     // ---- Controller bindings ----------------------------------------------------------------
@@ -467,11 +426,7 @@ public sealed class Engine : IAsyncDisposable
                     prev = cur;
                     continue;
                 }
-                if (probe && (cur & ~prev) != 0)
-                {
-                    var fg = Native.Foreground();
-                    Log.Info($"Held: {Gamepad.Describe(cur)} | foreground: {fg.Process} \"{fg.Title}\"");
-                }
+                if (probe && (cur & ~prev) != 0) Log.Info($"Held: {Gamepad.Describe(cur)}");
                 OnButtons(prev, cur, probe);
                 prev = cur;
             }

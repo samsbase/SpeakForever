@@ -1,11 +1,9 @@
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SpeakForever.Logging;
 using SpeakForever.Speech;
 using SpeakForever.Updates;
-using Windows.Storage.Pickers;
 using Windows.System;
 
 namespace SpeakForever.Gui.Views;
@@ -20,7 +18,7 @@ public sealed partial class MainWindow
     readonly UpdateChecker updateChecker = new();
     readonly CancellationTokenSource stopUpdates = new();
     UpdateInfo? update;
-    bool gameChecked, checkingUpdates, installingUpdate, micFound = true;
+    bool checkingUpdates, installingUpdate, micFound = true;
 
     /// <summary>The tab's contents, before the window is sized to fit them: the startup card is only for an installed copy.</summary>
     void InitializeSettingsTab()
@@ -34,38 +32,13 @@ public sealed partial class MainWindow
         updating = false;
     }
 
-    /// <summary>Once the window is up: find the game (asking if it can't), then start checking for updates.</summary>
-    async Task StartupChecksAsync()
+    /// <summary>Once the window is up: start checking for updates.</summary>
+    void StartupChecks()
     {
         if (engine is null) return;
         UpdateChecker.DeleteDownloads(); // the installer that updated this copy, if one did
-
-        string? found = null;
-        try
-        {
-            found = await engine.FindGameAsync();
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        {
-            Log.Warn($"Couldn't save the game's folder: {e.Message}");
-        }
-        gameChecked = true;
-        UpdateState();
-        if (found is null && !inSetup) await AskForGameAsync(); // setup asks in its own first step
         _ = PollForUpdatesAsync(stopUpdates.Token);
     }
-
-    void UpdateSettingsTab()
-    {
-        if (engine is null) return;
-        GameFolderText.Text = engine.GameFound ? engine.Config.GameFolder : gameChecked ? "Not found" : "Looking…";
-        if (gameChecked && !engine.GameFound)
-            GameNotice.Show("Where's WoW: Forever?", "Speak Forever couldn't find the game. Show it where WoW: Forever is installed, so the dictate button works while the game is in front.", "Open Settings");
-        else
-            GameNotice.Show(null);
-    }
-
-    void GameNotice_ActionClick(object sender, RoutedEventArgs e) => ShowTab(SettingsTab);
 
     // ---- Microphone -------------------------------------------------------------------------
 
@@ -136,80 +109,6 @@ public sealed partial class MainWindow
             Log.Warn($"Couldn't save settings: {ex.Message}");
         }
         UpdateOverlay();
-    }
-
-    // ---- Where the game is ------------------------------------------------------------------
-
-    /// <summary>The first-run prompt, when the game isn't where Battle.net usually puts it.</summary>
-    async Task AskForGameAsync()
-    {
-        var dialog = new ContentDialog
-        {
-            XamlRoot = Content.XamlRoot,
-            Title = "Where's WoW: Forever?",
-            Content = "The controller's dictate button only works while WoW: Forever is in front, so Speak Forever needs to know where the game is. "
-                      + "It isn't where Battle.net usually installs it.\n\n"
-                      + "Choose the game's folder. For the beta, that's World of Warcraft\\_classic_beta_, "
-                      + "though the World of Warcraft folder works too.",
-            PrimaryButtonText = "Choose folder",
-            CloseButtonText = "Later",
-            DefaultButton = ContentDialogButton.Primary,
-        };
-        try
-        {
-            if (await dialog.ShowAsync() == ContentDialogResult.Primary) await ChooseGameFolderAsync();
-        }
-        catch (COMException)
-        {
-            // Another dialog is already open (WinUI allows one); the notice on the Dictation tab still asks.
-        }
-    }
-
-    async void ChooseGameButton_Click(object sender, RoutedEventArgs e) => await ChooseGameFolderAsync();
-
-    async Task ChooseGameFolderAsync()
-    {
-        var picker = new FolderPicker { SuggestedStartLocation = PickerLocationId.ComputerFolder };
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
-        var folder = await picker.PickSingleFolderAsync();
-        if (folder is null) return;
-        string? error;
-        try
-        {
-            error = await engine!.SetGameFolderAsync(folder.Path);
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        {
-            error = $"Couldn't save the folder: {e.Message}";
-        }
-        ShowGameMessage(error ?? "Got it. The dictate button works while the game in this folder is in front.", error is not null);
-        UpdateState();
-    }
-
-    async void FindGameButton_Click(object sender, RoutedEventArgs e)
-    {
-        FindGameButton.IsEnabled = false;
-        try
-        {
-            var found = await engine!.FindGameAsync(searchAgain: true);
-            ShowGameMessage(found is null ? "It's not in any of the usual places. Use Choose folder to show Speak Forever where it is." : "Found it.", found is null);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            ShowGameMessage($"Couldn't save the folder: {ex.Message}", warning: true);
-        }
-        finally
-        {
-            FindGameButton.IsEnabled = true;
-        }
-    }
-
-    void ShowGameMessage(string text, bool warning)
-    {
-        GameMessage.Text = text;
-        GameMessage.Foreground = warning ? warningBrush : normalBrush;
-        GameMessage.Visibility = Visibility.Visible;
     }
 
     // ---- Updates ----------------------------------------------------------------------------

@@ -10,7 +10,7 @@ using SpeakForever.Updates;
 namespace SpeakForever.Gui.Views;
 
 /// <summary>
-/// First run, over the whole window: find the game, get a voice model, test the microphone.
+/// First run, over the whole window: get a voice model, then test the microphone.
 /// It shows while there's no voice model on this PC, until the user starts playing or skips it.
 /// </summary>
 public sealed partial class MainWindow
@@ -35,19 +35,11 @@ public sealed partial class MainWindow
     void UpdateSetup()
     {
         if (!inSetup || engine is null) return;
-        bool gameDone = engine.GameFound, modelDone = engine.LoadedModel is not null, heard = heardInSetup is not null;
+        bool modelDone = engine.LoadedModel is not null, heard = heardInSetup is not null;
         bool downloading = downloads.ContainsKey(Recommended.LocalPath);
-        int current = !gameDone ? 0 : !modelDone ? 1 : !heard ? 2 : 3;
-        ShowStep(0, SetupGameStep, SetupGameBadge, SetupGameBadgeText, current, gameDone);
-        ShowStep(1, SetupModelStep, SetupModelBadge, SetupModelBadgeText, current, modelDone);
-        ShowStep(2, SetupMicStep, SetupMicBadge, SetupMicBadgeText, current, heard);
-
-        SetupGameTitle.Text = gameDone ? "Found WoW: Forever" : gameChecked ? "Where's WoW: Forever?" : "Looking for WoW: Forever…";
-        SetupGameText.Text = gameDone ? engine.Config.GameFolder
-            : gameChecked ? @"It isn't where Battle.net usually puts it. Choose the game's folder: for the beta, World of Warcraft\_classic_beta_." : "";
-        SetupGameButton.Content = gameDone ? "Change" : "Choose folder";
-        SetupGameButton.Style = ButtonStyle(gameDone ? "QuietButton" : "AccentButton");
-        SetupGameButton.Visibility = gameChecked ? Visibility.Visible : Visibility.Collapsed;
+        int current = !modelDone ? 0 : !heard ? 1 : 2;
+        ShowStep(0, SetupModelStep, SetupModelBadge, SetupModelBadgeText, current, modelDone);
+        ShowStep(1, SetupMicStep, SetupMicBadge, SetupMicBadgeText, current, heard);
 
         SetupModelTitle.Text = modelDone ? "Your voice model is ready"
             : downloading ? "Getting your voice model"

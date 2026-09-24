@@ -10,8 +10,8 @@ namespace SpeakForever.Dictation;
 /// One dictation at a time: record until you pause (or press the trigger again) → transcribe →
 /// copy to the clipboard, for you to paste into chat with Ctrl+V. Speak Forever never presses a
 /// key in the game. The text is then ready to paste until chat closes (or you press Enter or Esc),
-/// and pressing the trigger again cancels it. From the controller it only starts while the game
-/// is in front with its chat box open; the keyboard shortcut works anywhere, like Win+H.
+/// and pressing the trigger again cancels it. From the controller it only starts with the game's
+/// chat box open; the keyboard shortcut works any time, like Win+H.
 /// </summary>
 /// <param name="settings">The current settings; each dictation reads them once, at its start.</param>
 /// <param name="currentModel">The loaded model at the moment it's needed; it can change between dictations.</param>
@@ -32,8 +32,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
 
     /// <summary>Starts a dictation, finishes the recording in progress, or cancels text waiting to be pasted.</summary>
     /// <param name="trigger">The button or shortcut, for the log.</param>
-    /// <param name="anyWindow">Keyboard shortcut: works whatever is in front, not only the game.</param>
-    public void Start(string trigger, bool anyWindow = false)
+    public void Start(string trigger)
     {
         var cfg = settings();
         lock (gate)
@@ -56,12 +55,6 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
                 Log.Info($"{trigger}: cancelled, and taken off the clipboard.");
                 return;
             }
-        }
-        var fg = Native.Foreground();
-        if (!anyWindow && !cfg.IsGame(fg.Process, fg.Path))
-        {
-            Log.Warn($"{trigger}: ignored, because WoW: Forever isn't the active window ({fg.Process} is).");
-            return;
         }
         if (currentModel() is null)
         {

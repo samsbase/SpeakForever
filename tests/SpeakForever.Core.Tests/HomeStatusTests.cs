@@ -6,8 +6,8 @@ namespace SpeakForever.Core.Tests;
 public sealed class HomeStatusTests
 {
     static HomeStatus Of(string? error = null, bool running = true, DictationPhase phase = DictationPhase.Idle, bool hasModel = true,
-                         bool loading = false, bool gameMissing = false, bool controller = true, bool chatOpen = false, string? key = null) =>
-        HomeStatus.Of(error, running, phase, hasModel, loading, gameMissing, controller, chatOpen, key);
+                         bool loading = false, bool controller = true, bool chatOpen = false, string? key = null) =>
+        HomeStatus.Of(error, running, phase, hasModel, loading, controller, chatOpen, key);
 
     [Fact]
     public void AllSetIsReadyAndSaysWhichButtonsToPress()
@@ -23,7 +23,6 @@ public sealed class HomeStatusTests
     {
         Assert.Equal(StatusTone.Problem, Of(error: "No microphone").Tone);
         Assert.Equal("Get a voice model", Of(hasModel: false).Headline);
-        Assert.Equal("Where's WoW: Forever?", Of(gameMissing: true).Headline);
         Assert.Equal("Paused", Of(running: false, hasModel: false).Headline);
     }
 

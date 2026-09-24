@@ -49,7 +49,6 @@ async Task<int> RunAsync()
     if (args is ["--benchmark-one", var benchModel, var beam, ..])
         return await Benchmark.RunOneAsync(cfg, benchModel, int.Parse(beam, System.Globalization.CultureInfo.InvariantCulture), quit.Token);
 
-    await engine.FindGameAsync(ct: quit.Token);
 
     if (args.Contains("--probe"))
     {
@@ -73,7 +72,7 @@ async Task<int> RunAsync()
     if (rest is ["--transcribe", var file, ..])
         return await Diagnostics.TranscribeFileAsync(engine, file, quit.Token);
 
-    Log.Info($"Open chat with {cfg.OpenChatChord}, then {cfg.DictateChord} to dictate, and paste it with Ctrl+V. The game: {(engine.GameFound ? engine.Config.GameFolder : string.Join(", ", cfg.ProcessNames))}");
+    Log.Info($"Open chat with {cfg.OpenChatChord}, then {cfg.DictateChord} to dictate, and paste it with Ctrl+V.");
     if (!engine.Start()) return 1;
     Log.Info("Ctrl+C to quit.");
     await Task.Delay(Timeout.Infinite, quit.Token);

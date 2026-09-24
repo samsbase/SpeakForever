@@ -32,10 +32,9 @@ WoW: Forever is in beta; Speak Forever works with the beta client.
 
 ## First run
 
-The first time it opens, Speak Forever walks you through three steps:
+The first time it opens, Speak Forever walks you through two steps:
 
-1. **It finds WoW: Forever** where Battle.net installed it. If it can't, choose the folder with the game in it (in the beta, `World of Warcraft\_classic_beta_`; choosing the `World of Warcraft` folder works too). You can change it any time on the **Settings** tab. The controller's dictate button only works while that game is in front.
-2. **It downloads a voice model**: Turbo, unless you choose a different one on the **Voice model** tab, where each model shows its download size and how much memory it uses while running. Downloads come from the whisper.cpp project on Hugging Face and are checked against a SHA-256 hash.
+1. **It downloads a voice model**: Turbo, unless you choose a different one on the **Voice model** tab, where each model shows its download size and how much memory it uses while running. Downloads come from the whisper.cpp project on Hugging Face and are checked against a SHA-256 hash.
 
    | Model | Download | Memory while running | Notes |
    |---|---|---|---|
@@ -46,7 +45,7 @@ The first time it opens, Speak Forever walks you through three steps:
    | Base | 148 MB | about 0.6 GB | For low-memory PCs; several times more mistakes |
 
    The first time a model runs on your graphics card, the driver prepares it, which can take 20 seconds or more. After that it loads in a few seconds.
-3. **Say hello:** a quick microphone test. You can also have it start when you sign in to Windows.
+2. **Say hello:** a quick microphone test. You can also have it start when you sign in to Windows.
 
 Then **leave Speak Forever running** while you play. Play WoW in **Windowed (Fullscreen)** or windowed mode.
 
@@ -63,7 +62,7 @@ Changed your mind? **Click RS again** while it says *Ready to paste*: that cance
 
 **Pasting from the controller:** Speak Forever deliberately doesn't press Ctrl+V for you. To paste without reaching for the keyboard, map a spare button to Ctrl+V in your controller's own software or in Steam Input, or use a controller that can send keyboard keys itself.
 
-Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open and the game is in front.
+Speak Forever follows the chat panel by watching the same buttons WoW does. RS only dictates while the chat box is open. Speak Forever doesn't look at the game or which window is in front: it just copies what you said when you press the button.
 
 **Changing the buttons:** on the **Controls** tab (with a controller connected), click **Change**, hold any modifier buttons, press the last button, then let go. Speak Forever can't change WoW's own bindings, so if you rebind "open chat" in the game, set the same combo here.
 
@@ -92,7 +91,7 @@ The Home tab's status says what Speak Forever is doing and what to press next: *
 | **Home** | The status, anything that needs your attention, the last message (with timings and **Copy**), the model, microphone (**Test**) and shortcut at a glance, and **Show activity** for the log |
 | **Voice model** | The model in use and **Test microphone**; download, switch (**Use**) or delete others (**Show advanced models** for the two larger Turbos); how long a pause ends a dictation |
 | **Controls** | The controller buttons (open chat, dictate) and the keyboard shortcut |
-| **Settings** | Where WoW: Forever is installed (**Find it** or **Choose folder**); the in-game overlay; version, **Check for updates**, and whether to check automatically; starting when you sign in to Windows |
+| **Settings** | The microphone; the in-game overlay; version, **Check for updates**, and whether to check automatically; starting when you sign in to Windows |
 
 The window opens tall enough that no tab needs scrolling, as far as the screen allows.
 
@@ -111,7 +110,7 @@ Your voice is recognised on your PC and never sent anywhere. Speak Forever conne
 
 ## Troubleshooting
 
-- **Nothing to paste:** check the Home tab's status and notices. Speak Forever needs a voice model, and needs to know where WoW: Forever is (Settings tab). The activity log says why each attempt was refused.
+- **Nothing to paste:** check the Home tab's status and notices. Speak Forever needs a voice model, and RS only dictates with chat open. The activity log says why each attempt was refused.
 - **"Chat isn't open":** open chat with LB+RB+Down (or the radial menu), not Enter, or use the keyboard shortcut.
 - **It keeps listening:** raise the pause on the Voice model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
 - **No overlay:** it's on the Settings tab, and it can't show over exclusive fullscreen: set WoW's display mode to Windowed (Fullscreen).
@@ -125,8 +124,6 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 
 | Key | Default | Meaning |
 |---|---|---|
-| `GameFolder` | found on first run | The WoW: Forever folder. The controller's dictate button only works while a program from here is in front. Set on the Settings tab. |
-| `ProcessNames` | `["WowB"]` | Used only while `GameFolder` isn't set: game process names without `.exe`. |
 | `ControllerSlot` | `-1` | With several controllers connected, which to use: `0` for the first, up to `3`. `-1` uses whichever is found first. |
 | `OpenChatChord` | `LB+RB+DOWN` | WoW's open-chat combo. Set on the Controls tab. Buttons are named by position, Xbox-style: `A` is the bottom face button on every controller (Cross on PlayStation, B on Switch), and the app shows your controller's own icons. |
 | `DictateChord` | `RS` | Starts a dictation while chat is open, and cancels one that's ready to paste. Also set in the app. |
@@ -150,7 +147,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `Sounds` | `true` | The sound cues |
 | `ShowOverlay` | `true` | The in-game overlay. Set on the Settings tab. |
 
-`RedoChord`, from versions that had *Start over*, is dropped from an older file when it loads.
+Settings earlier versions had (`RedoChord`, `GameFolder`, `ProcessNames`) are dropped from an older file when it loads.
 
 ### Command line (`SpeakForeverCli.exe`, installed beside the app)
 
@@ -188,7 +185,7 @@ Only one copy, app or command line, watches the controller at a time; otherwise 
 
 Needs the .NET 10 SDK (pinned in `global.json`) and, for the installer, [Inno Setup](https://jrsoftware.org/isinfo.php) 6.7 or later. The Visual C++ redistributable isn't kept in git: `build.ps1 -Installer` downloads it from Microsoft the first time and checks its signature. `SpeakForever.slnx` opens everything in Visual Studio or Rider.
 
-- **Tests:** `dotnet test --project tests\SpeakForever.Core.Tests` (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings, shortcuts, the settings file, finding the game, update checks and the model list. They use a temporary data folder (`SPEAKFOREVER_DATA`), never your real settings.
+- **Tests:** `dotnet test --project tests\SpeakForever.Core.Tests` (xUnit v3): end-of-speech detection, chat-panel and radial-menu tracking, bindings, shortcuts, the settings file, update checks and the model list. They use a temporary data folder (`SPEAKFOREVER_DATA`), never your real settings.
 - **Linting:** every build runs the .NET analyzers (latest-recommended) and the style rules in `.editorconfig`; warnings fail the build. Package versions are in `Directory.Packages.props`; `nuget.config` pins the feed to nuget.org.
 
 ### Releasing
@@ -208,13 +205,12 @@ Namespaces follow folders.
 |---|---|
 | `app\Core` | The engine library; `Engine.cs` ties it together |
 | `app\Core\Configuration` | The settings file (`Config`) and data folder (`AppPaths`) |
-| `app\Core\Game` | Finding WoW: Forever in a Battle.net install |
 | `app\Core\Input` | Reading controllers (SDL3, with SDL_GameControllerDB), chords, the chat panel and radial menu trackers, the keyboard shortcut |
 | `app\Core\Speech` | Recording, end-of-speech detection, Whisper, the model catalog and downloads |
 | `app\Core\Dictation` | One dictation from button to copied text, and the sound cues |
 | `app\Core\Updates` | Checking GitHub for a newer release |
 | `app\Core\Presentation` | The model list's row view model (no UI types, so it's tested without WinUI) |
-| `app\Core\Interop`, `app\Core\Logging` | The clipboard and the foreground window; the log |
+| `app\Core\Interop`, `app\Core\Logging` | The clipboard; the log |
 | `app\Gui` | The WinUI 3 app: `Views\MainWindow` (one partial file per tab), `Controls`, `Models` |
 | `app\Cli` | The command line; `Commands` has the benchmark and setup checks |
 | `tests\SpeakForever.Core.Tests` | The engine's tests |

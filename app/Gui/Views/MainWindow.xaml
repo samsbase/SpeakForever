@@ -82,32 +82,14 @@
                 </SelectorBar>
             </Grid>
 
-            <!-- First run: the three things it needs, in order, over the whole window until they're done. -->
+            <!-- First run: the two things it needs, in order, over the whole window until they're done. -->
             <ScrollViewer x:Name="SetupPage" Grid.RowSpan="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                 <StackPanel Padding="24,6,24,22" Spacing="12">
                     <StackPanel Spacing="4" Margin="0,0,0,8">
                         <TextBlock Text="Let's get you talking" FontFamily="{StaticResource Cinzel}" FontSize="27" FontWeight="SemiBold"
                                    Foreground="{StaticResource BrightBrush}" CharacterSpacing="30" />
-                        <TextBlock Text="Three steps, and you only do this once." FontSize="15" />
+                        <TextBlock Text="Two steps, and you only do this once." FontSize="15" />
                     </StackPanel>
-
-                    <ContentControl x:Name="SetupGameStep" Style="{StaticResource Card}">
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Border x:Name="SetupGameBadge" Width="32" Height="32" CornerRadius="16" BorderThickness="1.5" VerticalAlignment="Center">
-                                <TextBlock x:Name="SetupGameBadgeText" Text="1" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                                <TextBlock x:Name="SetupGameTitle" Style="{StaticResource ItemTitle}" />
-                                <TextBlock x:Name="SetupGameText" Style="{StaticResource Caption}" IsTextSelectionEnabled="True" />
-                            </StackPanel>
-                            <Button x:Name="SetupGameButton" Grid.Column="2" VerticalAlignment="Center" Click="ChooseGameButton_Click" />
-                        </Grid>
-                    </ContentControl>
 
                     <ContentControl x:Name="SetupModelStep" Style="{StaticResource Card}">
                         <Grid ColumnSpacing="16">
@@ -121,7 +103,7 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Border x:Name="SetupModelBadge" Width="32" Height="32" CornerRadius="16" BorderThickness="1.5" VerticalAlignment="Center">
-                                <TextBlock x:Name="SetupModelBadgeText" Text="2" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock x:Name="SetupModelBadgeText" Text="1" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                                 <TextBlock x:Name="SetupModelTitle" Style="{StaticResource ItemTitle}" />
@@ -148,7 +130,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Border x:Name="SetupMicBadge" Width="32" Height="32" CornerRadius="16" BorderThickness="1.5" VerticalAlignment="Center">
-                                <TextBlock x:Name="SetupMicBadgeText" Text="3" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock x:Name="SetupMicBadgeText" Text="2" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                                 <TextBlock Text="Say hello" Style="{StaticResource ItemTitle}" />
@@ -182,7 +164,6 @@
                 </Grid.RowDefinitions>
                 <!-- What needs attention first: the game not found, no speech model, an update. -->
                 <StackPanel Spacing="12">
-                    <controls:Notice x:Name="GameNotice" Glyph="&#xE7FC;" Visibility="Collapsed" ActionClick="GameNotice_ActionClick" />
                     <controls:Notice x:Name="MicNotice" Glyph="&#xEC54;" Visibility="Collapsed" ActionClick="SoundSettings_Click" />
                     <controls:Notice x:Name="ModelNotice" Glyph="&#xE896;" Visibility="Collapsed" ActionClick="ModelNotice_ActionClick" />
                     <controls:Notice x:Name="UpdateNotice" Glyph="&#xE777;" Visibility="Collapsed" ActionClick="DownloadUpdate_Click" />
@@ -410,27 +391,6 @@
 
             <ScrollViewer x:Name="SettingsPage" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                 <StackPanel Padding="0,16,0,18" Spacing="14">
-                    <ContentControl Style="{StaticResource Card}">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="WoW: Forever" Style="{StaticResource FrameHeader}" />
-                            <TextBlock Style="{StaticResource Caption}"
-                                       Text="The controller's dictate button only works while WoW: Forever is in front, so Speak Forever needs to know where the game is installed. On first run, it looks where Battle.net usually puts it." />
-                            <Grid ColumnSpacing="12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="GameFolderText" Foreground="{StaticResource StarlightBrush}" VerticalAlignment="Center"
-                                           TextWrapping="Wrap" IsTextSelectionEnabled="True" />
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                    <Button x:Name="FindGameButton" Content="Find it" Style="{StaticResource QuietButton}" Click="FindGameButton_Click" />
-                                    <Button x:Name="ChooseGameButton" Content="Choose folder" Style="{StaticResource PanelButton}" Click="ChooseGameButton_Click" />
-                                </StackPanel>
-                            </Grid>
-                            <TextBlock x:Name="GameMessage" Style="{StaticResource Caption}" Visibility="Collapsed" />
-                        </StackPanel>
-                    </ContentControl>
-
                     <ContentControl Style="{StaticResource Card}">
                         <StackPanel Spacing="8">
                             <TextBlock Text="Microphone" Style="{StaticResource FrameHeader}" />

@@ -40,12 +40,11 @@ public sealed class ConfigTests
     [Fact]
     public async Task SettingsSurviveASaveAndReload()
     {
-        await (new Config() with { SilenceMs = 2200, KeyboardShortcut = "Ctrl+Shift+Space", ProcessNames = ["WowB", "Wow"] })
+        await (new Config() with { SilenceMs = 2200, KeyboardShortcut = "Ctrl+Shift+Space" })
             .SaveAsync(TestContext.Current.CancellationToken);
         var cfg = await Load();
         Assert.Equal(2200, cfg.SilenceMs);
         Assert.Equal("Ctrl+Shift+Space", cfg.KeyboardShortcut);
-        Assert.Equal(["WowB", "Wow"], cfg.ProcessNames);
     }
 
     [Fact]
@@ -59,7 +58,7 @@ public sealed class ConfigTests
     [Fact]
     public async Task ASettingEarlierVersionsHadIsDroppedNotRefused()
     {
-        Write("""{ "redoChord": "DOWN", "SilenceMs": 2000 }""");
+        Write("""{ "redoChord": "DOWN", "GameFolder": "D:\\Games", "SilenceMs": 2000 }""");
         Assert.Equal(2000, (await Load()).SilenceMs);
         Assert.DoesNotContain("RedoChord", File.ReadAllText(AppPaths.Config), StringComparison.OrdinalIgnoreCase);
     }
@@ -81,7 +80,6 @@ public sealed class ConfigTests
     [Theory]
     [InlineData("""{ "SilenceMs": 50 }""", "SilenceMs")]
     [InlineData("""{ "ControllerSlot": 7 }""", "ControllerSlot")]
-    [InlineData("""{ "ProcessNames": [] }""", "ProcessNames")]
     [InlineData("""{ "BeamSize": 0 }""", "BeamSize")]
     public async Task OutOfRangeValuesAreNamed(string json, string setting)
     {
