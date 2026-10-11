@@ -18,19 +18,19 @@
             <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#73FF73" />
             <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="#000000" />
             <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="#000000" />
-            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#0A0A0C" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#141417" />
             <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#222228" />
             <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="#8C8C99" />
             <SolidColorBrush x:Key="ToggleSwitchKnobFillOff" Color="#9D9D9D" />
             <SolidColorBrush x:Key="ToggleSwitchContentForeground" Color="#FFFFFF" />
 
-            <SolidColorBrush x:Key="ComboBoxBackground" Color="#0A0A0C" />
+            <SolidColorBrush x:Key="ComboBoxBackground" Color="#141417" />
             <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#222228" />
-            <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#0A0A0C" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#141417" />
             <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#8C8C99" />
             <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#FFFFFF" />
             <SolidColorBrush x:Key="ComboBoxForeground" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#0D0D1C" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#17172B" />
             <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#8C8C99" />
 
             <SolidColorBrush x:Key="SliderTrackFill" Color="#2E2E36" />
@@ -46,21 +46,22 @@
             <SolidColorBrush x:Key="SelectorBarItemForegroundPointerOver" Color="#FFFFFF" />
             <SolidColorBrush x:Key="SelectorBarItemForegroundPressed" Color="#D8D8DE" />
             <SolidColorBrush x:Key="SelectorBarItemForegroundSelected" Color="#FFD100" />
-            <SolidColorBrush x:Key="SelectorBarItemBackgroundSelected" Color="#99000000" />
-            <SolidColorBrush x:Key="SelectorBarItemBackgroundPointerOver" Color="#4D000000" />
+            <SolidColorBrush x:Key="SelectorBarItemBackgroundSelected" Color="#59000000" />
+            <SolidColorBrush x:Key="SelectorBarItemBackgroundPointerOver" Color="#33000000" />
 
             <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="Transparent" />
 
             <!--
-                Chat Log, the design system shared with speakforever.app: black chat frames over a dark world,
-                and the colours of WoW's chat channels and item qualities, each with one job.
+                Chat Log, the design system shared with speakforever.app: dark chat frames over a dark world,
+                and the colours of WoW's chat channels and item qualities, each with one job. Nothing large is
+                pure black: some monitors push true black hard enough to be tiring to look at.
             -->
-            <SolidColorBrush x:Key="WorldBrush" Color="#1A1A1E" />      <!-- the window's ground -->
-            <SolidColorBrush x:Key="PanelBrush" Color="#99000000" />    <!-- the chat frame: cards and panels -->
-            <SolidColorBrush x:Key="TooltipBrush" Color="#0D0D1C" />    <!-- the one framed panel per screen -->
+            <SolidColorBrush x:Key="WorldBrush" Color="#1F1F23" />      <!-- the window's ground -->
+            <SolidColorBrush x:Key="PanelBrush" Color="#59000000" />    <!-- the chat frame: cards and panels -->
+            <SolidColorBrush x:Key="TooltipBrush" Color="#17172B" />    <!-- the one framed panel per screen -->
             <SolidColorBrush x:Key="InkBrush" Color="#000000" />        <!-- text on the action colour, outlines -->
-            <SolidColorBrush x:Key="KeyBrush" Color="#0A0A0C" />        <!-- keycaps -->
-            <SolidColorBrush x:Key="LineBrush" Color="#2E2E36" />       <!-- dividers -->
+            <SolidColorBrush x:Key="KeyBrush" Color="#141417" />        <!-- keycaps -->
+            <SolidColorBrush x:Key="LineBrush" Color="#34343C" />       <!-- dividers -->
             <SolidColorBrush x:Key="EdgeBrush" Color="#8C8C99" />       <!-- tooltip and control borders -->
             <SolidColorBrush x:Key="SayBrush" Color="#FFFFFF" />        <!-- headings, names, strong text -->
             <SolidColorBrush x:Key="TextBrush" Color="#D8D8DE" />       <!-- body -->
@@ -77,15 +78,15 @@
             <SolidColorBrush x:Key="ToneBusyBrush" Color="#AAAAFF" />
             <SolidColorBrush x:Key="ToneBusyFillBrush" Color="#16162E" />
             <SolidColorBrush x:Key="ToneIdleBrush" Color="#9D9D9D" />
-            <SolidColorBrush x:Key="ToneIdleFillBrush" Color="#1F1F24" />
+            <SolidColorBrush x:Key="ToneIdleFillBrush" Color="#26262B" />
             <SolidColorBrush x:Key="ToneProblemBrush" Color="#FF4040" />
             <SolidColorBrush x:Key="ToneProblemFillBrush" Color="#2E1214" />
 
-            <!-- Grenze for the name and headings, Sofia Sans for reading, its condensed cut for everything you operate. -->
+            <!-- Grenze for the name and headings, Sofia Sans for reading, its semi-condensed cut for everything you operate. -->
             <FontFamily x:Key="Grenze">ms-appx:///Assets/Fonts/Grenze.ttf#Grenze</FontFamily>
             <FontFamily x:Key="SofiaSans">ms-appx:///Assets/Fonts/SofiaSans.ttf#Sofia Sans</FontFamily>
-            <FontFamily x:Key="SofiaSansCondensed">ms-appx:///Assets/Fonts/SofiaSansCondensed.ttf#Sofia Sans Condensed</FontFamily>
-            <FontFamily x:Key="ContentControlThemeFontFamily">ms-appx:///Assets/Fonts/SofiaSansCondensed.ttf#Sofia Sans Condensed</FontFamily>
+            <FontFamily x:Key="SofiaSansSemiCondensed">ms-appx:///Assets/Fonts/SofiaSansSemiCondensed.ttf#Sofia Sans Semi Condensed</FontFamily>
+            <FontFamily x:Key="ContentControlThemeFontFamily">ms-appx:///Assets/Fonts/SofiaSansSemiCondensed.ttf#Sofia Sans Semi Condensed</FontFamily>
 
             <!-- Square frames, 2px corners on what you press. -->
             <CornerRadius x:Key="ControlCornerRadius">2</CornerRadius>
@@ -161,7 +162,7 @@
 
             <!-- A small label over a group, such as "Last message". -->
             <Style x:Key="Label" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansSemiCondensed}" />
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
@@ -169,7 +170,7 @@
 
             <!-- A title in a row or a card: "Turbo", "Say hello". -->
             <Style x:Key="ItemTitle" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansSemiCondensed}" />
                 <Setter Property="FontSize" Value="17" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Foreground" Value="{StaticResource SayBrush}" />
@@ -177,7 +178,7 @@
             </Style>
 
             <Style x:Key="Caption" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansSemiCondensed}" />
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
@@ -185,7 +186,7 @@
 
             <!-- Caption, for text with controller button icons in it. -->
             <Style x:Key="RichCaption" TargetType="RichTextBlock">
-                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansSemiCondensed}" />
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
@@ -272,7 +273,7 @@
             </Style>
 
             <Style x:Key="KeycapText" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansSemiCondensed}" />
                 <Setter Property="FontSize" Value="15" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Foreground" Value="{StaticResource SayBrush}" />

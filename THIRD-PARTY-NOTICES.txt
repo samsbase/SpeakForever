@@ -51,10 +51,10 @@ Grenze typeface
   The Grenze Project Authors, https://github.com/Omnibus-Type/Grenze
   SIL Open Font License 1.1; the full text is in Assets\Fonts\Grenze-OFL.txt
 
-Sofia Sans and Sofia Sans Condensed typefaces
+Sofia Sans and Sofia Sans Semi Condensed typefaces
   The Sofia Sans Project Authors, https://github.com/lettersoup/Sofia-Sans
   SIL Open Font License 1.1; the full text is in Assets\Fonts\SofiaSans-OFL.txt
-  and Assets\Fonts\SofiaSansCondensed-OFL.txt
+  and Assets\Fonts\SofiaSansSemiCondensed-OFL.txt
 
 Microsoft Visual C++ Redistributable
   Microsoft Corporation. Installed by Microsoft's own installer when it isn't

@@ -182,8 +182,8 @@
                             <FontIcon x:Name="StatusIcon" Glyph="&#xE720;" FontSize="26" />
                         </Grid>
                         <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock x:Name="StatusHeadline" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="27" FontWeight="Bold" TextWrapping="Wrap" />
-                            <RichTextBlock x:Name="StatusText" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="16" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
+                            <TextBlock x:Name="StatusHeadline" FontFamily="{StaticResource SofiaSansSemiCondensed}" FontSize="27" FontWeight="Bold" TextWrapping="Wrap" />
+                            <RichTextBlock x:Name="StatusText" FontFamily="{StaticResource SofiaSansSemiCondensed}" FontSize="16" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center">
                             <ToggleSwitch x:Name="ActiveSwitch" MinWidth="0" HorizontalAlignment="Right"
@@ -259,7 +259,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:LogLine">
                                 <TextBlock Text="{x:Bind Text}" Foreground="{x:Bind Brush}" TextWrapping="Wrap"
-                                           FontFamily="{StaticResource SofiaSansCondensed}" FontSize="14" IsTextSelectionEnabled="True" />
+                                           FontFamily="{StaticResource SofiaSansSemiCondensed}" FontSize="14" IsTextSelectionEnabled="True" />
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>

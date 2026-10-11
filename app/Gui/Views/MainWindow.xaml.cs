@@ -107,7 +107,7 @@ public sealed partial class MainWindow : Window
         bar.ButtonInactiveForegroundColor = ColorHelper.FromArgb(255, 0x9D, 0x9D, 0x9D);
         bar.ButtonHoverBackgroundColor = ColorHelper.FromArgb(255, 0x2E, 0x2E, 0x36);
         bar.ButtonHoverForegroundColor = Colors.White;
-        bar.ButtonPressedBackgroundColor = ColorHelper.FromArgb(255, 0x0A, 0x0A, 0x0C);
+        bar.ButtonPressedBackgroundColor = ColorHelper.FromArgb(255, 0x14, 0x14, 0x17);
         bar.ButtonPressedForegroundColor = Colors.White;
         TitleBar.Padding = new Thickness(18, 0, bar.RightInset / scale, 0);
     }

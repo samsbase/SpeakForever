@@ -19,7 +19,7 @@
         </Grid.Resources>
 
         <Border x:Name="Pill" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1" MinHeight="52" Padding="8,7,22,7" CornerRadius="2"
-                Background="#CC000000" BorderBrush="{StaticResource InkBrush}" BorderThickness="1">
+                Background="#E6141417" BorderBrush="{StaticResource InkBrush}" BorderThickness="1">
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <!-- The button that finishes the dictation, as the controller's own icon, or the keyboard shortcut. -->
                 <Border x:Name="ButtonSlot" VerticalAlignment="Center" />
@@ -27,8 +27,8 @@
                 <FontIcon x:Name="Icon" FontSize="22" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" />
                 <StackPanel VerticalAlignment="Center" Spacing="1">
                     <!-- A chat-style tag, "[Listening]", in the state's colour. -->
-                    <TextBlock x:Name="Headline" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="19" FontWeight="SemiBold" />
-                    <RichTextBlock x:Name="Detail" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="14" MaxWidth="440" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap"
+                    <TextBlock x:Name="Headline" FontFamily="{StaticResource SofiaSansSemiCondensed}" FontSize="19" FontWeight="SemiBold" />
+                    <RichTextBlock x:Name="Detail" FontFamily="{StaticResource SofiaSansSemiCondensed}" FontSize="14" MaxWidth="440" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap"
                                    IsTextSelectionEnabled="False" Visibility="Collapsed" />
                 </StackPanel>
                 <StackPanel x:Name="Bars" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">

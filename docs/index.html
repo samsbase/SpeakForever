@@ -8,7 +8,7 @@
   <meta property="og:title" content="Speak Forever">
   <meta property="og:description" content="Your adventure doesn't stop for chat. Say it instead of typing it, with a controller or keyboard.">
   <meta property="og:image" content="https://speakforever.app/images/home.png">
-  <meta name="theme-color" content="#1A1A1E">
+  <meta name="theme-color" content="#1F1F23">
   <link rel="canonical" href="https://speakforever.app/">
   <meta property="og:url" content="https://speakforever.app/">
   <link rel="icon" href="images/logo.svg" type="image/svg+xml">
@@ -16,14 +16,15 @@
   <style>
     @font-face { font-family: "Grenze"; src: url("fonts/Grenze.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
     @font-face { font-family: "Sofia Sans"; src: url("fonts/SofiaSans.ttf") format("truetype"); font-weight: 1 1000; font-display: swap; }
-    @font-face { font-family: "Sofia Sans Condensed"; src: url("fonts/SofiaSansCondensed.ttf") format("truetype"); font-weight: 1 1000; font-display: swap; }
+    @font-face { font-family: "Sofia Sans Semi Condensed"; src: url("fonts/SofiaSansSemiCondensed.ttf") format("truetype"); font-weight: 1 1000; font-display: swap; }
 
-    /* Chat Log: black chat frames over a dark world, and WoW's chat-channel colours, each with one job. */
+    /* Chat Log: dark chat frames over a dark world, and WoW's chat-channel colours, each with one job.
+       Nothing large is pure black: some monitors push true black hard enough to be tiring. */
     :root {
-      --world: #1A1A1E;    /* the ground */
-      --frame: rgba(0, 0, 0, .6); /* the chat frame: panels */
-      --tooltip: #0D0D1C;  /* the one framed panel */
-      --line: #2E2E36;     /* dividers */
+      --world: #1F1F23;    /* the ground */
+      --frame: rgba(0, 0, 0, .35); /* the chat frame: panels */
+      --tooltip: #17172B;  /* the one framed panel */
+      --line: #34343C;     /* dividers */
       --edge: #8C8C99;     /* tooltip and control borders */
       --pad: #2A2A30;      /* controller buttons */
       --say: #FFFFFF;      /* headings, names */
@@ -36,7 +37,7 @@
       --whisper: #FF80FF;  /* Whisper: the questions */
       --display: "Grenze", Georgia, serif;
       --sans: "Sofia Sans", "Segoe UI", system-ui, sans-serif;
-      --ui: "Sofia Sans Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+      --ui: "Sofia Sans Semi Condensed", "Arial Narrow", "Segoe UI", sans-serif;
       --page: 1200px;
     }
 
@@ -92,7 +93,7 @@
 
     /* The moment: the overlay listening, and your words in a chat frame */
     .scene { flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 28px; }
-    .overlay { align-self: center; display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 8px 20px 8px 8px; background: rgba(0, 0, 0, .8); border: 1px solid #000; border-radius: 2px; }
+    .overlay { align-self: center; display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 8px 20px 8px 8px; background: rgba(20, 20, 23, .9); border: 1px solid #000; border-radius: 2px; }
     .overlay strong { display: block; font: 600 1.2rem/1.1 var(--ui); color: var(--link); }
     .overlay small { display: block; font: 500 .875rem/1.2 var(--ui); color: var(--text); }
     .caret { display: inline-block; width: 9px; height: 3px; margin-left: 4px; background: currentColor; animation: blink 1s steps(1) infinite; }
@@ -102,7 +103,7 @@
     .tab.off { background: none; color: var(--muted); }
     .chat { padding: 18px 20px; background: var(--frame); display: flex; flex-direction: column; gap: 4px; font: 500 1.05rem/1.45 var(--ui); }
     .chat .guild { color: var(--ready); } .chat .party { color: var(--link); } .chat .say { color: var(--say); }
-    .chat .typing { margin-top: 12px; padding: 10px 12px; background: #000; border: 1px solid var(--edge); border-radius: 2px; color: var(--say); }
+    .chat .typing { margin-top: 12px; padding: 10px 12px; background: #141417; border: 1px solid var(--edge); border-radius: 2px; color: var(--say); }
     .chat .typing span { color: var(--link); }
     .chat .typing::after { content: ""; display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: text-bottom; background: var(--say); animation: blink 1s steps(1) infinite; }
     .chat .send { align-self: flex-end; display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: .95rem; color: var(--text); }
@@ -113,7 +114,7 @@
     .pad.wide { min-width: 44px; border-radius: 8px 8px 4px 4px; }
     .pad.dpad { border-radius: 4px; }
     .pad.small { height: 26px; min-width: 26px; font-size: .8rem; }
-    .key { min-width: 40px; padding: 0 10px; background: #0A0A0C; border: 1px solid var(--edge); border-bottom-width: 3px; border-radius: 2px; font: 600 .95rem/1 var(--ui); }
+    .key { min-width: 40px; padding: 0 10px; background: #141417; border: 1px solid var(--edge); border-bottom-width: 3px; border-radius: 2px; font: 600 .95rem/1 var(--ui); }
     .buttons { display: flex; gap: 6px; }
 
     /* Why: lines from an item tooltip, not a row of cards */
