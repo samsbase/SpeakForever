@@ -9,144 +9,139 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#2E3F8F" />
-                    <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#3A50B0" />
-                    <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="#24337A" />
-                    <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="#8A93B8" />
-                    <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#E0ECFF" />
-                    <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="#E0ECFF" />
-                    <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#0B0E1A" />
-                    <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#161B33" />
-                    <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="#8A93B8" />
-                    <SolidColorBrush x:Key="ToggleSwitchKnobFillOff" Color="#8A93B8" />
-                    <SolidColorBrush x:Key="ToggleSwitchContentForeground" Color="#B8CCFF" />
+            <!-- Stock controls, recoloured to match. -->
+            <!-- The Active switch: Guild green when on, like "Ready". -->
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#40FF40" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#73FF73" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="#30D030" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="#40FF40" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#73FF73" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOn" Color="#000000" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOnPointerOver" Color="#000000" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#0A0A0C" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#222228" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="#8C8C99" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillOff" Color="#9D9D9D" />
+            <SolidColorBrush x:Key="ToggleSwitchContentForeground" Color="#FFFFFF" />
 
-                    <SolidColorBrush x:Key="ComboBoxBackground" Color="#0B0E1A" />
-                    <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#161B33" />
-                    <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#0B0E1A" />
-                    <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#3A4270" />
-                    <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#8A93B8" />
-                    <SolidColorBrush x:Key="ComboBoxForeground" Color="#D6DCF0" />
-                    <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#12162A" />
-                    <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#8A93B8" />
+            <SolidColorBrush x:Key="ComboBoxBackground" Color="#0A0A0C" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="#222228" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="#0A0A0C" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="#8C8C99" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ComboBoxForeground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#0D0D1C" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="#8C8C99" />
 
-                    <SolidColorBrush x:Key="SliderTrackFill" Color="#3A4270" />
-                    <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#4A5388" />
-                    <SolidColorBrush x:Key="SliderTrackValueFill" Color="#7AA7FF" />
-                    <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="#A6C4FF" />
-                    <SolidColorBrush x:Key="SliderThumbBackground" Color="#E0ECFF" />
-                    <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="SliderTrackFill" Color="#2E2E36" />
+            <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#3A3A44" />
+            <SolidColorBrush x:Key="SliderTrackValueFill" Color="#AAAAFF" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="#C8C8FF" />
+            <SolidColorBrush x:Key="SliderThumbBackground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#FFFFFF" />
 
-                    <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="Transparent" />
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
+            <!-- Tabs drawn like WoW's chat tabs: the selected one shares the chat frame's black and goes gold. -->
+            <SolidColorBrush x:Key="SelectorBarItemPillFill" Color="Transparent" />
+            <SolidColorBrush x:Key="SelectorBarItemForeground" Color="#9D9D9D" />
+            <SolidColorBrush x:Key="SelectorBarItemForegroundPointerOver" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="SelectorBarItemForegroundPressed" Color="#D8D8DE" />
+            <SolidColorBrush x:Key="SelectorBarItemForegroundSelected" Color="#FFD100" />
+            <SolidColorBrush x:Key="SelectorBarItemBackgroundSelected" Color="#99000000" />
+            <SolidColorBrush x:Key="SelectorBarItemBackgroundPointerOver" Color="#4D000000" />
 
-            <!-- Arcane palette, taken from the logo. WoW Classic's frame style, not its gold. -->
-            <Color x:Key="NightColor">#0B0E1A</Color>
-            <Color x:Key="FrameColor">#12162A</Color>
-            <Color x:Key="SilverColor">#8A93B8</Color>
-            <Color x:Key="IndigoColor">#3A4270</Color>
-            <Color x:Key="ArcaneColor">#7AA7FF</Color>
-            <Color x:Key="PaleArcaneColor">#B8CCFF</Color>
-            <Color x:Key="StarlightColor">#E0ECFF</Color>
-            <Color x:Key="BodyColor">#D6DCF0</Color>
-            <Color x:Key="WarningColor">#FF6B6B</Color>
+            <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="Transparent" />
 
-            <SolidColorBrush x:Key="NightBrush" Color="{StaticResource NightColor}" />
-            <SolidColorBrush x:Key="FrameBrush" Color="{StaticResource FrameColor}" />
-            <SolidColorBrush x:Key="SilverBrush" Color="{StaticResource SilverColor}" />
-            <SolidColorBrush x:Key="IndigoBrush" Color="{StaticResource IndigoColor}" />
-            <SolidColorBrush x:Key="ArcaneBrush" Color="{StaticResource ArcaneColor}" />
-            <SolidColorBrush x:Key="PaleArcaneBrush" Color="{StaticResource PaleArcaneColor}" />
-            <SolidColorBrush x:Key="StarlightBrush" Color="{StaticResource StarlightColor}" />
-            <SolidColorBrush x:Key="BodyBrush" Color="{StaticResource BodyColor}" />
-            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
-            <SolidColorBrush x:Key="ChatBrush" Color="#05060C" />
-            <SolidColorBrush x:Key="BrightBrush" Color="#F2F6FF" />
-            <SolidColorBrush x:Key="MutedBrush" Color="#A3ABCB" />
-            <SolidColorBrush x:Key="CardBrush" Color="#0F1224" />
-            <SolidColorBrush x:Key="CardLineBrush" Color="#2A3050" />
+            <!--
+                Chat Log, the design system shared with speakforever.app: black chat frames over a dark world,
+                and the colours of WoW's chat channels and item qualities, each with one job.
+            -->
+            <SolidColorBrush x:Key="WorldBrush" Color="#1A1A1E" />      <!-- the window's ground -->
+            <SolidColorBrush x:Key="PanelBrush" Color="#99000000" />    <!-- the chat frame: cards and panels -->
+            <SolidColorBrush x:Key="TooltipBrush" Color="#0D0D1C" />    <!-- the one framed panel per screen -->
+            <SolidColorBrush x:Key="InkBrush" Color="#000000" />        <!-- text on the action colour, outlines -->
+            <SolidColorBrush x:Key="KeyBrush" Color="#0A0A0C" />        <!-- keycaps -->
+            <SolidColorBrush x:Key="LineBrush" Color="#2E2E36" />       <!-- dividers -->
+            <SolidColorBrush x:Key="EdgeBrush" Color="#8C8C99" />       <!-- tooltip and control borders -->
+            <SolidColorBrush x:Key="SayBrush" Color="#FFFFFF" />        <!-- headings, names, strong text -->
+            <SolidColorBrush x:Key="TextBrush" Color="#D8D8DE" />       <!-- body -->
+            <SolidColorBrush x:Key="MutedBrush" Color="#9D9D9D" />      <!-- labels, metadata -->
+            <SolidColorBrush x:Key="ActionBrush" Color="#FF8000" />     <!-- Legendary: the one thing to do next -->
+            <SolidColorBrush x:Key="ReadyBrush" Color="#40FF40" />      <!-- Guild: ready -->
+            <SolidColorBrush x:Key="ProblemBrush" Color="#FF4040" />    <!-- Yell: problems -->
+            <SolidColorBrush x:Key="GoldBrush" Color="#FFD100" />       <!-- the selected tab, notices -->
+            <SolidColorBrush x:Key="LinkBrush" Color="#AAAAFF" />       <!-- Party: links, listening -->
 
             <!-- The Home tab's status light, by tone: the colour, and the fill behind the microphone. -->
-            <SolidColorBrush x:Key="ToneReadyBrush" Color="#5FD49A" />
-            <SolidColorBrush x:Key="ToneReadyFillBrush" Color="#0F2A22" />
-            <SolidColorBrush x:Key="ToneBusyBrush" Color="#7AA7FF" />
-            <SolidColorBrush x:Key="ToneBusyFillBrush" Color="#172452" />
-            <SolidColorBrush x:Key="ToneIdleBrush" Color="#A3ABCB" />
-            <SolidColorBrush x:Key="ToneIdleFillBrush" Color="#1A1E33" />
-            <SolidColorBrush x:Key="ToneProblemBrush" Color="#FF6B6B" />
-            <SolidColorBrush x:Key="ToneProblemFillBrush" Color="#2E1620" />
+            <SolidColorBrush x:Key="ToneReadyBrush" Color="#40FF40" />
+            <SolidColorBrush x:Key="ToneReadyFillBrush" Color="#0B240D" />
+            <SolidColorBrush x:Key="ToneBusyBrush" Color="#AAAAFF" />
+            <SolidColorBrush x:Key="ToneBusyFillBrush" Color="#16162E" />
+            <SolidColorBrush x:Key="ToneIdleBrush" Color="#9D9D9D" />
+            <SolidColorBrush x:Key="ToneIdleFillBrush" Color="#1F1F24" />
+            <SolidColorBrush x:Key="ToneProblemBrush" Color="#FF4040" />
+            <SolidColorBrush x:Key="ToneProblemFillBrush" Color="#2E1214" />
 
-            <RadialGradientBrush x:Key="WindowBackground" Center="0.5,0.25" RadiusX="0.9" RadiusY="0.9" GradientOrigin="0.5,0.25">
-                <GradientStop Color="#161C38" Offset="0" />
-                <GradientStop Color="#0B0E1A" Offset="0.6" />
-                <GradientStop Color="#06070E" Offset="1" />
-            </RadialGradientBrush>
+            <!-- Grenze for the name and headings, Sofia Sans for reading, its condensed cut for everything you operate. -->
+            <FontFamily x:Key="Grenze">ms-appx:///Assets/Fonts/Grenze.ttf#Grenze</FontFamily>
+            <FontFamily x:Key="SofiaSans">ms-appx:///Assets/Fonts/SofiaSans.ttf#Sofia Sans</FontFamily>
+            <FontFamily x:Key="SofiaSansCondensed">ms-appx:///Assets/Fonts/SofiaSansCondensed.ttf#Sofia Sans Condensed</FontFamily>
+            <FontFamily x:Key="ContentControlThemeFontFamily">ms-appx:///Assets/Fonts/SofiaSansCondensed.ttf#Sofia Sans Condensed</FontFamily>
 
-            <FontFamily x:Key="Cinzel">ms-appx:///Assets/Fonts/Cinzel.ttf#Cinzel</FontFamily>
+            <!-- Square frames, 2px corners on what you press. -->
+            <CornerRadius x:Key="ControlCornerRadius">2</CornerRadius>
+            <CornerRadius x:Key="OverlayCornerRadius">2</CornerRadius>
 
-            <!-- Stock controls, recoloured to match. -->
-            <Color x:Key="SystemAccentColor">#7AA7FF</Color>
-            <Color x:Key="SystemAccentColorLight1">#8FB6FF</Color>
-            <Color x:Key="SystemAccentColorLight2">#A6C4FF</Color>
-            <Color x:Key="SystemAccentColorLight3">#C2D6FF</Color>
-            <Color x:Key="SystemAccentColorDark1">#5A84D6</Color>
-            <Color x:Key="SystemAccentColorDark2">#3E62AE</Color>
-            <Color x:Key="SystemAccentColorDark3">#2E3F8F</Color>
+            <!-- Stock controls (focus, check boxes, progress), in the action colour. -->
+            <Color x:Key="SystemAccentColor">#FF8000</Color>
+            <Color x:Key="SystemAccentColorLight1">#FF8000</Color>
+            <Color x:Key="SystemAccentColorLight2">#FF8000</Color>
+            <Color x:Key="SystemAccentColorLight3">#FF9933</Color>
+            <Color x:Key="SystemAccentColorDark1">#E67300</Color>
+            <Color x:Key="SystemAccentColorDark2">#CC6600</Color>
+            <Color x:Key="SystemAccentColorDark3">#994C00</Color>
 
-            <!-- A WoW-style frame: silver outer border, indigo inner line, small corner studs. -->
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSans}" />
+            </Style>
+            <Style TargetType="RichTextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSans}" />
+            </Style>
+
+            <!-- The one framed panel per screen, like a WoW tooltip: silver edge, black inner line. -->
             <Style x:Key="Frame" TargetType="ContentControl">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
                 <Setter Property="Padding" Value="16,12,16,14" />
-                <Setter Property="Foreground" Value="{StaticResource BodyBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                 <Setter Property="IsTabStop" Value="False" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ContentControl">
-                            <Grid>
-                                <Border Background="{StaticResource FrameBrush}" BorderBrush="{StaticResource SilverBrush}" BorderThickness="2" CornerRadius="4">
-                                    <Border Margin="3" BorderBrush="{StaticResource IndigoBrush}" BorderThickness="1" CornerRadius="2" Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
-                                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                    </Border>
+                            <Border Background="{StaticResource TooltipBrush}" BorderBrush="{StaticResource EdgeBrush}" BorderThickness="1" CornerRadius="2">
+                                <Border BorderBrush="{StaticResource InkBrush}" BorderThickness="1" CornerRadius="1" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
                                 </Border>
-                                <Rectangle Width="7" Height="7" Fill="{StaticResource SilverBrush}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2,-2,0,0" RenderTransformOrigin="0.5,0.5">
-                                    <Rectangle.RenderTransform><RotateTransform Angle="45" /></Rectangle.RenderTransform>
-                                </Rectangle>
-                                <Rectangle Width="7" Height="7" Fill="{StaticResource SilverBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0" RenderTransformOrigin="0.5,0.5">
-                                    <Rectangle.RenderTransform><RotateTransform Angle="45" /></Rectangle.RenderTransform>
-                                </Rectangle>
-                                <Rectangle Width="7" Height="7" Fill="{StaticResource SilverBrush}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-2,0,0,-2" RenderTransformOrigin="0.5,0.5">
-                                    <Rectangle.RenderTransform><RotateTransform Angle="45" /></Rectangle.RenderTransform>
-                                </Rectangle>
-                                <Rectangle Width="7" Height="7" Fill="{StaticResource SilverBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-2,-2" RenderTransformOrigin="0.5,0.5">
-                                    <Rectangle.RenderTransform><RotateTransform Angle="45" /></Rectangle.RenderTransform>
-                                </Rectangle>
-                            </Grid>
+                            </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
 
-            <!-- Everyday panels: a plain card. The ornate frame above is kept for one panel per screen. -->
+            <!-- Everyday panels: the chat frame, square and borderless. -->
             <Style x:Key="Card" TargetType="ContentControl">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
                 <Setter Property="Padding" Value="16,14" />
-                <Setter Property="Foreground" Value="{StaticResource BodyBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                 <Setter Property="IsTabStop" Value="False" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ContentControl">
-                            <Border Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardLineBrush}" BorderThickness="1" CornerRadius="8"
-                                    Padding="{TemplateBinding Padding}">
+                            <Border Background="{StaticResource PanelBrush}" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
                                                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -156,39 +151,42 @@
                 </Setter>
             </Style>
 
-            <!-- Cinzel is for the wordmark and section titles; everything else is Segoe UI. -->
+            <!-- A section title in a panel: "Microphone", "Updates". -->
             <Style x:Key="FrameHeader" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="{StaticResource Cinzel}" />
-                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontFamily" Value="{StaticResource Grenze}" />
+                <Setter Property="FontSize" Value="21" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Foreground" Value="{StaticResource PaleArcaneBrush}" />
-                <Setter Property="CharacterSpacing" Value="40" />
+                <Setter Property="Foreground" Value="{StaticResource SayBrush}" />
             </Style>
 
             <!-- A small label over a group, such as "Last message". -->
             <Style x:Key="Label" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
             </Style>
 
-            <!-- A title in a row or a card: "Found WoW: Forever", "Turbo". -->
+            <!-- A title in a row or a card: "Turbo", "Say hello". -->
             <Style x:Key="ItemTitle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontSize" Value="17" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Foreground" Value="{StaticResource StarlightBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource SayBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
             </Style>
 
             <Style x:Key="Caption" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontSize" Value="14" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
             </Style>
 
             <!-- Caption, for text with controller button icons in it. -->
             <Style x:Key="RichCaption" TargetType="RichTextBlock">
-                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontSize" Value="14" />
                 <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="IsTextSelectionEnabled" Value="False" />
@@ -201,10 +199,10 @@
             -->
             <Style x:Key="PanelButton" TargetType="Button">
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="#5A6390" />
+                <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Foreground" Value="{StaticResource StarlightBrush}" />
-                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Foreground" Value="{StaticResource SayBrush}" />
+                <Setter Property="FontSize" Value="15" />
                 <Setter Property="FontWeight" Value="SemiBold" />
                 <Setter Property="Padding" Value="14,7,14,8" />
                 <Setter Property="MinWidth" Value="88" />
@@ -214,8 +212,8 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Grid x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
-                                <Border x:Name="Tint" CornerRadius="5" />
+                                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2">
+                                <Border x:Name="Tint" CornerRadius="1" />
                                 <ContentPresenter x:Name="Presenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
                                                   Foreground="{TemplateBinding Foreground}" Padding="{TemplateBinding Padding}"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -246,26 +244,27 @@
             </Style>
 
             <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource PanelButton}">
-                <Setter Property="Background" Value="{StaticResource ArcaneBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource ArcaneBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource NightBrush}" />
+                <Setter Property="Background" Value="{StaticResource ActionBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ActionBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+                <Setter Property="FontWeight" Value="Bold" />
                 <Setter Property="Padding" Value="18,8,18,9" />
                 <Setter Property="MinHeight" Value="40" />
             </Style>
 
             <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource PanelButton}">
                 <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Foreground" Value="{StaticResource ArcaneBrush}" />
-                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="Foreground" Value="{StaticResource LinkBrush}" />
+                <Setter Property="FontWeight" Value="Medium" />
                 <Setter Property="Padding" Value="10,6" />
                 <Setter Property="MinWidth" Value="0" />
             </Style>
 
             <Style x:Key="Keycap" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource NightBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource IndigoBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="3" />
+                <Setter Property="Background" Value="{StaticResource KeyBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource EdgeBrush}" />
+                <Setter Property="BorderThickness" Value="1,1,1,3" />
+                <Setter Property="CornerRadius" Value="2" />
                 <Setter Property="Padding" Value="10,5" />
                 <Setter Property="MinWidth" Value="130" />
                 <Setter Property="MinHeight" Value="38" />
@@ -273,8 +272,10 @@
             </Style>
 
             <Style x:Key="KeycapText" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="Cascadia Mono, Consolas" />
-                <Setter Property="Foreground" Value="{StaticResource ArcaneBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource SofiaSansCondensed}" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{StaticResource SayBrush}" />
                 <Setter Property="HorizontalAlignment" Value="Center" />
             </Style>
         </ResourceDictionary>

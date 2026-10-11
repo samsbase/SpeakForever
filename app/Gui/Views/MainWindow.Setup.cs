@@ -71,10 +71,10 @@ public sealed partial class MainWindow
     static void ShowStep(int step, ContentControl card, Border badge, TextBlock badgeText, int current, bool done)
     {
         card.Style = (Style)Application.Current.Resources[step == current ? "Frame" : "Card"];
-        card.Padding = step == current ? new Thickness(11, 8, 11, 8) : new Thickness(16, 14, 16, 14); // the frame's borders make up the rest
-        badge.Background = Brush(done ? "ToneReadyFillBrush" : step == current ? "ArcaneBrush" : "CardBrush");
-        badge.BorderBrush = Brush(done ? "ToneReadyBrush" : step == current ? "ArcaneBrush" : "MutedBrush");
-        badgeText.Foreground = Brush(done ? "ToneReadyBrush" : step == current ? "NightBrush" : "MutedBrush");
+        card.Padding = step == current ? new Thickness(14, 12, 14, 12) : new Thickness(16, 14, 16, 14); // the frame's borders make up the rest
+        badge.Background = Brush(done ? "ToneReadyFillBrush" : step == current ? "ActionBrush" : "PanelBrush");
+        badge.BorderBrush = Brush(done ? "ToneReadyBrush" : step == current ? "ActionBrush" : "MutedBrush");
+        badgeText.Foreground = Brush(done ? "ToneReadyBrush" : step == current ? "InkBrush" : "MutedBrush");
         if (done)
         {
             badgeText.FontFamily = IconFont;

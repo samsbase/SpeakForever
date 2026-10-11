@@ -5,49 +5,30 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <UserControl.Resources>
-        <!-- Only opacity and scale are animated: both run on the compositor, not the UI thread.
+        <!-- Only opacity is animated: it runs on the compositor, not the UI thread.
              Played while listening, and at a higher SpeedRatio while transcribing; stopped otherwise. -->
         <Storyboard x:Name="Pulse">
-            <DoubleAnimation Storyboard.TargetName="Wave1Scale" Storyboard.TargetProperty="ScaleX" From="0.28" To="1" Duration="0:0:3" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave1Scale" Storyboard.TargetProperty="ScaleY" From="0.28" To="1" Duration="0:0:3" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave1" Storyboard.TargetProperty="Opacity" From="0.8" To="0" Duration="0:0:3" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave2Scale" Storyboard.TargetProperty="ScaleX" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:1" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave2Scale" Storyboard.TargetProperty="ScaleY" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:1" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave2" Storyboard.TargetProperty="Opacity" From="0.8" To="0" Duration="0:0:3" BeginTime="0:0:1" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave3Scale" Storyboard.TargetProperty="ScaleX" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:2" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave3Scale" Storyboard.TargetProperty="ScaleY" From="0.28" To="1" Duration="0:0:3" BeginTime="0:0:2" RepeatBehavior="Forever" />
-            <DoubleAnimation Storyboard.TargetName="Wave3" Storyboard.TargetProperty="Opacity" From="0.8" To="0" Duration="0:0:3" BeginTime="0:0:2" RepeatBehavior="Forever" />
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Highlight" Storyboard.TargetProperty="Opacity" RepeatBehavior="Forever">
-                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0.3" />
-                <LinearDoubleKeyFrame KeyTime="0:0:1" Value="1" />
-                <LinearDoubleKeyFrame KeyTime="0:0:2" Value="0.3" />
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0.2" />
+                <LinearDoubleKeyFrame KeyTime="0:0:0.8" Value="1" />
+                <LinearDoubleKeyFrame KeyTime="0:0:1.6" Value="0.2" />
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
 
-    <!-- Same drawing as assets/logo.svg, on a 256 x 256 canvas. -->
+    <!-- Same drawing as assets/logo.svg: an infinity sign in chat brackets, orange with a black outline, on a 128 x 128 canvas.
+         Strokes are the heavier small-size ones, since it shows at title-bar size. -->
     <Viewbox>
-        <Canvas Width="256" Height="256">
-            <Ellipse Canvas.Left="8" Canvas.Top="8" Width="240" Height="240" Fill="#12162A" />
-            <Ellipse Canvas.Left="8" Canvas.Top="8" Width="240" Height="240" Stroke="#8A93B8" StrokeThickness="8" />
-            <Ellipse Canvas.Left="22.5" Canvas.Top="22.5" Width="211" Height="211" Stroke="#3A4270" StrokeThickness="3" />
-
-            <Ellipse x:Name="Wave1" Canvas.Left="28" Canvas.Top="28" Width="200" Height="200" Stroke="#7AA7FF" StrokeThickness="3" Opacity="0" RenderTransformOrigin="0.5,0.5">
-                <Ellipse.RenderTransform><ScaleTransform x:Name="Wave1Scale" ScaleX="0.28" ScaleY="0.28" /></Ellipse.RenderTransform>
-            </Ellipse>
-            <Ellipse x:Name="Wave2" Canvas.Left="28" Canvas.Top="28" Width="200" Height="200" Stroke="#7AA7FF" StrokeThickness="3" Opacity="0" RenderTransformOrigin="0.5,0.5">
-                <Ellipse.RenderTransform><ScaleTransform x:Name="Wave2Scale" ScaleX="0.28" ScaleY="0.28" /></Ellipse.RenderTransform>
-            </Ellipse>
-            <Ellipse x:Name="Wave3" Canvas.Left="28" Canvas.Top="28" Width="200" Height="200" Stroke="#7AA7FF" StrokeThickness="3" Opacity="0" RenderTransformOrigin="0.5,0.5">
-                <Ellipse.RenderTransform><ScaleTransform x:Name="Wave3Scale" ScaleX="0.28" ScaleY="0.28" /></Ellipse.RenderTransform>
-            </Ellipse>
-
-            <Path Stroke="#2E3F8F" StrokeThickness="24" StrokeLineJoin="Round"
-                  Data="M128,128 C152,80 212,80 212,128 C212,176 152,176 128,128 C104,80 44,80 44,128 C44,176 104,176 128,128 Z" />
-            <Path Stroke="#7AA7FF" StrokeThickness="15" StrokeLineJoin="Round"
-                  Data="M128,128 C152,80 212,80 212,128 C212,176 152,176 128,128 C104,80 44,80 44,128 C44,176 104,176 128,128 Z" />
-            <Path x:Name="Highlight" Stroke="#E0ECFF" StrokeThickness="5" StrokeLineJoin="Round" Opacity="0.7"
-                  Data="M128,128 C152,80 212,80 212,128 C212,176 152,176 128,128 C104,80 44,80 44,128 C44,176 104,176 128,128 Z" />
+        <Canvas Width="128" Height="128">
+            <Path Stroke="#000000" StrokeThickness="22" StrokeStartLineCap="Square" StrokeEndLineCap="Square" Data="M34,22 H18 V106 H34" />
+            <Path Stroke="#000000" StrokeThickness="22" StrokeStartLineCap="Square" StrokeEndLineCap="Square" Data="M94,22 H110 V106 H94" />
+            <Path Stroke="#000000" StrokeThickness="22" Data="M64,64 C72,48 92,48 92,64 C92,80 72,80 64,64 C56,48 36,48 36,64 C36,80 56,80 64,64 Z" />
+            <Path Stroke="#FF8000" StrokeThickness="14" StrokeStartLineCap="Square" StrokeEndLineCap="Square" Data="M34,22 H18 V106 H34" />
+            <Path Stroke="#FF8000" StrokeThickness="14" StrokeStartLineCap="Square" StrokeEndLineCap="Square" Data="M94,22 H110 V106 H94" />
+            <Path Stroke="#FF8000" StrokeThickness="14" Data="M64,64 C72,48 92,48 92,64 C92,80 72,80 64,64 C56,48 36,48 36,64 C36,80 56,80 64,64 Z" />
+            <!-- Lit while it listens and transcribes. -->
+            <Path x:Name="Highlight" Stroke="#FFFFFF" StrokeThickness="5" Opacity="0"
+                  Data="M64,64 C72,48 92,48 92,64 C92,80 72,80 64,64 C56,48 36,48 36,64 C36,80 56,80 64,64 Z" />
         </Canvas>
     </Viewbox>
 </UserControl>

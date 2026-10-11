@@ -1,11 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img">
   <title>Speak Forever</title>
-  <circle cx="128" cy="128" r="120" fill="#12162A"/>
-  <circle cx="128" cy="128" r="116" fill="none" stroke="#8A93B8" stroke-width="8"/>
-  <circle cx="128" cy="128" r="104" fill="none" stroke="#3A4270" stroke-width="3"/>
-  <g fill="none" stroke-linejoin="round">
-    <path d="M128 128 C152 80 212 80 212 128 C212 176 152 176 128 128 C104 80 44 80 44 128 C44 176 104 176 128 128 Z" stroke="#2E3F8F" stroke-width="24"/>
-    <path d="M128 128 C152 80 212 80 212 128 C212 176 152 176 128 128 C104 80 44 80 44 128 C44 176 104 176 128 128 Z" stroke="#7AA7FF" stroke-width="15"/>
-    <path d="M128 128 C152 80 212 80 212 128 C212 176 152 176 128 128 C104 80 44 80 44 128 C44 176 104 176 128 128 Z" stroke="#E0ECFF" stroke-width="5" opacity="0.7"/>
+  <!-- The app icon: the mark on its own dark tile. IconGen draws the same geometry. -->
+  <rect width="128" height="128" fill="#0A0A0C"/>
+  <g fill="none" stroke="#FF8000" stroke-width="11" stroke-linecap="square">
+    <path d="M34 22H18V106H34"/>
+    <path d="M94 22H110V106H94"/>
+    <path d="M64 64C72 48 92 48 92 64C92 80 72 80 64 64C56 48 36 48 36 64C36 80 56 80 64 64Z"/>
   </g>
 </svg>

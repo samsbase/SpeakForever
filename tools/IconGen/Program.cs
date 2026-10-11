@@ -3,9 +3,9 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 
-// Draws Speak Forever's brand art from the logo geometry in assets/logo-static.svg:
+// Draws Speak Forever's brand art from the logo geometry in assets/logo.svg and assets/logo-static.svg:
 //   IconGen icon <out.ico> [preview.png]        multi-size app icon
-//   IconGen wizard <outdir> <Cinzel.ttf>         installer side panel and header images
+//   IconGen wizard <outdir> <Grenze.ttf>         installer side panel and header images
 // Everything is drawn large and scaled down, so small sizes stay smooth.
 switch (args)
 {
@@ -16,7 +16,7 @@ switch (args)
         WriteWizardArt(dir, font);
         break;
     default:
-        Console.Error.WriteLine("Usage: IconGen icon <out.ico> [preview.png] | IconGen wizard <outdir> <Cinzel.ttf>");
+        Console.Error.WriteLine("Usage: IconGen icon <out.ico> [preview.png] | IconGen wizard <outdir> <Grenze.ttf>");
         return 1;
 }
 return 0;
@@ -61,12 +61,12 @@ static void WriteWizardArt(string dir, string fontPath)
     Directory.CreateDirectory(dir);
     using var fonts = new PrivateFontCollection();
     fonts.AddFontFile(fontPath);
-    var cinzel = fonts.Families[0];
+    var grenze = fonts.Families[0];
     foreach (int percent in new[] { 100, 125, 150, 175, 200, 250 })
     {
         float k = percent / 100f;
         int w = (int)Math.Round(164 * k), h = (int)Math.Round(314 * k);
-        using var large = Render(w, h, g => DrawSidePanel(g, w * 8, h * 8, cinzel));
+        using var large = Render(w, h, g => DrawSidePanel(g, w * 8, h * 8, grenze));
         large.Save(Path.Combine(dir, $"wizard-large-{percent}.png"), ImageFormat.Png);
         int s = (int)Math.Round(55 * k);
         using var small = Render(s, s, g => DrawLogo(g, new RectangleF(s * 8 * 0.06f, s * 8 * 0.06f, s * 8 * 0.88f, s * 8 * 0.88f), simple: s <= 64));
@@ -75,79 +75,56 @@ static void WriteWizardArt(string dir, string fontPath)
     Console.WriteLine($"Wrote wizard art to {dir}");
 }
 
-// Night-sky panel: the logo, the name in Cinzel, a silver rule with a stud, a tagline.
-static void DrawSidePanel(Graphics g, float w, float h, FontFamily cinzel)
+// The world ground: the mark, the name in Grenze, a rule, a tagline.
+static void DrawSidePanel(Graphics g, float w, float h, FontFamily grenze)
 {
-    using (var sky = new LinearGradientBrush(new RectangleF(0, 0, w, h), Color.FromArgb(0x16, 0x1C, 0x38), Color.FromArgb(0x06, 0x07, 0x0E), 90f))
-        g.FillRectangle(sky, 0, 0, w, h);
-    using (var glow = new GraphicsPath())
-    {
-        glow.AddEllipse(-w * 0.3f, h * 0.05f, w * 1.6f, h * 0.6f);
-        using var halo = new PathGradientBrush(glow) { CenterColor = Color.FromArgb(70, 0x2E, 0x3F, 0x8F), SurroundColors = [Color.FromArgb(0, 0x2E, 0x3F, 0x8F)] };
-        g.FillPath(halo, glow);
-    }
+    using (var world = new SolidBrush(Color.FromArgb(0x1A, 0x1A, 0x1E))) g.FillRectangle(world, 0, 0, w, h);
 
-    float logo = w * 0.66f;
-    DrawLogo(g, new RectangleF((w - logo) / 2, h * 0.17f, logo, logo), simple: false);
+    float logo = w * 0.62f;
+    DrawLogo(g, new RectangleF((w - logo) / 2, h * 0.16f, logo, logo), simple: false, tile: false);
 
     using var format = new StringFormat { Alignment = StringAlignment.Center };
-    using var starlight = new SolidBrush(Color.FromArgb(0xE0, 0xEC, 0xFF));
-    using var title = new Font(cinzel, w * 0.125f, FontStyle.Regular, GraphicsUnit.Pixel);
+    using var say = new SolidBrush(Color.White);
+    using var title = new Font(grenze, w * 0.16f, FontStyle.Bold, GraphicsUnit.Pixel);
     g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-    float y = h * 0.17f + logo + h * 0.05f;
-    g.DrawString("SPEAK", title, starlight, w / 2, y, format);
-    g.DrawString("FOREVER", title, starlight, w / 2, y + title.Height * 0.95f, format);
+    float y = h * 0.16f + logo + h * 0.04f;
+    g.DrawString("Speak", title, say, w / 2, y, format);
+    g.DrawString("Forever", title, say, w / 2, y + title.Height * 0.9f, format);
 
-    float rule = y + title.Height * 2.15f;
-    using (var line = new LinearGradientBrush(new RectangleF(w * 0.12f, rule, w * 0.76f, 8), Color.FromArgb(0, 0x8A, 0x93, 0xB8), Color.FromArgb(0, 0x8A, 0x93, 0xB8), 0f))
-    {
-        line.InterpolationColors = new ColorBlend
-        {
-            Colors = [Color.FromArgb(0, 0x8A, 0x93, 0xB8), Color.FromArgb(0x8A, 0x93, 0xB8), Color.FromArgb(0, 0x8A, 0x93, 0xB8)],
-            Positions = [0f, 0.5f, 1f],
-        };
-        g.FillRectangle(line, w * 0.12f, rule, w * 0.76f, w * 0.008f);
-    }
-    float stud = w * 0.04f;
-    var state = g.Save();
-    g.TranslateTransform(w / 2, rule + w * 0.004f);
-    g.RotateTransform(45);
-    using (var silver = new SolidBrush(Color.FromArgb(0x8A, 0x93, 0xB8))) g.FillRectangle(silver, -stud / 2, -stud / 2, stud, stud);
-    g.Restore(state);
+    float rule = y + title.Height * 2.05f;
+    using (var line = new SolidBrush(Color.FromArgb(0x2E, 0x2E, 0x36))) g.FillRectangle(line, w * 0.15f, rule, w * 0.7f, w * 0.008f);
 
-    using var tagline = new Font(cinzel, w * 0.062f, FontStyle.Regular, GraphicsUnit.Pixel);
-    using var silverText = new SolidBrush(Color.FromArgb(0x8A, 0x93, 0xB8));
-    g.DrawString("Your voice in WoW chat", tagline, silverText, w / 2, rule + w * 0.07f, format);
+    using var tagline = new Font(grenze, w * 0.075f, FontStyle.Regular, GraphicsUnit.Pixel);
+    using var muted = new SolidBrush(Color.FromArgb(0x9D, 0x9D, 0x9D));
+    g.DrawString("Your voice in WoW chat", tagline, muted, w / 2, rule + w * 0.05f, format);
 }
 
-// The logo, fitted to area; simple drops the inner ring and thickens the loop for tiny sizes.
-static void DrawLogo(Graphics g, RectangleF area, bool simple)
+// The mark, [∞], fitted to area (geometry from assets/logo.svg on a 128 canvas). Small sizes drop the
+// black outline and thicken the strokes; tile puts it on the app icon's dark square.
+static void DrawLogo(Graphics g, RectangleF area, bool simple, bool tile = true)
 {
     var state = g.Save();
     g.TranslateTransform(area.X, area.Y);
-    g.ScaleTransform(area.Width / 256f, area.Height / 256f);
+    g.ScaleTransform(area.Width / 128f, area.Height / 128f);
 
-    using var navy = new SolidBrush(Color.FromArgb(0x12, 0x16, 0x2A));
-    g.FillEllipse(navy, 8, 8, 240, 240);
-    using var silver = new Pen(Color.FromArgb(0x8A, 0x93, 0xB8), simple ? 14 : 8);
-    float ring = simple ? 119 : 116;
-    g.DrawEllipse(silver, 128 - ring, 128 - ring, ring * 2, ring * 2);
-    if (!simple)
-    {
-        using var indigo = new Pen(Color.FromArgb(0x3A, 0x42, 0x70), 3);
-        g.DrawEllipse(indigo, 24, 24, 208, 208);
-    }
+    if (tile) using (var ground = new SolidBrush(Color.FromArgb(0x0A, 0x0A, 0x0C))) g.FillRectangle(ground, 0, 0, 128, 128);
 
-    using var loop = new GraphicsPath();
-    loop.AddBezier(128, 128, 152, 80, 212, 80, 212, 128);
-    loop.AddBezier(212, 128, 212, 176, 152, 176, 128, 128);
-    loop.AddBezier(128, 128, 104, 80, 44, 80, 44, 128);
-    loop.AddBezier(44, 128, 44, 176, 104, 176, 128, 128);
-    float k = simple ? 1.5f : 1f;
-    foreach (var (color, width) in new[] { (Color.FromArgb(0x2E, 0x3F, 0x8F), 24f), (Color.FromArgb(0x7A, 0xA7, 0xFF), 15f), (Color.FromArgb(0xE0, 0xEC, 0xFF), 5f) })
+    using var mark = new GraphicsPath();
+    mark.StartFigure(); mark.AddLines([new PointF(34, 22), new PointF(18, 22), new PointF(18, 106), new PointF(34, 106)]);
+    mark.StartFigure(); mark.AddLines([new PointF(94, 22), new PointF(110, 22), new PointF(110, 106), new PointF(94, 106)]);
+    mark.StartFigure();
+    mark.AddBezier(64, 64, 72, 48, 92, 48, 92, 64);
+    mark.AddBezier(92, 64, 92, 80, 72, 80, 64, 64);
+    mark.AddBezier(64, 64, 56, 48, 36, 48, 36, 64);
+    mark.AddBezier(36, 64, 36, 80, 56, 80, 64, 64);
+    mark.CloseFigure();
+
+    var strokes = simple || tile ? new[] { (Color.FromArgb(0xFF, 0x80, 0x00), simple ? 15f : 11f) }
+                                 : new[] { (Color.Black, 16f), (Color.FromArgb(0xFF, 0x80, 0x00), 10f) };
+    foreach (var (color, width) in strokes)
     {
-        using var pen = new Pen(color, width * k) { LineJoin = LineJoin.Round };
-        g.DrawPath(pen, loop);
+        using var pen = new Pen(color, width) { LineJoin = LineJoin.Miter, StartCap = LineCap.Square, EndCap = LineCap.Square };
+        g.DrawPath(pen, mark);
     }
     g.Restore(state);
 }

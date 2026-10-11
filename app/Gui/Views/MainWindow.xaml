@@ -8,7 +8,7 @@
     xmlns:presentation="using:SpeakForever.Presentation"
     Title="Speak Forever">
 
-    <Grid x:Name="Root" Background="{StaticResource WindowBackground}">
+    <Grid x:Name="Root" Background="{StaticResource WorldBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -17,7 +17,7 @@
             <!-- One row of a model list: the main list and the advanced one share it. -->
             <DataTemplate x:Key="ModelRowTemplate" x:DataType="presentation:ModelRow">
                 <StackPanel>
-                    <Rectangle Height="1" Fill="{StaticResource CardLineBrush}" Visibility="{x:Bind HasDivider, Mode=OneWay}" />
+                    <Rectangle Height="1" Fill="{StaticResource LineBrush}" Visibility="{x:Bind HasDivider, Mode=OneWay}" />
                     <Grid ColumnSpacing="12" Padding="0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -27,8 +27,8 @@
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="{x:Bind Name}" Style="{StaticResource ItemTitle}" VerticalAlignment="Center" />
                                 <Border Visibility="{x:Bind IsRecommended}" BorderBrush="{StaticResource ToneReadyBrush}" Background="{StaticResource ToneReadyFillBrush}"
-                                        BorderThickness="1" CornerRadius="9" Padding="8,1,8,2" VerticalAlignment="Center">
-                                    <TextBlock Text="Recommended" FontSize="12" FontWeight="SemiBold" Foreground="#8FE6BC" />
+                                        BorderThickness="1" CornerRadius="2" Padding="6,1,6,2" VerticalAlignment="Center">
+                                    <TextBlock Text="Recommended" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ReadyBrush}" />
                                 </Border>
                             </StackPanel>
                             <TextBlock Text="{x:Bind Blurb}" FontSize="14" TextWrapping="Wrap" Visibility="{x:Bind HasBlurb}" />
@@ -37,12 +37,12 @@
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <ProgressBar Width="120" Maximum="1" Value="{x:Bind Progress, Mode=OneWay}" VerticalAlignment="Center"
                                          Visibility="{x:Bind ShowProgress, Mode=OneWay}" />
-                            <TextBlock Text="{x:Bind ProgressText, Mode=OneWay}" MinWidth="38" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center"
+                            <TextBlock Text="{x:Bind ProgressText, Mode=OneWay}" MinWidth="38" Foreground="{StaticResource LinkBrush}" VerticalAlignment="Center"
                                        Visibility="{x:Bind ShowProgress, Mode=OneWay}" />
                             <Button Content="Cancel" Style="{StaticResource QuietButton}" Click="CancelDownload_Click"
                                     Visibility="{x:Bind ShowProgress, Mode=OneWay}" />
                             <TextBlock Text="{x:Bind StateLabel, Mode=OneWay}" FontWeight="SemiBold"
-                                       Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" Visibility="{x:Bind ShowStatus, Mode=OneWay}" />
+                                       Foreground="{StaticResource LinkBrush}" VerticalAlignment="Center" Visibility="{x:Bind ShowStatus, Mode=OneWay}" />
                             <Button Content="Use" Style="{StaticResource PanelButton}" Click="UseModel_Click"
                                     IsEnabled="{x:Bind CanUse, Mode=OneWay}" Visibility="{x:Bind ShowUse, Mode=OneWay}" />
                             <Button Style="{StaticResource QuietButton}" Foreground="{StaticResource MutedBrush}" Click="DeleteModel_Click" Visibility="{x:Bind ShowUse, Mode=OneWay}"
@@ -61,8 +61,8 @@
         <Grid x:Name="TitleBar" Height="60" Padding="18,0,0,0">
             <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                 <controls:LogoView x:Name="Logo" Width="38" Height="38" />
-                <TextBlock Text="Speak Forever" FontFamily="{StaticResource Cinzel}" FontSize="21" FontWeight="SemiBold"
-                           Foreground="{StaticResource StarlightBrush}" CharacterSpacing="60" VerticalAlignment="Center" />
+                <TextBlock Text="Speak Forever" FontFamily="{StaticResource Grenze}" FontSize="25" FontWeight="SemiBold"
+                           Foreground="{StaticResource SayBrush}" VerticalAlignment="Center" />
             </StackPanel>
         </Grid>
 
@@ -73,12 +73,12 @@
             </Grid.RowDefinitions>
 
             <Grid x:Name="TabsBar">
-                <Rectangle Height="1" VerticalAlignment="Bottom" Fill="{StaticResource CardLineBrush}" Margin="-22,0" />
+                <Rectangle Height="1" VerticalAlignment="Bottom" Fill="{StaticResource LineBrush}" Margin="-22,0" />
                 <SelectorBar x:Name="Tabs" Margin="-12,0,0,0" SelectionChanged="Tabs_SelectionChanged">
-                    <SelectorBarItem Text="Home" FontSize="14" IsSelected="True" />
-                    <SelectorBarItem Text="Voice model" FontSize="14" />
-                    <SelectorBarItem Text="Controls" FontSize="14" />
-                    <SelectorBarItem Text="Settings" FontSize="14" />
+                    <SelectorBarItem Text="Home" FontSize="16" IsSelected="True" />
+                    <SelectorBarItem Text="Voice model" FontSize="16" />
+                    <SelectorBarItem Text="Controls" FontSize="16" />
+                    <SelectorBarItem Text="Settings" FontSize="16" />
                 </SelectorBar>
             </Grid>
 
@@ -86,8 +86,8 @@
             <ScrollViewer x:Name="SetupPage" Grid.RowSpan="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                 <StackPanel Padding="24,6,24,22" Spacing="12">
                     <StackPanel Spacing="4" Margin="0,0,0,8">
-                        <TextBlock Text="Let's get you talking" FontFamily="{StaticResource Cinzel}" FontSize="27" FontWeight="SemiBold"
-                                   Foreground="{StaticResource BrightBrush}" CharacterSpacing="30" />
+                        <TextBlock Text="Let's get you talking" FontFamily="{StaticResource Grenze}" FontSize="32" FontWeight="SemiBold"
+                                   Foreground="{StaticResource SayBrush}" />
                         <TextBlock Text="Two steps, and you only do this once." FontSize="15" />
                     </StackPanel>
 
@@ -102,7 +102,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Border x:Name="SetupModelBadge" Width="32" Height="32" CornerRadius="16" BorderThickness="1.5" VerticalAlignment="Center">
+                            <Border x:Name="SetupModelBadge" Width="32" Height="32" CornerRadius="2" BorderThickness="1.5" VerticalAlignment="Center">
                                 <TextBlock x:Name="SetupModelBadgeText" Text="1" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
@@ -116,7 +116,7 @@
                                 <Grid>
                                     <TextBlock x:Name="SetupProgressText" Style="{StaticResource Caption}" VerticalAlignment="Center" />
                                     <HyperlinkButton Content="Choose a different model" HorizontalAlignment="Right" Padding="4,2" FontSize="13"
-                                                     Foreground="{StaticResource ArcaneBrush}" Click="SetupOtherModel_Click" />
+                                                     Foreground="{StaticResource LinkBrush}" Click="SetupOtherModel_Click" />
                                 </Grid>
                             </StackPanel>
                         </Grid>
@@ -129,7 +129,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border x:Name="SetupMicBadge" Width="32" Height="32" CornerRadius="16" BorderThickness="1.5" VerticalAlignment="Center">
+                            <Border x:Name="SetupMicBadge" Width="32" Height="32" CornerRadius="2" BorderThickness="1.5" VerticalAlignment="Center">
                                 <TextBlock x:Name="SetupMicBadgeText" Text="2" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
@@ -178,15 +178,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid Width="64" Height="64" VerticalAlignment="Center">
-                            <Ellipse x:Name="StatusRing" StrokeThickness="2" />
+                            <Rectangle x:Name="StatusRing" StrokeThickness="2" />
                             <FontIcon x:Name="StatusIcon" Glyph="&#xE720;" FontSize="26" />
                         </Grid>
                         <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <Ellipse x:Name="StatusDot" Width="10" Height="10" VerticalAlignment="Center" />
-                                <TextBlock x:Name="StatusHeadline" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource BrightBrush}" TextWrapping="Wrap" />
-                            </StackPanel>
-                            <RichTextBlock x:Name="StatusText" FontSize="15" Foreground="{StaticResource BodyBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
+                            <TextBlock x:Name="StatusHeadline" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="27" FontWeight="Bold" TextWrapping="Wrap" />
+                            <RichTextBlock x:Name="StatusText" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="16" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
                         </StackPanel>
                         <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center">
                             <ToggleSwitch x:Name="ActiveSwitch" MinWidth="0" HorizontalAlignment="Right"
@@ -203,11 +200,11 @@
                             <Button x:Name="CopyHeardButton" Content="Copy" Style="{StaticResource QuietButton}" MinHeight="0" Padding="8,2"
                                     HorizontalAlignment="Right" Visibility="Collapsed" Click="CopyHeardButton_Click" />
                         </Grid>
-                        <RichTextBlock x:Name="LastHeardHint" FontSize="14" Foreground="{StaticResource BodyBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
-                        <TextBlock x:Name="LastHeardText" FontSize="16" Foreground="{StaticResource BrightBrush}"
+                        <RichTextBlock x:Name="LastHeardHint" FontSize="14" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
+                        <TextBlock x:Name="LastHeardText" FontSize="16" Foreground="{StaticResource SayBrush}"
                                    TextWrapping="Wrap" IsTextSelectionEnabled="True" Visibility="Collapsed" />
                         <TextBlock x:Name="LastHeardMeta" Style="{StaticResource Caption}" Visibility="Collapsed" />
-                        <TextBlock x:Name="LastHeardTooLong" FontSize="13" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"
+                        <TextBlock x:Name="LastHeardTooLong" FontSize="13" Foreground="{StaticResource ProblemBrush}" TextWrapping="Wrap"
                                    IsTextSelectionEnabled="True" Visibility="Collapsed" />
                     </StackPanel>
                 </ContentControl>
@@ -248,11 +245,10 @@
                 </Grid>
 
                 <HyperlinkButton x:Name="ActivityToggle" Grid.Row="4" Content="Show activity" Padding="4,2" Margin="-4,0,0,0" FontSize="13"
-                                 Foreground="{StaticResource ArcaneBrush}" Click="ActivityToggle_Click" />
+                                 Foreground="{StaticResource LinkBrush}" Click="ActivityToggle_Click" />
 
                 <!-- Styled like a WoW chat frame. -->
-                <Border x:Name="LogBorder" Grid.Row="5" Visibility="Collapsed" Background="{StaticResource ChatBrush}" BorderBrush="{StaticResource CardLineBrush}"
-                        BorderThickness="1" CornerRadius="6">
+                <Border x:Name="LogBorder" Grid.Row="5" Visibility="Collapsed" Background="{StaticResource PanelBrush}">
                     <ListView x:Name="LogList" SelectionMode="None" Padding="0,4">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
@@ -263,7 +259,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="models:LogLine">
                                 <TextBlock Text="{x:Bind Text}" Foreground="{x:Bind Brush}" TextWrapping="Wrap"
-                                           FontFamily="Cascadia Mono, Consolas" FontSize="12" IsTextSelectionEnabled="True" />
+                                           FontFamily="{StaticResource SofiaSansCondensed}" FontSize="14" IsTextSelectionEnabled="True" />
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
@@ -282,10 +278,10 @@
                             <StackPanel Spacing="3">
                                 <TextBlock x:Name="ModelHeroLabel" Style="{StaticResource Caption}" />
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock x:Name="ModelHeroName" FontSize="23" FontWeight="SemiBold" Foreground="{StaticResource BrightBrush}" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="ModelHeroName" FontSize="23" FontWeight="SemiBold" Foreground="{StaticResource SayBrush}" VerticalAlignment="Center" />
                                     <Border x:Name="ModelHeroBadge" BorderBrush="{StaticResource ToneReadyBrush}" Background="{StaticResource ToneReadyFillBrush}"
-                                            BorderThickness="1" CornerRadius="9" Padding="8,1,8,2" VerticalAlignment="Center">
-                                        <TextBlock Text="Recommended" FontSize="12" FontWeight="SemiBold" Foreground="#8FE6BC" />
+                                            BorderThickness="1" CornerRadius="2" Padding="6,1,6,2" VerticalAlignment="Center">
+                                        <TextBlock Text="Recommended" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ReadyBrush}" />
                                     </Border>
                                 </StackPanel>
                                 <TextBlock x:Name="ModelHeroBlurb" FontSize="14" TextWrapping="Wrap" />
@@ -311,7 +307,7 @@
                             <!-- Filled in code: one row per downloadable model, plus any the user added. -->
                             <ItemsControl x:Name="ModelList" ItemTemplate="{StaticResource ModelRowTemplate}" />
                             <HyperlinkButton x:Name="AdvancedToggle" Content="Show advanced models" Padding="4,2" Margin="-4,6,0,4" FontSize="13"
-                                             Foreground="{StaticResource ArcaneBrush}" Click="AdvancedToggle_Click" />
+                                             Foreground="{StaticResource LinkBrush}" Click="AdvancedToggle_Click" />
                             <ItemsControl x:Name="AdvancedModelList" ItemTemplate="{StaticResource ModelRowTemplate}" Visibility="Collapsed" />
                         </StackPanel>
                     </ContentControl>
@@ -324,10 +320,10 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Stop listening after a pause of" VerticalAlignment="Center" Foreground="{StaticResource StarlightBrush}" />
+                                <TextBlock Text="Stop listening after a pause of" VerticalAlignment="Center" Foreground="{StaticResource SayBrush}" />
                                 <Slider x:Name="PauseSlider" Grid.Column="1" Minimum="0.5" Maximum="4" StepFrequency="0.1"
                                         VerticalAlignment="Center" AutomationProperties.Name="Pause before it stops listening" />
-                                <TextBlock x:Name="PauseText" Grid.Column="2" MinWidth="36" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource ArcaneBrush}" />
+                                <TextBlock x:Name="PauseText" Grid.Column="2" MinWidth="36" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource LinkBrush}" />
                             </Grid>
                             <RichTextBlock x:Name="PauseHint" Style="{StaticResource RichCaption}" />
                         </StackPanel>
@@ -406,7 +402,7 @@
                                           DropDownOpened="MicCombo_DropDownOpened" SelectionChanged="MicCombo_SelectionChanged" />
                                 <Button Grid.Column="1" Content="Sound settings" Style="{StaticResource QuietButton}" Click="SoundSettings_Click" />
                             </Grid>
-                            <TextBlock x:Name="MicMessage" FontSize="13" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" Visibility="Collapsed" />
+                            <TextBlock x:Name="MicMessage" FontSize="13" Foreground="{StaticResource ProblemBrush}" TextWrapping="Wrap" Visibility="Collapsed" />
                         </StackPanel>
                     </ContentControl>
 
@@ -429,7 +425,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock x:Name="VersionText" Foreground="{StaticResource StarlightBrush}" />
+                                    <TextBlock x:Name="VersionText" Foreground="{StaticResource SayBrush}" />
                                     <TextBlock x:Name="UpdateStatusText" Text="Not checked yet." Style="{StaticResource Caption}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">

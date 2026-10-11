@@ -13,7 +13,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <FontIcon x:Name="IconGlyph" FontSize="22" Foreground="{StaticResource ArcaneBrush}" VerticalAlignment="Center" />
+            <FontIcon x:Name="IconGlyph" FontSize="22" Foreground="{StaticResource LinkBrush}" VerticalAlignment="Center" />
             <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                 <TextBlock x:Name="TitleText" Style="{StaticResource ItemTitle}" TextWrapping="Wrap" />
                 <TextBlock x:Name="BodyText" TextWrapping="Wrap" />

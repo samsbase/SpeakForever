@@ -67,8 +67,8 @@ public sealed partial class MainWindow
         if (cfg.KeyboardShortcut is not { } key) return null;
         return new Border
         {
-            Background = Brush("NightBrush"), BorderBrush = Brush("IndigoBrush"), BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 3, 8, 4), Margin = new Thickness(4, 0, 0, 0),
+            Background = Brush("KeyBrush"), BorderBrush = Brush("EdgeBrush"), BorderThickness = new Thickness(1, 1, 1, 2),
+            CornerRadius = new CornerRadius(2), Padding = new Thickness(8, 3, 8, 4), Margin = new Thickness(4, 0, 0, 0),
             Child = new TextBlock { Text = key, Style = (Style)Application.Current.Resources["KeycapText"], FontSize = 13 },
         };
     }
@@ -82,19 +82,19 @@ public sealed partial class MainWindow
         return overlay;
     }
 
-    /// <summary>Sizes the pill for its biggest messages with today's buttons, so every state fits the one pill.</summary>
+    /// <summary>Sizes the bar for its biggest messages with today's buttons, so every state fits the one bar.</summary>
     void FitOverlay() =>
         overlay!.FitTo(("Listening", FinishButton(controller: true), null, null),
                        ("Listening", FinishButton(controller: false), null, null),
                        (ReadyHeadline(true), null, ReadyDetail(controller: true, cutShort: true), WarningGlyph),
                        (ReadyHeadline(true), null, ReadyDetail(controller: false, cutShort: true), WarningGlyph));
 
-    /// <summary>After a rebind or a different controller: the new icons may be wider than the pill.</summary>
+    /// <summary>After a rebind or a different controller: the new icons may be wider than the bar.</summary>
     void RefitOverlay()
     {
         if (overlay is null) return;
         FitOverlay();
-        UpdateOverlay(); // fitting filled the pill: back to what it should be saying
+        UpdateOverlay(); // fitting filled the bar: back to what it should be saying
     }
 
     void CloseOverlay()

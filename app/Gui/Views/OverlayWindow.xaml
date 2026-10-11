@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Speak Forever overlay">
 
-    <!-- The window is sized to the pill in code, and see-through around its rounded ends (ClearBackdrop). -->
+    <!-- The window is sized to the bar in code, and see-through around it (ClearBackdrop). -->
     <Grid x:Name="Root" Background="Transparent">
         <Grid.Resources>
-            <!-- The bars rise and fall in turn, as on the website. Only scale is animated: it runs on the compositor. -->
+            <!-- The bars rise and fall with your voice. Only scale is animated: it runs on the compositor. -->
             <Storyboard x:Name="Wave">
                 <DoubleAnimation Storyboard.TargetName="Bar1" Storyboard.TargetProperty="ScaleY" From="0.4" To="1" Duration="0:0:0.5" AutoReverse="True" RepeatBehavior="Forever" />
                 <DoubleAnimation Storyboard.TargetName="Bar2" Storyboard.TargetProperty="ScaleY" From="0.4" To="1" Duration="0:0:0.5" AutoReverse="True" RepeatBehavior="Forever" BeginTime="0:0:0.2" />
@@ -18,32 +18,33 @@
             </Storyboard>
         </Grid.Resources>
 
-        <Border x:Name="Pill" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1" MinHeight="52" Padding="10,7,20,7" CornerRadius="26"
-                Background="#E60B0E1A" BorderBrush="{StaticResource ArcaneBrush}" BorderThickness="1.5">
+        <Border x:Name="Pill" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1" MinHeight="52" Padding="8,7,22,7" CornerRadius="2"
+                Background="#CC000000" BorderBrush="{StaticResource InkBrush}" BorderThickness="1">
             <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                 <!-- The button that finishes the dictation, as the controller's own icon, or the keyboard shortcut. -->
                 <Border x:Name="ButtonSlot" VerticalAlignment="Center" />
                 <!-- In place of the bars once it's done listening: ready to paste, or a warning. -->
                 <FontIcon x:Name="Icon" FontSize="22" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" />
                 <StackPanel VerticalAlignment="Center" Spacing="1">
-                    <TextBlock x:Name="Headline" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource BrightBrush}" />
-                    <RichTextBlock x:Name="Detail" FontSize="13" MaxWidth="440" Foreground="{StaticResource BodyBrush}" TextWrapping="Wrap"
+                    <!-- A chat-style tag, "[Listening]", in the state's colour. -->
+                    <TextBlock x:Name="Headline" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="19" FontWeight="SemiBold" />
+                    <RichTextBlock x:Name="Detail" FontFamily="{StaticResource SofiaSansCondensed}" FontSize="14" MaxWidth="440" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap"
                                    IsTextSelectionEnabled="False" Visibility="Collapsed" />
                 </StackPanel>
                 <StackPanel x:Name="Bars" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
-                    <Rectangle Width="3" Height="24" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource ArcaneBrush}" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle Width="3" Height="24" Fill="{StaticResource LinkBrush}" RenderTransformOrigin="0.5,0.5">
                         <Rectangle.RenderTransform><ScaleTransform x:Name="Bar1" ScaleY="0.4" /></Rectangle.RenderTransform>
                     </Rectangle>
-                    <Rectangle Width="3" Height="24" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource ArcaneBrush}" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle Width="3" Height="24" Fill="{StaticResource LinkBrush}" RenderTransformOrigin="0.5,0.5">
                         <Rectangle.RenderTransform><ScaleTransform x:Name="Bar2" ScaleY="0.55" /></Rectangle.RenderTransform>
                     </Rectangle>
-                    <Rectangle Width="3" Height="24" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource ArcaneBrush}" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle Width="3" Height="24" Fill="{StaticResource LinkBrush}" RenderTransformOrigin="0.5,0.5">
                         <Rectangle.RenderTransform><ScaleTransform x:Name="Bar3" ScaleY="0.7" /></Rectangle.RenderTransform>
                     </Rectangle>
-                    <Rectangle Width="3" Height="24" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource ArcaneBrush}" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle Width="3" Height="24" Fill="{StaticResource LinkBrush}" RenderTransformOrigin="0.5,0.5">
                         <Rectangle.RenderTransform><ScaleTransform x:Name="Bar4" ScaleY="0.55" /></Rectangle.RenderTransform>
                     </Rectangle>
-                    <Rectangle Width="3" Height="24" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource ArcaneBrush}" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle Width="3" Height="24" Fill="{StaticResource LinkBrush}" RenderTransformOrigin="0.5,0.5">
                         <Rectangle.RenderTransform><ScaleTransform x:Name="Bar5" ScaleY="0.4" /></Rectangle.RenderTransform>
                     </Rectangle>
                 </StackPanel>

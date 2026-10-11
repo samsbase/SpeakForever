@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logo.svg" width="128" alt="Speak Forever logo: a glowing blue infinity sign on a dark medallion"></p>
+<p align="center"><img src="assets/logo.svg" width="128" alt="Speak Forever logo: an orange infinity sign in square chat brackets"></p>
 
 # Speak Forever
 
@@ -77,7 +77,7 @@ Like Windows+H, the shortcut works in **any program**: press it and speak, then 
 
 ### The overlay
 
-While you speak, a small **Listening** pill shows at the top of the screen, over the game, with the button that finishes early. It says **Transcribing…**, then **Ready to paste** with the button that cancels, and stays until you paste it (or send or close chat). If a message is too long for the chat box, it says **Too long for chat** instead: only the start was copied.
+While you speak, a small **[Listening]** bar shows at the top of the screen, over the game, with the button that finishes early. It says **Transcribing…**, then **Ready to paste** with the button that cancels, and stays until you paste it (or send or close chat). If a message is too long for the chat box, it says **Too long for chat** instead: only the start was copied.
 
 It never takes focus from the game. It shows over WoW in **Windowed (Fullscreen)** or windowed mode (nothing can draw over exclusive fullscreen). Turn it off on the **Settings** tab.
 
@@ -87,7 +87,7 @@ A beep means it's listening. A rising two-tone means it heard you and is transcr
 
 ### The window
 
-The Home tab's status says what Speak Forever is doing and what to press next: **Ready**, **Listening…**, **Transcribing**, **Ready to paste**, or what it needs from you. **Active / Paused** beside it turns Speak Forever on and off. The logo in the title bar ripples while it's listening and quickens while transcribing.
+The Home tab's status says what Speak Forever is doing and what to press next: **Ready**, **Listening…**, **Transcribing**, **Ready to paste**, or what it needs from you. **Active / Paused** beside it turns Speak Forever on and off. The logo in the title bar glows while it's listening and pulses faster while transcribing.
 
 | Tab | What's there |
 |---|---|
@@ -219,7 +219,7 @@ Namespaces follow folders.
 | `app\Cli` | The command line; `Commands` has the benchmark and setup checks |
 | `tests\SpeakForever.Core.Tests` | The engine's tests |
 | `installer` | Inno Setup script and wizard art |
-| `tools` | Benchmark clips; `IconGen` draws the app icon and installer art (`IconGen icon <out.ico>`, `IconGen wizard installer\art app\Gui\Assets\Fonts\Cinzel.ttf`) |
+| `tools` | Benchmark clips; `IconGen` draws the app icon and installer art (`IconGen icon <out.ico>`, `IconGen wizard installer\art app\Gui\Assets\Fonts\Grenze.ttf`) |
 | `assets` | Logo SVGs |
 | `docs` | The website on GitHub Pages: one static page. Its screenshots are of the real app. |
 
@@ -229,4 +229,4 @@ Speak Forever was called Voice Forever (and before that ForeverVoice); data in t
 
 Speak Forever is free and open source under the [MIT License](LICENSE).
 
-The app's look is original artwork styled after WoW Classic's frames; headings use Cinzel (SIL Open Font License, bundled with its licence). Third-party licences are in `THIRD-PARTY-NOTICES.txt`, which ships with the app. World of Warcraft is a trademark of Blizzard Entertainment, Inc.; Speak Forever is not affiliated with or endorsed by Blizzard.
+The app and website share one design system, Chat Log: original artwork styled after WoW's chat frame. Headings use Grenze and text uses Sofia Sans (both SIL Open Font License, bundled with their licences). Third-party licences are in `THIRD-PARTY-NOTICES.txt`, which ships with the app. World of Warcraft is a trademark of Blizzard Entertainment, Inc.; Speak Forever is not affiliated with or endorsed by Blizzard.

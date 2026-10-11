@@ -32,8 +32,8 @@ public sealed partial class MainWindow : Window
 
     readonly Engine? engine;
     readonly ObservableCollection<LogLine> log = [];
-    readonly Brush normalBrush = Brush("PaleArcaneBrush");
-    readonly Brush warningBrush = Brush("WarningBrush");
+    readonly Brush normalBrush = Brush("TextBrush");
+    readonly Brush warningBrush = Brush("ProblemBrush");
     bool updating, shutDown;
     ButtonStyle? shownStyle; // the controller whose icons are showing
     DictationPhase phase;
@@ -103,11 +103,11 @@ public sealed partial class MainWindow : Window
         bar.PreferredHeightOption = TitleBarHeightOption.Tall;
         bar.ButtonBackgroundColor = Colors.Transparent;
         bar.ButtonInactiveBackgroundColor = Colors.Transparent;
-        bar.ButtonForegroundColor = ColorHelper.FromArgb(255, 0xB8, 0xCC, 0xFF);
-        bar.ButtonInactiveForegroundColor = ColorHelper.FromArgb(255, 0x8A, 0x93, 0xB8);
-        bar.ButtonHoverBackgroundColor = ColorHelper.FromArgb(255, 0x2E, 0x3F, 0x8F);
+        bar.ButtonForegroundColor = ColorHelper.FromArgb(255, 0xD8, 0xD8, 0xDE);
+        bar.ButtonInactiveForegroundColor = ColorHelper.FromArgb(255, 0x9D, 0x9D, 0x9D);
+        bar.ButtonHoverBackgroundColor = ColorHelper.FromArgb(255, 0x2E, 0x2E, 0x36);
         bar.ButtonHoverForegroundColor = Colors.White;
-        bar.ButtonPressedBackgroundColor = ColorHelper.FromArgb(255, 0x1B, 0x25, 0x60);
+        bar.ButtonPressedBackgroundColor = ColorHelper.FromArgb(255, 0x0A, 0x0A, 0x0C);
         bar.ButtonPressedForegroundColor = Colors.White;
         TitleBar.Padding = new Thickness(18, 0, bar.RightInset / scale, 0);
     }
@@ -172,7 +172,7 @@ public sealed partial class MainWindow : Window
         StatusHeadline.Text = headline;
         if (engine is null) ButtonPrompt.Fill(StatusText, detail);
         else ButtonPrompt.Fill(StatusText, detail, engine.ButtonStyle, Chord.Parse(engine.Config.OpenChatChord), Chord.Parse(engine.Config.DictateChord));
-        StatusDot.Fill = StatusRing.Stroke = StatusIcon.Foreground = Brush($"Tone{tone}Brush");
+        StatusHeadline.Foreground = StatusRing.Stroke = StatusIcon.Foreground = Brush($"Tone{tone}Brush");
         StatusRing.Fill = Brush($"Tone{tone}FillBrush");
         StatusIcon.Glyph = tone == StatusTone.Problem ? "\uE7BA" : "\uE720"; // warning, or the microphone
     }
