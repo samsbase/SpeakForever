@@ -9,9 +9,11 @@ namespace SpeakForever.Dictation;
 /// <summary>
 /// One dictation at a time: record until you pause (or press the trigger again) → transcribe →
 /// copy to the clipboard, for you to paste into chat with Ctrl+V. Speak Forever never presses a
-/// key in the game. The text is then ready to paste until you paste it (Ctrl+V) or chat closes,
-/// and pressing the trigger again first cancels it. From the controller it only starts with the game's
-/// chat box open; the keyboard shortcut works any time, like Win+H.
+/// key in the game. Once it's listening, only the trigger or a pause ends it: closing chat or
+/// pressing other buttons doesn't, so you can keep playing while you talk. The text is then ready
+/// to paste until you paste it (Ctrl+V) or chat closes, and pressing the trigger again first
+/// cancels it. From the controller it only starts with the game's chat box open; the keyboard
+/// shortcut works any time, like Win+H.
 /// </summary>
 /// <param name="settings">The current settings; each dictation reads them once, at its start.</param>
 /// <param name="currentModel">The loaded model at the moment it's needed; it can change between dictations.</param>
@@ -29,6 +31,9 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
 
     /// <summary>Text is on the clipboard, waiting to be pasted.</summary>
     public bool IsReady => ready;
+
+    /// <summary>Listening or transcribing: the trigger finishes it wherever you are.</summary>
+    public bool IsBusy => active is not null;
 
     /// <summary>Starts a dictation, finishes the recording in progress, or cancels text waiting to be pasted.</summary>
     /// <param name="trigger">The button or shortcut, for the log.</param>
@@ -74,33 +79,39 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
     }
 
     /// <summary>
-    /// The chat box is closing (sent, backed out of) or losing focus: drops a dictation in flight,
-    /// and text waiting to be pasted is done with. It stays on the clipboard.
+    /// The chat box is closing (sent, backed out of) or losing focus: text waiting to be pasted is
+    /// done with. It stays on the clipboard. A dictation still listening or transcribing carries on,
+    /// so you can fight while you talk and paste it when you open chat again.
     /// </summary>
     /// <param name="keepReady">A chat menu opened over the text box: text waiting to be pasted still is.</param>
     public void ChatClosing(string why, bool keepReady = false)
     {
-        bool cancelled = false, done = false;
+        if (keepReady) return;
+        bool done = false;
         lock (gate)
         {
-            if (active is not null)
-            {
-                active.Cancel();
-                cancelled = true;
-            }
-            if (ready && !keepReady)
+            if (ready)
             {
                 ready = false;
                 phase(DictationPhase.Idle);
                 done = true;
             }
         }
-        if (cancelled) Log.Info($"{why}, so the dictation was cancelled.");
         if (done) Log.Info($"{why}: finished with the copied text.");
     }
 
-    /// <summary>Drops any dictation in flight, for when the controller loop stops.</summary>
-    public void CancelAll() => ChatClosing("Paused");
+    /// <summary>Drops any dictation in flight and any text waiting to be pasted, for when Speak Forever is paused.</summary>
+    public void CancelAll()
+    {
+        bool cancelled;
+        lock (gate)
+        {
+            cancelled = active is not null;
+            active?.Cancel();
+        }
+        if (cancelled) Log.Info("Paused, so the dictation was cancelled.");
+        ChatClosing("Paused");
+    }
 
     async Task RunAsync(Config cfg, string trigger, CancellationTokenSource cts, CancellationTokenSource finish)
     {
@@ -164,7 +175,7 @@ sealed class Session(Func<Config> settings, Func<Transcriber?> currentModel, Act
         }
         catch (OperationCanceledException)
         {
-            // ChatClosing already reported it.
+            // CancelAll already reported it.
         }
         catch (Exception e)
         {

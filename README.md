@@ -61,7 +61,9 @@ Then **leave Speak Forever running** while you play. Play WoW in **Windowed (Ful
 3. Stop talking and it finishes after a 1.5 second pause, or **click RS again** to finish straight away. A rising two-tone beep means it heard you, and a second or two later the overlay says **Ready to paste**.
 4. **Ctrl+V** pastes it into the chat box. Check it, then **A** sends it. **B** backs out. **X** changes channel, as normal.
 
-Changed your mind? **Click RS again** while it says *Ready to paste*: that cancels it and takes it off the clipboard. Click RS once more to dictate again. Pasting it (Ctrl+V), or sending or closing chat (A, B, Enter or Esc), finishes with it, and RS dictates again straight away; the text stays on the clipboard until the next dictation replaces it. Pressing A or B while you're speaking discards it.
+Changed your mind? **Click RS again** while it says *Ready to paste*: that cancels it and takes it off the clipboard. Click RS once more to dictate again. Pasting it (Ctrl+V), or sending or closing chat (A, B, Enter or Esc), finishes with it, and RS dictates again straight away; the text stays on the clipboard until the next dictation replaces it.
+
+**Keep playing while you talk:** once it's listening, only a pause or **RS** ends it. Closing chat, opening a menu or pressing any other button doesn't, so you can keep fighting while you speak. When it says *Ready to paste*, open chat and paste it. The keyboard shortcut works the same way.
 
 **Pasting from the controller:** Speak Forever doesn't press Ctrl+V for you, to stay within Blizzard's rules. To paste without reaching for the keyboard, map a spare button to Ctrl+V in your controller's own software or in Steam Input, or use a controller that can send keyboard keys itself.
 

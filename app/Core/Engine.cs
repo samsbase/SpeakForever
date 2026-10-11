@@ -471,8 +471,9 @@ public sealed class Engine : IAsyncDisposable
             case ChatAction.Dictate:
                 session.Start(b.Dictate.Text);
                 break;
-            // Text waiting to be pasted: the dictate button cancels it wherever you are, as the overlay says.
-            case ChatAction.DictateWhileClosed or ChatAction.DictateInMenu when session.IsReady:
+            // Wherever you are, the dictate button finishes what it started (you kept playing while you
+            // talked) or cancels text waiting to be pasted, as the overlay says.
+            case ChatAction.DictateWhileClosed or ChatAction.DictateInMenu when session.IsBusy || session.IsReady:
                 session.Start(b.Dictate.Text);
                 break;
             // Often a binding of its own in the game, so these are noted, not complained about.
