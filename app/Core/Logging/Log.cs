@@ -12,8 +12,10 @@ public static class Log
 {
     static readonly Lock ConsoleGate = new();
     static readonly Channel<string> FileLines = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true });
+    static readonly TimeSpan OpenRetryDelay = TimeSpan.FromMilliseconds(250);
+    static readonly TimeSpan OpenTimeout = TimeSpan.FromSeconds(30);
     static Task? fileWriter;
-    static volatile bool toConsole;
+    static volatile bool toConsole, toFile;
 
     /// <summary>Raised for every line, on the thread that logged it.</summary>
     public static event Action<string, bool>? Written;
@@ -28,21 +30,38 @@ public static class Log
     public static void ToFile(string fileName)
     {
         if (fileWriter is not null) return;
-        var path = Path.Combine(AppPaths.Root, fileName);
-        StreamWriter file;
-        try
-        {
-            Directory.CreateDirectory(AppPaths.Root);
-            // Shared for reading, so the log can be tailed while the app runs.
-            file = new StreamWriter(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, bufferSize: 4096, useAsync: true));
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        {
-            Warn($"Couldn't write the log file {path}: {e.Message}");
-            return;
-        }
-        fileWriter = Task.Run(() => WriteFileAsync(file));
+        toFile = true; // lines queue from now on, while the file is opened
+        fileWriter = Task.Run(() => WriteFileAsync(Path.Combine(AppPaths.Root, fileName)));
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Flush();
+    }
+
+    /// <summary>
+    /// Opens the log file, waiting while another copy still has it: after an update, or when
+    /// reopened straight after closing, the old copy holds it for the seconds it takes to shut down.
+    /// </summary>
+    static async Task<StreamWriter?> OpenAsync(string path)
+    {
+        for (var waited = TimeSpan.Zero; ; waited += OpenRetryDelay)
+        {
+            try
+            {
+                Directory.CreateDirectory(AppPaths.Root);
+                // Shared for reading, so the log can be tailed while the app runs.
+                var file = new StreamWriter(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, bufferSize: 4096, useAsync: true));
+                if (waited > TimeSpan.Zero) Info($"Waited {waited.TotalSeconds:F1} s for another copy of Speak Forever to let go of the log file.");
+                return file;
+            }
+            catch (IOException) when (waited < OpenTimeout)
+            {
+                await Task.Delay(OpenRetryDelay).ConfigureAwait(false);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                toFile = false;
+                Warn($"Couldn't write the log file {path}: {e.Message}");
+                return null;
+            }
+        }
     }
 
     /// <summary>Writes out any queued lines and stops file logging; for shutdown.</summary>
@@ -53,8 +72,9 @@ public static class Log
         fileWriter?.Wait(TimeSpan.FromSeconds(2));
     }
 
-    static async Task WriteFileAsync(StreamWriter file)
+    static async Task WriteFileAsync(string path)
     {
+        if (await OpenAsync(path).ConfigureAwait(false) is not { } file) return;
         await using (file.ConfigureAwait(false))
         {
             // Everything queued is written, then flushed once: one disk write per burst of lines.
@@ -79,7 +99,7 @@ public static class Log
                 Console.ResetColor();
             }
         }
-        if (fileWriter is not null) FileLines.Writer.TryWrite(warning ? "! " + line : line);
+        if (toFile) FileLines.Writer.TryWrite(warning ? "! " + line : line);
         Written?.Invoke(line, warning);
     }
 }
