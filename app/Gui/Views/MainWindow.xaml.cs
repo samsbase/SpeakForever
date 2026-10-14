@@ -120,8 +120,14 @@ public sealed partial class MainWindow : Window
     {
         double width = Body.ActualWidth - Body.Padding.Left - Body.Padding.Right;
         if (width <= 0) return;
-        // Hidden tabs aren't laid out, so each is measured at the width it will get. Home, which
-        // isn't a scrolling tab, counts too: its activity log only takes whatever height is left.
+        // A collapsed tab measures short (the model rows' buttons came out 18 px shorter, so Voice
+        // model scrolled), so every tab is shown for one layout pass. Nothing draws until this returns.
+        FrameworkElement[] pages = [DictationPage, ModelPage, ButtonsPage, SettingsPage];
+        var shown = pages.Select(p => p.Visibility).ToArray();
+        foreach (var page in pages) page.Visibility = Visibility.Visible;
+        Root.UpdateLayout();
+        // Each is measured at the width it will get. Home, which isn't a scrolling tab, counts too:
+        // its activity log only takes whatever height is left.
         UIElement?[] tabs = [DictationPage, ModelPage.Content as UIElement, ButtonsPage.Content as UIElement, SettingsPage.Content as UIElement,
                              inSetup ? SetupPage.Content as UIElement : null];
         double tallest = 0;
@@ -130,6 +136,7 @@ public sealed partial class MainWindow : Window
             tab.Measure(new Size(width, double.PositiveInfinity));
             tallest = Math.Max(tallest, tab.DesiredSize.Height);
         }
+        for (int i = 0; i < pages.Length; i++) pages[i].Visibility = shown[i];
         double extra = tallest - (Body.ActualHeight - TabsBar.ActualHeight); // the tab bar is hidden, so 0 high, during setup
         var work = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest).WorkArea;
         int height = (int)Math.Min(work.Height, AppWindow.Size.Height + Math.Ceiling(extra * Root.XamlRoot.RasterizationScale));
