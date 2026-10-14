@@ -17,10 +17,17 @@ public sealed class NameCorrectorTests
     [InlineData("Shaman here with Maele Strom Weapon.", "Shaman here with Maelstrom Weapon.")]
     [InlineData("Nomearegan and Stratham runs, rez me please.", "Gnomeregan and Stratholme runs, rez me please.")]
     [InlineData("No Morrigan tonight?", "Gnomeregan tonight?")]
+    [InlineData("Anyone want to run dead mines? Meet me at the Iron Forge bank.", "Anyone want to run Deadmines? Meet me at the Ironforge bank.")]
+    [InlineData("Is the auction house in Under City cheaper?", "Is the auction house in Undercity cheaper?")]
+    [InlineData("Let's meet at the entrance to Black Rock Mountain.", "Let's meet at the entrance to Blackrock Mountain.")]
+    [InlineData("Druids, please innovate the priest, not the warlock.", "Druids, please Innervate the priest, not the warlock.")]
+    [InlineData("Can someone Innovate me?", "Can someone Innervate me?")]
+    [InlineData("innovate our healers", "Innervate our healers")]
     public void MisheardNamesArePutBack(string heard, string expected) => Assert.Equal(expected, Correct(heard));
 
     [Theory]
-    [InlineData("Can a druid innovate me?")] // a real word: Innervate sounds too close to it to use
+    [InlineData("We need to innovate the way we pull.")] // innovate with no one as its object stays
+    [InlineData("They love to innovate, you know.")]
     [InlineData("Can a druid inervate me?")]
     [InlineData("Anyone want to run Hall of Things?")] // all real words: left for the prompt to get right
     [InlineData("Thanks for the group, see you tomorrow.")]
@@ -39,6 +46,8 @@ public sealed class NameCorrectorTests
     [InlineData("hey Legolaz want to group up")]
     [InlineData("Arthaz is our guild leader")]
     [InlineData("sry lagging hard rn")]
+    [InlineData("The mines are dead quiet under the city.")] // real words that don't join into a name
+    [InlineData("Meet me in Thunder Bluff.")] // a name already spelled with spaces stays as it is
     public void EverythingElseIsLeftAlone(string said) => Assert.Equal(said, Correct(said));
 
     [Fact]

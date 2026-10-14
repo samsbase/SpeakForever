@@ -9,3 +9,8 @@ dist/
 
 # Microsoft's Visual C++ runtime installer: build.ps1 -Installer downloads it (24 MB, signed by Microsoft).
 installer/redist/
+
+# Microphone recordings for checking accuracy (tens of MB each).
+exampleAudio.wav
+longExample.wav
+longExample2.wav

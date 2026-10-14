@@ -11,7 +11,8 @@ namespace SpeakForever.Speech;
 /// <item>Only stretches of speech with at least one word that isn't English (nor chat slang) are
 /// changed. Whisper spells real words itself, so "innovate" stays "innovate".</item>
 /// <item>A one-word name that is itself a real word, or sounds the same as one, is never used:
-/// Innervate (innovate), Everlook (overlook), Mograine (migraine).</item>
+/// Innervate (innovate), Everlook (overlook), Mograine (migraine). Innervate alone comes back
+/// where someone is the object: "innovate the priest".</item>
 /// </list>
 /// </summary>
 public sealed partial class NameCorrector
@@ -72,26 +73,38 @@ public sealed partial class NameCorrector
     /// <summary>The text with names put back, and what was changed.</summary>
     public (string Text, IReadOnlyList<(string Heard, string Name)> Changes) Correct(string text)
     {
+        // Innervate is left out of the names for sounding like "innovate", and Whisper always writes
+        // that. Only where someone is the object ("innovate the priest") is it the spell.
+        var innervated = InnovateSomeone().Matches(text).Select(m => (m.Value, "Innervate")).ToList();
+        text = InnovateSomeone().Replace(text, "Innervate");
+
         var tokens = Token().Matches(text);
         var candidates = new List<(double Score, int Start, int End, string Name, string Heard)>();
         for (int i = 0; i < tokens.Count; i++)
         {
             for (int j = i; j < Math.Min(i + MaxSpanWords, tokens.Count); j++)
             {
-                // A span is words separated only by spaces, with at least one that isn't a real word.
+                // A span is words separated only by spaces. One with a word that isn't real may sound
+                // like a name; one of only real words is used only where it spells a name split
+                // apart ("dead mines" is Deadmines), never by sound.
                 if (j > i && !string.IsNullOrWhiteSpace(text[(tokens[j - 1].Index + tokens[j - 1].Length)..tokens[j].Index])) break;
                 bool anyNonWord = false;
                 for (int t = i; t <= j && !anyNonWord; t++) anyNonWord = !IsWord(tokens[t].Value);
-                if (!anyNonWord) continue;
+                int spanWords = j - i + 1;
+                if (!anyNonWord && spanWords == 1) continue;
 
                 int start = tokens[i].Index, end = tokens[j].Index + tokens[j].Length;
                 var heard = text[start..end];
                 string sound = Sound(heard), letters = Letters(heard);
                 if (sound.Length == 0) continue;
-                int spanWords = j - i + 1;
                 foreach (var name in names)
                 {
                     if (Math.Abs(name.Words - spanWords) > 1 || sound[0] != name.Sound[0] || Math.Abs(sound.Length - name.Sound.Length) > 2) continue;
+                    if (!anyNonWord)
+                    {
+                        if (name.Words < spanWords && letters == name.Letters) candidates.Add((-1, start, end, name.Text, heard));
+                        continue;
+                    }
                     if (letters == name.Letters)
                     {
                         // Already this name, give or take case and apostrophes: it claims these words first.
@@ -118,7 +131,7 @@ public sealed partial class NameCorrector
         var result = new StringBuilder(text);
         foreach (var c in changes.OrderByDescending(c => c.Start))
             result.Remove(c.Start, c.End - c.Start).Insert(c.Start, c.Name);
-        return (result.ToString(), [.. changes.OrderBy(c => c.Start).Select(c => (c.Heard, c.Name))]);
+        return (result.ToString(), [.. innervated, .. changes.OrderBy(c => c.Start).Select(c => (c.Heard, c.Name))]);
     }
 
     bool IsWord(string word) =>
@@ -219,4 +232,8 @@ public sealed partial class NameCorrector
 
     [GeneratedRegex(@"[A-Za-z']+")]
     private static partial Regex WordPart();
+
+    [GeneratedRegex(@"\binnovate(?=\s+(?:me|him|her|(?:the|a|an|our|your|my)\s+(?:druid|hunter|mage|paladin|priest|rogue|shaman|warlock|warrior|healer|tank)s?)\b)",
+        RegexOptions.IgnoreCase)]
+    private static partial Regex InnovateSomeone();
 }
