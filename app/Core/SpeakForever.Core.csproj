@@ -25,6 +25,7 @@
   <ItemGroup>
     <!-- SDL_GameControllerDB (zlib licence): mappings for controllers SDL doesn't know itself. -->
     <None Include="Input/gamecontrollerdb.txt" Link="gamecontrollerdb.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Speech/ggml-silero-v6.2.0.bin" Link="ggml-silero-v6.2.0.bin" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

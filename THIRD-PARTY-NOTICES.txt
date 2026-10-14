@@ -9,6 +9,11 @@ whisper.cpp and ggml
   Georgi Gerganov and contributors, https://github.com/ggml-org/whisper.cpp
   MIT License
 
+Silero VAD (ggml-silero-v6.2.0.bin: tells your voice from typing and other noise)
+  Silero Team, https://github.com/snakers4/silero-vad
+  MIT License. Converted to the ggml format by the whisper.cpp project:
+  https://huggingface.co/ggml-org/whisper-vad
+
 Whisper.net
   Sandro Hanea and contributors, https://github.com/sandrohanea/whisper.net
   MIT License

@@ -14,6 +14,7 @@ public static class Recorder
     public const int SampleRate = 16000;
     const int PaddingSamples = SampleRate * 300 / 1000;
     const int InitialSeconds = 10;
+    const int VoiceCheckSamples = SampleRate * 150 / 1000;
 
     /// <summary>Every 30 ms while recording: how loud the mic is, 0 to 1. Raised on the audio thread.</summary>
     public static event Action<double>? Level;
@@ -28,6 +29,9 @@ public static class Recorder
         var samples = new List<float>(SampleRate * InitialSeconds);
         var endpointer = new Endpointer(cfg);
         var finished = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        // The last pause and a second before it is all the detector needs to see; a few ms each check.
+        using var voice = VoiceDetector.TryCreate();
+        int voiceWindow = (cfg.SilenceMs + 1000) * SampleRate / 1000, voiceCheckedAt = 0;
 
         using var wave = new WaveIn
         {
@@ -49,6 +53,13 @@ public static class Recorder
 
                 while (endpointer.Consumed + Endpointer.FrameSamples <= samples.Count)
                 {
+                    if (voice is not null && endpointer.Consumed - voiceCheckedAt >= VoiceCheckSamples)
+                    {
+                        voiceCheckedAt = endpointer.Consumed;
+                        int from = Math.Max(0, voiceCheckedAt - voiceWindow);
+                        int end = voice.LastVoiceEnd(CollectionsMarshal.AsSpan(samples)[from..voiceCheckedAt]);
+                        endpointer.Voice(end < 0 ? -1 : from + end);
+                    }
                     var frame = CollectionsMarshal.AsSpan(samples).Slice(endpointer.Consumed, Endpointer.FrameSamples);
                     if (endpointer.Feed(frame) is { } outcome) finished.TrySetResult(outcome);
                     Level?.Invoke(endpointer.Loudness);

@@ -104,6 +104,36 @@ public sealed class EndpointerTests
         Assert.InRange(Last(Tone(0.3, 0.1)), 0.9, 1);
     }
 
+    /// <summary>As Run, with a voice detector that hears a voice between these times, checking every 150 ms like Recorder.</summary>
+    Outcome RunWithVoice(double voiceFrom, double voiceTo, params float[][] parts)
+    {
+        var audio = parts.SelectMany(p => p).Concat(Quiet(10)).ToArray();
+        var e = new Endpointer(new Config());
+        for (int i = 0; i + Frame <= audio.Length; i += Frame)
+        {
+            if (i / Frame % 5 == 0) e.Voice(i >= voiceFrom * Rate ? (int)Math.Min(i, voiceTo * Rate) : -1);
+            if (e.Feed(audio.AsSpan(i, Frame)) is { } done) return new(done, (i + Frame) / (double)Rate, e.EndedBy, e.Levels, e.SpeechStartSample / (double)Rate);
+        }
+        return new(null, audio.Length / (double)Rate, e.EndedBy, e.Levels, e.SpeechStartSample / (double)Rate);
+    }
+
+    [Fact]
+    public void TypingAfterSpeechDoesNotKeepItListening()
+    {
+        // 3 s of talking, then 6 s of typing just as loud: the pause is timed from the voice.
+        var r = RunWithVoice(0.2, 3.2, Quiet(0.15), Tone(3, 0.1), Tone(6, 0.05));
+        Assert.True(r.Result);
+        Assert.InRange(r.At - 3.2, 1.35, 1.8);
+    }
+
+    [Fact]
+    public void LoudNoiseWithNoVoiceIsNoSpeech()
+    {
+        var r = RunWithVoice(double.MaxValue, 0, Quiet(0.15), Tone(10, 0.05));
+        Assert.False(r.Result);
+        Assert.InRange(r.At, 5.9, 6.2); // the no-speech timeout, not the 120 s limit
+    }
+
     [Fact]
     public void AClickAsTheMicOpensIsIgnored()
     {

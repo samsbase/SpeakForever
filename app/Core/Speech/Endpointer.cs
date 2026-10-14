@@ -5,7 +5,8 @@ namespace SpeakForever.Speech;
 /// <summary>
 /// Energy-based end-of-speech detection over 30 ms frames. The room's noise level is the quietest
 /// 150 ms seen so far, not a sample taken at the start: people often talk straight after the beep,
-/// and the gaps between their phrases still show the real background.
+/// and the gaps between their phrases still show the real background. Once a <see cref="VoiceDetector"/>
+/// reports in, the pause is timed from the last voice instead, so typing and game sounds don't count.
 /// </summary>
 public sealed class Endpointer(Config cfg)
 {
@@ -21,11 +22,22 @@ public sealed class Endpointer(Config cfg)
     readonly List<double> framePower = [];
     double noiseDb = double.MaxValue, loudestDb = double.MinValue;
     int speechStartFrame = -1, lastLoudFrame = -1;
+    // From the voice detector, once it has run: loudness can't tell typing from talking, so where
+    // it has an answer, the pause is timed from the last voice, not the last loud sound.
+    bool voiceChecked;
+    int lastVoiceSample = -1;
 
     public int Consumed { get; private set; }
     public int SpeechStartSample => speechStartFrame < 0 ? -1 : speechStartFrame * FrameSamples;
-    public int LastSpeechSample => (lastLoudFrame + 1) * FrameSamples;
-    public bool HeardSpeech => speechStartFrame >= 0;
+    public int LastSpeechSample => lastVoiceSample >= 0 ? lastVoiceSample : (lastLoudFrame + 1) * FrameSamples;
+    public bool HeardSpeech => speechStartFrame >= 0 && (!voiceChecked || lastVoiceSample >= 0);
+
+    /// <summary>The voice detector's verdict on the audio so far: where the last voice ends, in samples, or -1 for none yet.</summary>
+    public void Voice(int lastVoiceEnd)
+    {
+        voiceChecked = true;
+        lastVoiceSample = Math.Max(lastVoiceSample, lastVoiceEnd);
+    }
     public string EndedBy { get; set; } = "?";
     public string Levels => $"Levels: background {noiseDb:F0} dB, speech above {Threshold:F0} dB, loudest {loudestDb:F0} dB.";
 
@@ -78,7 +90,12 @@ public sealed class Endpointer(Config cfg)
             }
         }
 
-        int quietMs = (n - 1 - lastLoudFrame) * FrameMs;
+        // Loud but no voice yet (typing, a click, the game) is no speech, and times out like silence.
+        if (voiceChecked && lastVoiceSample < 0)
+            return n * FrameMs >= cfg.NoSpeechTimeoutSeconds * 1000 ? false : null;
+        int quietMs = voiceChecked
+            ? (Consumed - lastVoiceSample) * 1000 / Recorder.SampleRate
+            : (n - 1 - lastLoudFrame) * FrameMs;
         if (quietMs >= cfg.SilenceMs) EndedBy = $"after a {cfg.SilenceMs / 1000.0:F1} s pause";
         else if (n * FrameMs >= cfg.MaxSeconds * 1000) EndedBy = $"at the {cfg.MaxSeconds} s limit";
         else return null;
