@@ -110,14 +110,14 @@ Your voice is recognised on your PC and never sent anywhere. Speak Forever conne
 - **Pasting needs Ctrl+V**: a keyboard, or a button mapped to it (see *Pasting from the controller*).
 - **Your clipboard is used.** Each dictation replaces what was on it. It's kept out of Windows clipboard history (Win+V) and cloud clipboard sync.
 - **WoW's chat box holds 255 characters**, about 40–50 words. Only what fits is copied, cut at the last whole word; the overlay and the Home tab say what was left out.
-- **Dictation ends on a pause**, detected by volume. Loud game audio through speakers can keep it listening; a headset avoids that.
+- **Dictation ends on a pause** in your voice. A small voice detector (Silero VAD) tells speech from typing, clicks and game sounds, but voices from speakers, such as NPC dialogue or voice chat, still count as speech; a headset avoids that.
 - **You paste and send:** Speak Forever doesn't read the game or send it any input, in keeping with Blizzard's rules. It puts your own dictated words on the clipboard, and the rest is up to you.
 
 ## Troubleshooting
 
 - **Nothing to paste:** check the Home tab's status and notices. Speak Forever needs a voice model, and RS only dictates with chat open. The activity log says why each attempt was refused.
 - **"Chat isn't open":** open chat with LB+RB+Down (or the radial menu), not Enter, or use the keyboard shortcut.
-- **It keeps listening:** raise the pause on the Voice model tab, or `SpeechThresholdDb` in the settings file, if game sound from speakers is being heard.
+- **It keeps listening:** voices from your speakers (NPC dialogue, voice chat) count as speech. Use a headset, or click RS again to finish. The activity log says why each recording ended.
 - **No overlay:** it's on the Settings tab, and it can't show over exclusive fullscreen: set WoW's display mode to Windowed (Fullscreen).
 - The log is also written to `%LOCALAPPDATA%\SpeakForever\speakforever.log`.
 
@@ -139,7 +139,7 @@ Most settings are in the app. The file is plain JSON, checked at launch: a missp
 | `MenuChords` | `X`, `Y` | The chat panel's Chat Channels and Tab Settings menus |
 | `CheckForUpdates` | `true` | Check GitHub for new versions at launch and every 6 hours. Set on the Settings tab. |
 | `Prompt` | WoW: Forever names | Words Whisper should expect: dungeons and raids (the new ones too), zones, and abilities and slang it would otherwise mishear. Without it, it hears "Iron Fudge" and "Dead Minds". Whisper reads only about the last 224 tokens (roughly 150 words), so to add your guild's or friends' names, remove something first, and put what matters most at the end. |
-| `CorrectNames` | `true` | Puts WoW: Forever names back where Whisper wrote something that sounds like one but isn't a real word ("Stratham" becomes Stratholme, "Chandra Lass" becomes Shen'dralas). Real words and chat slang are never changed, and neither are names that sound like a real word, such as Innervate. The names are in `app/Core/Speech/Names/wow-names.txt`. |
+| `CorrectNames` | `true` | Puts WoW: Forever names back where Whisper wrote something that sounds like one but isn't a real word ("Stratham" becomes Stratholme, "Chandra Lass" becomes Shen'dralas). Real words split from a name are joined back ("dead mines" becomes Deadmines). Other real words and chat slang are never changed, and neither are names that sound like a real word, except Innervate where someone is its object ("innovate the priest"). The names are in `app/Core/Speech/Names/wow-names.txt`. |
 | `ModelPath` | set by **Use** | The voice model in use |
 | `Language` | `en` | Whisper language code, or `auto` |
 | `UseGpu` | `true` | Vulkan graphics card; `false` for the processor only. Takes effect after a restart. |
